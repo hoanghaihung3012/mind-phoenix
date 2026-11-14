@@ -84,12 +84,25 @@
     .mascot-scene { display: grid; place-items: center; }
     .mascot-scene::after { display: none; }
     .mascot-scene::before { content: ''; position: absolute; width: 180px; aspect-ratio: 1; border: 1px solid rgba(23,26,23,.18); border-radius: 50%; }
-    .mascot-scene svg { position: relative; z-index: 1; width: 74%; height: 92%; overflow: visible; transition: transform .35s; }
-    .channel:hover .mascot-scene svg { transform: translateY(-5px) rotate(-2deg); }
+    .mascot-scene .mascot { position: absolute; z-index: 1; left: 50%; bottom: 8%; width: auto; height: 82%; max-width: 92%; object-fit: contain; transform: translateX(-50%); transition: transform .35s, opacity .2s; filter: drop-shadow(0 10px 14px rgba(23,26,23,.16)); }
+    .mascot-scene .mascot-wow { opacity: 0; }
+    .channel:hover .mascot-scene .mascot, .channel:focus-visible .mascot-scene .mascot { transform: translateX(-50%) translateY(-6px) rotate(-2deg); }
+    .channel:hover .mascot-happy, .channel:focus-visible .mascot-happy { opacity: 0; }
+    .channel:hover .mascot-wow, .channel:focus-visible .mascot-wow { opacity: 1; }
+    .channel-host { display: flex; align-items: center; gap: 7px; margin: 10px 0 0; font: 500 11px var(--mono); color: var(--ink); }
+    .channel-host b { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--channel-color); font-weight: 500; }
+    .hosts { position: absolute; z-index: 1; right: 4%; bottom: 0; display: flex; align-items: flex-end; gap: 1.2vw; pointer-events: none; }
+    .hosts img { width: auto; height: clamp(80px, 10vw, 150px); animation: bob 3.6s ease-in-out infinite; }
+    .hosts img:nth-child(2) { animation-delay: -.9s; }
+    .hosts img:nth-child(3) { animation-delay: -1.8s; }
+    .hosts img:nth-child(4) { animation-delay: -2.7s; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .statement .statement-inner { padding-right: 44%; }
+    .statement blockquote { font-size: clamp(38px, 4.6vw, 72px); }
     .channel-code { position: absolute; z-index: 1; top: 13px; left: 14px; padding: 6px 8px; background: var(--channel-color); font: 500 10px var(--mono); }
     .channel-arrow { position: absolute; z-index: 1; right: 14px; bottom: 13px; color: white; font-size: 21px; }
     .channel-name { margin: 0; font: 600 21px var(--display); letter-spacing: 0; }
-    .channel-description { min-height: 48px; margin: 8px 0 0; color: #62665e; font-size: 12px; line-height: 1.6; }
+    .channel-description { min-height: 58px; margin: 8px 0 0; color: #62665e; font-size: 12px; line-height: 1.6; }
     .channel-tag { display: inline-block; margin-top: 15px; font: 400 10px var(--mono); text-transform: uppercase; color: #65695f; }
 
     .approach { padding: 120px 0 125px; }
@@ -105,7 +118,7 @@
     .step p { max-width: 480px; margin: 9px 0 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
 
     .statement { min-height: 420px; display: flex; align-items: center; position: relative; overflow: hidden; background: var(--lime); }
-    .statement::before { content: 'M'; position: absolute; right: 4%; bottom: -34%; color: rgba(23,26,23,.06); font: 700 min(60vw, 700px)/.8 var(--display); letter-spacing: 0; }
+    .statement::before { display: none; content: 'M'; position: absolute; right: 4%; bottom: -34%; color: rgba(23,26,23,.06); font: 700 min(60vw, 700px)/.8 var(--display); letter-spacing: 0; }
     .statement-inner { position: relative; z-index: 1; padding: 92px 0; }
     .statement blockquote { max-width: 900px; margin: 24px 0 0; font: 500 clamp(38px, 6vw, 82px)/1.02 var(--display); letter-spacing: 0; }
     .statement blockquote em { font-family: var(--serif); font-weight: 400; }
@@ -139,6 +152,9 @@
       .channel:nth-child(3) { padding-left: 0; }
       .channel-visual { height: 210px; }
       .approach-layout { gap: 7%; grid-template-columns: .8fr 1.2fr; }
+      .statement .statement-inner { padding-right: 0; padding-bottom: 210px; }
+      .hosts { left: 50%; right: auto; transform: translateX(-50%); gap: 18px; }
+      .hosts img, .hosts img:nth-child(2) { height: 150px; }
     }
     @media (max-width: 600px) {
       .wrap { width: calc(100% - 40px); }
@@ -184,6 +200,11 @@
       .step { grid-template-columns: 34px 1fr; gap: 10px; padding: 21px 0; }
       .step h3 { font-size: 20px; }
       .statement { min-height: 340px; }
+      .statement .statement-inner { padding-bottom: 150px; }
+      .hosts { gap: 6px; }
+      .hosts img, .hosts img:nth-child(2) { height: 80px; }
+      .mascot-scene .mascot { height: 68%; bottom: 7%; }
+      .channel-host { font-size: 10px; }
       .statement-inner { padding: 70px 0; }
       .statement blockquote { font-size: clamp(39px, 10vw, 58px); }
       .statement::before { right: -15%; bottom: -13%; font-size: 95vw; }
@@ -247,27 +268,31 @@
         </div>
         <div class="channel-grid">
           <a class="channel reveal" href="https://www.youtube.com/results?search_query=Mind+Math" target="_blank" rel="noopener noreferrer" style="--channel-color:#f0d95c">
-            <div class="channel-visual mascot-scene"><svg viewBox="0 0 240 240" role="img" aria-label="A curious owl mascot for Mind Math"><path d="m63 78-14-42 45 21m83 21 14-42-45 21" fill="#fffdf3" stroke="#20251e" stroke-width="6" stroke-linejoin="round"/><ellipse cx="120" cy="133" rx="71" ry="78" fill="#fffdf3" stroke="#20251e" stroke-width="6"/><path d="M60 140q-30 4-29 31 16 15 34 8m115-39q30 4 29 31-16 15-34 8" fill="#e97750" stroke="#20251e" stroke-width="5" stroke-linejoin="round"/><circle cx="94" cy="117" r="23" fill="#f0d95c" stroke="#20251e" stroke-width="5"/><circle cx="146" cy="117" r="23" fill="#f0d95c" stroke="#20251e" stroke-width="5"/><circle cx="100" cy="118" r="7" fill="#20251e"/><circle cx="140" cy="118" r="7" fill="#20251e"/><path d="m120 133-12 15h24z" fill="#e97750" stroke="#20251e" stroke-width="4" stroke-linejoin="round"/><path d="M100 203v12m40-12v12m-48 4h18m30 0h18" stroke="#20251e" stroke-width="6" stroke-linecap="round"/><path d="M90 173q30 24 60 0" fill="none" stroke="#20251e" stroke-width="4" stroke-linecap="round"/></svg><span class="channel-code">01 / LOGIC</span><span class="channel-arrow">↗</span></div>
+            <div class="channel-visual mascot-scene"><img class="mascot mascot-happy" src="assets/mascots/mindmath-sigma-happy.webp" alt="Σ (Sigma), the Mind Math mascot" width="400" height="520" loading="lazy"><img class="mascot mascot-wow" src="assets/mascots/mindmath-sigma-wow.webp" alt="" aria-hidden="true" width="400" height="520" loading="lazy"><span class="channel-code">01 / LOGIC</span><span class="channel-arrow">↗</span></div>
             <h3 class="channel-name">Mind Math</h3>
             <p class="channel-description">Playful math, from clever puzzles to ideas that change how we see the world.</p>
+            <p class="channel-host"><b>Σ</b> Hosted by Sigma</p>
             <span class="channel-tag">Math · Big ideas</span>
           </a>
-          <a class="channel reveal" href="https://www.youtube.com/results?search_query=Mind+Dev" target="_blank" rel="noopener noreferrer" style="--channel-color:#b4dce9">
-            <div class="channel-visual mascot-scene"><svg viewBox="0 0 240 240" role="img" aria-label="A friendly robot mascot for Mind Dev"><path d="M120 43V26m-10 0h20" stroke="#20251e" stroke-width="6" stroke-linecap="round"/><circle cx="120" cy="20" r="8" fill="#ff6548" stroke="#20251e" stroke-width="4"/><rect x="55" y="53" width="130" height="105" rx="27" fill="#fffdf3" stroke="#20251e" stroke-width="6"/><path d="M45 87H29v37h26m130-37h26v37h-26" fill="#b4dce9" stroke="#20251e" stroke-width="6" stroke-linejoin="round"/><rect x="78" y="83" width="29" height="29" rx="10" fill="#b4dce9"/><rect x="133" y="83" width="29" height="29" rx="10" fill="#b4dce9"/><circle cx="93" cy="98" r="6" fill="#20251e"/><circle cx="147" cy="98" r="6" fill="#20251e"/><path d="M94 132q26 16 52 0" fill="none" stroke="#20251e" stroke-width="5" stroke-linecap="round"/><rect x="76" y="164" width="88" height="43" rx="13" fill="#ff6548" stroke="#20251e" stroke-width="6"/><path d="m103 177-12 9 12 9m34-18 12 9-12 9" fill="none" stroke="#fffdf3" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M93 207v13m54-13v13m-63 2h20m33 0h20" stroke="#20251e" stroke-width="6" stroke-linecap="round"/></svg><span class="channel-code">02 / BUILD</span><span class="channel-arrow">↗</span></div>
+          <a class="channel reveal" href="https://www.youtube.com/results?search_query=Mind+Dev" target="_blank" rel="noopener noreferrer" style="--channel-color:#f6c9a0">
+            <div class="channel-visual mascot-scene"><img class="mascot mascot-happy" src="assets/mascots/minddev-cmd-happy.webp" alt="the cyan ⌘ terminal character, the Mind Dev mascot" width="400" height="520" loading="lazy"><img class="mascot mascot-wow" src="assets/mascots/minddev-cmd-wow.webp" alt="" aria-hidden="true" width="400" height="520" loading="lazy"><span class="channel-code">02 / BUILD</span><span class="channel-arrow">↗</span></div>
             <h3 class="channel-name">Mind Dev</h3>
             <p class="channel-description">Explore the code, creativity, and technology shaping our digital world.</p>
+            <p class="channel-host"><b>⌘</b> Hosted by Command</p>
             <span class="channel-tag">Technology · Code</span>
           </a>
           <a class="channel reveal" href="https://www.youtube.com/results?search_query=Mind+Astro" target="_blank" rel="noopener noreferrer" style="--channel-color:#f5a18e">
-            <div class="channel-visual mascot-scene"><svg viewBox="0 0 240 240" role="img" aria-label="A little space explorer mascot for Mind Astro"><path d="M49 134a72 72 0 0 1 142 0" fill="none" stroke="#20251e" stroke-width="5" stroke-dasharray="7 9"/><circle cx="47" cy="128" r="6" fill="#20251e"/><circle cx="190" cy="138" r="5" fill="#20251e"/><path d="m181 53 5 12 12 5-12 5-5 12-5-12-12-5 12-5z" fill="#fffdf3" stroke="#20251e" stroke-width="3"/><path d="m55 68 3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#ff6548"/><rect x="84" y="47" width="72" height="24" rx="12" fill="#fffdf3" stroke="#20251e" stroke-width="5"/><circle cx="120" cy="121" r="67" fill="#fffdf3" stroke="#20251e" stroke-width="6"/><path d="M74 116q46-57 92 0v19q-46 55-92 0z" fill="#a9d8e8" stroke="#20251e" stroke-width="5"/><path d="M93 125q27 23 54 0" fill="none" stroke="#20251e" stroke-width="4" stroke-linecap="round"/><circle cx="102" cy="113" r="5" fill="#20251e"/><circle cx="138" cy="113" r="5" fill="#20251e"/><path d="m120 188-15 28h30z" fill="#ff6548" stroke="#20251e" stroke-width="5" stroke-linejoin="round"/><circle cx="120" cy="214" r="7" fill="#f0d95c" stroke="#20251e" stroke-width="4"/></svg><span class="channel-code">03 / BEYOND</span><span class="channel-arrow">↗</span></div>
+            <div class="channel-visual mascot-scene"><img class="mascot mascot-happy" src="assets/mascots/mindastro-lambda-happy.webp" alt="Λ (Lambda), the Mind Astro mascot" width="400" height="520" loading="lazy"><img class="mascot mascot-wow" src="assets/mascots/mindastro-lambda-wow.webp" alt="" aria-hidden="true" width="400" height="520" loading="lazy"><span class="channel-code">03 / BEYOND</span><span class="channel-arrow">↗</span></div>
             <h3 class="channel-name">Mind Astro</h3>
             <p class="channel-description">Journey across planets, distant galaxies, and the mysteries of space.</p>
+            <p class="channel-host"><b>Λ</b> Hosted by Lambda</p>
             <span class="channel-tag">Astronomy · Space</span>
           </a>
           <a class="channel reveal" href="https://www.youtube.com/results?search_query=Mind+Chemistry" target="_blank" rel="noopener noreferrer" style="--channel-color:#b7d5a5">
-            <div class="channel-visual mascot-scene"><svg viewBox="0 0 240 240" role="img" aria-label="A bubbling beaker mascot for Mind Chemistry"><path d="M93 39h54m-44 0v61l-49 77q-10 20 13 25h106q23-5 13-25l-49-77V39" fill="#fffdf3" stroke="#20251e" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><path d="M76 155q19-16 38 0t38 0 39 0l17 27q7 13-10 16H57q-17-3-10-16z" fill="#b7d5a5" stroke="#20251e" stroke-width="4"/><circle cx="103" cy="132" r="5" fill="#20251e"/><circle cx="137" cy="132" r="5" fill="#20251e"/><path d="M104 146q16 13 32 0" fill="none" stroke="#20251e" stroke-width="4" stroke-linecap="round"/><circle cx="90" cy="105" r="7" fill="#ff6548" stroke="#20251e" stroke-width="3"/><circle cx="158" cy="96" r="5" fill="#f0d95c" stroke="#20251e" stroke-width="3"/><circle cx="176" cy="70" r="9" fill="#fffdf3" stroke="#20251e" stroke-width="3"/><path d="m67 74 5-12 5 12 12 5-12 5-5 12-5-12-12-5z" fill="#ff6548"/></svg><span class="channel-code">04 / MATTER</span><span class="channel-arrow">↗</span></div>
+            <div class="channel-visual mascot-scene"><img class="mascot mascot-happy" src="assets/mascots/mindchemistry-flask-happy.webp" alt="Flask, the Mind Chemistry mascot" width="400" height="520" loading="lazy"><img class="mascot mascot-wow" src="assets/mascots/mindchemistry-flask-wow.webp" alt="" aria-hidden="true" width="400" height="520" loading="lazy"><span class="channel-code">04 / MATTER</span><span class="channel-arrow">↗</span></div>
             <h3 class="channel-name">Mind Chemistry</h3>
             <p class="channel-description">Meet the reactions, materials, and surprising science all around us.</p>
+            <p class="channel-host"><b>⚗</b> Hosted by Flask</p>
             <span class="channel-tag">Chemistry · Discovery</span>
           </a>
         </div>
@@ -291,8 +316,14 @@
 
     <section class="statement">
       <div class="wrap statement-inner reveal">
-        <div class="eyebrow">The Mind Phoenix spirit</div>
+        <div class="eyebrow">The Mind Phoenix spirit · four hosts, one question at a time</div>
         <blockquote>“One bright idea can <em>light up</em> a whole world.”</blockquote>
+      </div>
+      <div class="hosts" aria-label="The four Mind Phoenix hosts: Sigma, Command, Lambda and Flask" role="img">
+        <img src="assets/mascots/mindmath-sigma-happy.webp" alt="" width="406" height="520" loading="lazy">
+        <img src="assets/mascots/minddev-cmd-happy.webp" alt="" width="459" height="520" loading="lazy">
+        <img src="assets/mascots/mindastro-lambda-happy.webp" alt="" width="697" height="520" loading="lazy">
+        <img src="assets/mascots/mindchemistry-flask-happy.webp" alt="" width="399" height="520" loading="lazy">
       </div>
     </section>
 
