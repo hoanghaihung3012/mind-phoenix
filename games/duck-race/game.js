@@ -14,6 +14,38 @@ const fileInput = get('import-file');
 const actionButtons = [get('start-race'), get('track-start')];
 const resetButtons = [get('reset-race'), get('track-reset')];
 const colors = ['#ffd575', '#ef97a9', '#9acbea', '#b9a0dc', '#95d2b5', '#f6b68a', '#f4e79c', '#a8c8d6'];
+const class46Names = [
+  'Giàu',
+  'Mỹ Hân',
+  'Gia Hân',
+  'Bích Hân',
+  'Huy',
+  'Hưng',
+  'Khang',
+  'Khoa',
+  'Kiệt',
+  'Lâm',
+  'Long',
+  'Mẫn',
+  'Gia Minh',
+  'Quang Minh',
+  'Tuyết My',
+  'Gia My',
+  'Ngọc',
+  'Ni',
+  'Nguyên',
+  'Phát',
+  'Thiên Phúc',
+  'Huỳnh Thiên Phúc',
+  'Phụng',
+  'Thiên Phượng',
+  'Quân',
+  'San',
+  'Thủy Tiên',
+  'Toàn',
+  'Trân',
+  'Tứ'
+];
 const storageKey = 'mp-duck-race-settings-v1';
 const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
 let phase = 'idle';
@@ -306,7 +338,7 @@ async function importNames() {
   } finally {
     importing = false;
     fileInput.value = '';
-    get('import-names').querySelector('span').textContent = 'Thêm lớp 4/6';
+    get('import-names').querySelector('span').textContent = 'Nhập file .txt';
   }
   if (importedNames) {
     namesInput.value = importedNames.join('\n');
@@ -743,6 +775,15 @@ get('shuffle-names').addEventListener('click', () => {
   } catch (error) {
     reportError('Không thể trộn danh sách. Hãy dùng trình duyệt có hỗ trợ Web Crypto.', error);
   }
+});
+get('add-class-4-6').addEventListener('click', () => {
+  namesInput.value = class46Names.join('\n');
+  const feedback = get('import-feedback');
+  feedback.hidden = false;
+  feedback.classList.remove('error');
+  feedback.textContent = `Đã thêm ${class46Names.length} học sinh lớp 4/6.`;
+  resetRace({ save: true });
+  namesInput.focus();
 });
 get('import-names').addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', importNames);
