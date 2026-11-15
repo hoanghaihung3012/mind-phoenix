@@ -4,9 +4,69 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#d9d6ff">
-  <meta name="description" content="Mind Phoenix is a 2D animation education studio. Cartoon lessons about math, code, space and chemistry, animated frame by frame.">
-  <title>Mind Phoenix — 2D animated lessons that make big ideas click</title>
+  <meta name="description" id="meta-description" content="Mind Phoenix creates colorful 2D animated educational videos that make math, coding, astronomy, and chemistry fun and easy to understand.">
+  <title>Mind Phoenix — 2D Animated Education for Curious Minds</title>
+  <link rel="canonical" href="https://mindphoenix.xyz/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Mind Phoenix">
+  <meta property="og:url" content="https://mindphoenix.xyz/">
+  <meta property="og:title" id="og-title" content="Mind Phoenix — 2D Animated Education for Curious Minds">
+  <meta property="og:description" id="og-description" content="Mind Phoenix creates colorful 2D animated educational videos that make math, coding, astronomy, and chemistry fun and easy to understand.">
+  <meta property="og:locale" id="og-locale" content="en_US">
+  <meta property="og:locale:alternate" content="vi_VN">
+  <meta property="og:image" content="https://mindphoenix.xyz/assets/og/mind-phoenix-social.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Mind Phoenix, colorful 2D animated educational videos for curious minds">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" id="twitter-title" content="Mind Phoenix — 2D Animated Education for Curious Minds">
+  <meta name="twitter:description" id="twitter-description" content="Mind Phoenix creates colorful 2D animated educational videos that make math, coding, astronomy, and chemistry fun and easy to understand.">
+  <meta name="twitter:image" content="https://mindphoenix.xyz/assets/og/mind-phoenix-social.png">
+  <meta name="twitter:image:alt" content="Mind Phoenix, colorful 2D animated educational videos for curious minds">
   <link rel="icon" type="image/png" href="assets/mascots/mind-phoenix-logo.png">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "EducationalOrganization",
+          "@id": "https://mindphoenix.xyz/#organization",
+          "name": "Mind Phoenix",
+          "url": "https://mindphoenix.xyz/",
+          "description": "Mind Phoenix creates colorful 2D animated educational videos about math, coding, astronomy, and chemistry.",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://mindphoenix.xyz/assets/mascots/mind-phoenix-mascot.png",
+            "width": 586,
+            "height": 689
+          },
+          "sameAs": [
+            "https://youtube.com/@mindmathhh",
+            "https://youtube.com/@minddevit",
+            "https://youtube.com/@mindastroq",
+            "https://youtube.com/@mindchemistryp"
+          ],
+          "knowsAbout": [
+            "2D animation",
+            "mathematics",
+            "computer science",
+            "astronomy",
+            "chemistry"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://mindphoenix.xyz/#website",
+          "url": "https://mindphoenix.xyz/",
+          "name": "Mind Phoenix",
+          "inLanguage": ["en", "vi"],
+          "publisher": {
+            "@id": "https://mindphoenix.xyz/#organization"
+          }
+        }
+      ]
+    }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&family=DM+Mono:wght@500&family=Baloo+2:wght@500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
@@ -82,8 +142,10 @@
     .nav-links { display: flex; align-items: center; gap: 6px; font: 600 15px var(--display); }
     .nav-links a { padding: 10px 14px; border-radius: 12px; transition: background .2s, transform .2s var(--pop); }
     .nav-links a:hover { background: var(--lilac); transform: translateY(-2px); }
-    .nav-links .nav-cta { margin-left: 6px; padding: 10px 18px; border: 2.5px solid var(--ink); background: var(--mint); box-shadow: 0 3px 0 var(--ink); }
+    .nav-links .nav-cta, .nav-links .nav-contact { margin-left: 6px; padding: 10px 18px; border: 2.5px solid var(--ink); background: var(--mint); box-shadow: 0 3px 0 var(--ink); white-space: nowrap; }
     .nav-links .nav-cta:hover { background: var(--gold); }
+    .nav-links .nav-contact { background: var(--gold); }
+    .nav-links .nav-contact:hover { background: var(--berry); }
     .nav-tools { display: flex; align-items: center; gap: 10px; }
     .lang-toggle { display: inline-flex; padding: 3px; border: 2.5px solid var(--ink); border-radius: 14px; background: white; box-shadow: 0 3px 0 var(--ink); }
     .lang-toggle button { min-width: 40px; min-height: 36px; padding: 0 8px; border: 0; border-radius: 10px; background: transparent; font: 600 14px var(--display); cursor: pointer; transition: background .2s; }
@@ -273,6 +335,11 @@
     .cta-card .lead { max-width: 480px; margin: 18px 0 30px; }
     .cta-cast { position: relative; height: 280px; }
     .cta-cast .toon { position: absolute; width: var(--w); left: var(--l); bottom: var(--b); animation: idle 2.6s ease-in-out infinite; animation-delay: var(--dl); }
+    .contact-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 32px; margin-top: 40px; padding: 40px; border: var(--outline); border-radius: 32px; background: linear-gradient(135deg, var(--peach), #fff0c9); box-shadow: 0 8px 0 var(--ink); }
+    .contact-card h2 { margin-top: 14px; font-size: clamp(30px, 3.5vw, 44px); line-height: 1.15; }
+    .contact-card .lead { max-width: 650px; margin: 16px 0 0; }
+    .contact-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; min-width: 0; }
+    .contact-email { max-width: 100%; overflow-wrap: anywhere; text-decoration: underline; text-underline-offset: 4px; }
     .footer { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; margin-top: 50px; padding-top: 28px; border-top: 2.5px dashed rgba(43, 37, 80, .25); font-size: 15px; color: var(--ink-soft); }
     .footer nav { display: flex; gap: 20px; }
     .footer nav a:hover { color: var(--berry-deep); }
@@ -313,6 +380,12 @@
     @keyframes waddle { from { transform: rotate(-5deg) translateY(0); } to { transform: rotate(5deg) translateY(-8px); } }
 
     /* ---------- Responsive ---------- */
+    @media (max-width: 1200px) {
+      .menu-toggle { display: grid; place-items: center; }
+      .nav-links { position: absolute; top: calc(100% + 10px); left: 16px; right: 16px; flex-direction: column; align-items: stretch; padding: 12px; background: var(--snow); border: var(--outline); border-radius: 22px; box-shadow: 0 5px 0 var(--ink); opacity: 0; visibility: hidden; transform: translateY(-10px) scale(.97); transition: opacity .2s, transform .3s var(--pop), visibility .2s; }
+      .nav-links.is-open { opacity: 1; visibility: visible; transform: none; }
+      .nav-links .nav-cta, .nav-links .nav-contact { margin: 6px 0 0; text-align: center; }
+    }
     @media (max-width: 1080px) {
       .reel-layout { grid-template-columns: 1fr; }
       .steps, .channel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -322,10 +395,6 @@
     }
     @media (max-width: 760px) {
       .wrap { width: calc(100% - 32px); }
-      .menu-toggle { display: grid; place-items: center; }
-      .nav-links { position: absolute; top: calc(100% + 10px); left: 16px; right: 16px; flex-direction: column; align-items: stretch; padding: 12px; background: var(--snow); border: var(--outline); border-radius: 22px; box-shadow: 0 5px 0 var(--ink); opacity: 0; visibility: hidden; transform: translateY(-10px) scale(.97); transition: opacity .2s, transform .3s var(--pop), visibility .2s; }
-      .nav-links.is-open { opacity: 1; visibility: visible; transform: none; }
-      .nav-links .nav-cta { margin: 6px 0 0; text-align: center; }
       .hero { padding-top: 130px; min-height: 0; }
       .film-hud { top: 96px; font-size: 10px; }
       .film-hud .frame { display: none; }
@@ -341,6 +410,7 @@
       .section-head { flex-direction: column; align-items: start; }
       .player-bar { flex-wrap: wrap; }
       .cta-card, .guest-card { padding: 34px 24px; }
+      .contact-card { grid-template-columns: minmax(0, 1fr); padding: 32px 24px; }
       .guest-art { height: 300px; }
       .guest-phoenix { width: 190px; }
       .guest-badge { width: 92px; height: 92px; font-size: 12px; }
@@ -383,6 +453,7 @@
         <a href="#channels" data-i18n="nav.channels">Channels</a>
         <a href="#guest" data-i18n="nav.guest">Special guest</a>
         <a class="nav-cta" href="#channels" data-i18n="nav.watch">▶ Watch now</a>
+        <a class="nav-contact" href="mailto:haihung1988@gmail.com" data-i18n="nav.contact">Contact us</a>
       </nav>
       <div class="nav-tools">
         <div class="lang-toggle" role="group" aria-label="Language / Ngôn ngữ">
@@ -671,6 +742,17 @@
             <div class="toon flask" style="--w:28%;--l:70%;--b:4%;--dl:.9s"><svg class="hat" viewBox="0 0 120 92"><use href="#santa-hat"/></svg><img src="assets/mascots/mindchemistry-flask-wow.webp" alt="" width="399" height="520" loading="lazy"></div>
           </div>
         </div>
+        <section class="contact-card reveal" id="work-with-us" aria-labelledby="contact-title">
+          <div>
+            <p class="kicker" data-i18n="contact.kicker">Let's create together</p>
+            <h2 id="contact-title" data-i18n="contact.title">Want 2D animated videos like these?</h2>
+            <p class="lead" data-i18n="contact.lead">Have a story, lesson or big idea to share? Get in touch with us to bring it to life with 2D animation.</p>
+          </div>
+          <div class="contact-actions">
+            <a class="btn" href="mailto:haihung1988@gmail.com" data-i18n="contact.btn">Contact us</a>
+            <a class="contact-email" href="mailto:haihung1988@gmail.com">haihung1988@gmail.com</a>
+          </div>
+        </section>
         <footer class="footer">
           <a class="brand" href="#home"><span class="brand-mark" aria-hidden="true"><img src="assets/mascots/mind-phoenix-logo.png" alt="" width="109" height="128"></span><span>Mind Phoenix</span></a>
           <span>© <span id="year"></span> Mind Phoenix · <span data-i18n="f.tag">2D animated education</span></span>
@@ -692,6 +774,7 @@
       const VI = {
         'nav.home': 'Trang chủ Mind Phoenix',
         'nav.reel': 'Showreel', 'nav.how': 'Cách tụi mình làm phim', 'nav.channels': 'Các kênh', 'nav.guest': 'Khách mời', 'nav.watch': '▶ Xem ngay',
+        'nav.contact': 'Liên hệ',
         'hero.tag': 'Kênh giáo dục hoạt hình 2D',
         'hero.sub': 'Bài học hoạt hình về <b>toán, lập trình, vũ trụ &amp; hoá học</b>, vẽ và diễn hoạt từng khung hình để ý tưởng lớn trở nên dễ hiểu.',
         'hero.play': 'Xem showreel', 'hero.cast': 'Gặp dàn nhân vật ✨',
@@ -725,12 +808,16 @@
         'p.lead': 'Bốn host, từng câu hỏi một, cùng diễu hành qua toán học, lập trình, vũ trụ và hoá học.',
         'cta.kicker': 'Pha một cốc ca cao', 'cta.title': 'Bắt đầu bằng một câu hỏi hay.',
         'cta.lead': 'Các tập hoạt hình mới lên sóng YouTube suốt mùa lễ hội. Chọn một host và bấm xem thôi.',
-        'cta.btn': 'Chọn kênh để xem', 'f.tag': 'Giáo dục hoạt hình 2D'
+        'cta.btn': 'Chọn kênh để xem', 'f.tag': 'Giáo dục hoạt hình 2D',
+        'contact.kicker': 'Cùng tạo nên điều thú vị',
+        'contact.title': 'Muốn làm video hoạt hình 2D như thế này?',
+        'contact.lead': 'Bạn có câu chuyện, bài học hay ý tưởng muốn chia sẻ? Liên hệ tụi mình để biến ý tưởng thành những thước phim hoạt hình 2D sống động nhé!',
+        'contact.btn': 'Liên hệ tụi mình'
       };
       const UI = {
-        en: { title: document.title, desc: document.querySelector('meta[name="description"]').content, menuOpen: 'Open menu', menuClose: 'Close menu', pause: 'Pause showreel', play: 'Play showreel',
+        en: { title: document.title, desc: document.querySelector('meta[name="description"]').content, locale: 'en_US', menuOpen: 'Open menu', menuClose: 'Close menu', pause: 'Pause showreel', play: 'Play showreel',
           lines: ['Why are snowflakes six‑sided?', 'How do computers think?', 'Can we visit the North Star?', 'What makes ice float?'] },
-        vi: { title: 'Mind Phoenix — Bài học hoạt hình 2D giúp ý tưởng lớn dễ hiểu', desc: 'Mind Phoenix là studio giáo dục hoạt hình 2D. Bài học hoạt hình về toán, lập trình, vũ trụ và hoá học, diễn hoạt từng khung hình.',
+        vi: { title: 'Mind Phoenix — Hoạt hình giáo dục 2D cho mọi trí tò mò', desc: 'Mind Phoenix làm phim hoạt hình giáo dục 2D sinh động, giúp toán học, lập trình, thiên văn và hoá học trở nên thú vị, dễ hiểu.', locale: 'vi_VN',
           menuOpen: 'Mở menu', menuClose: 'Đóng menu', pause: 'Tạm dừng showreel', play: 'Phát showreel',
           lines: ['Vì sao bông tuyết có sáu cánh?', 'Máy tính suy nghĩ thế nào?', 'Mình bay tới Sao Bắc Cực được không?', 'Vì sao băng nổi trên nước?'] }
       };
@@ -749,7 +836,12 @@
           if (kind === 'html') el.innerHTML = val; else el.setAttribute(kind, val);
         });
         document.title = ui().title;
-        document.querySelector('meta[name="description"]').content = ui().desc;
+        document.getElementById('meta-description').content = ui().desc;
+        document.getElementById('og-title').content = ui().title;
+        document.getElementById('og-description').content = ui().desc;
+        document.getElementById('og-locale').content = ui().locale;
+        document.getElementById('twitter-title').content = ui().title;
+        document.getElementById('twitter-description').content = ui().desc;
         langBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
         onLang.forEach((fn) => fn());
         try { localStorage.setItem('mp-lang', lang); } catch (e) { /* storage unavailable */ }
