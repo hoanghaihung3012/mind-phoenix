@@ -23,7 +23,6 @@ const class46Names = [
   'Hưng',
   'Khang',
   'Khoa',
-  'Kiệt',
   'Lâm',
   'Long',
   'Mẫn',
