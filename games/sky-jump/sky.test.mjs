@@ -1,9 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  LEADERBOARD_SIZE, LevelGenerator, MAX_PLATFORM_Y, MIN_PLATFORM_Y, PLATFORM_LIFE, QUESTIONS,
-  addScore, createQuestionDeck, horizontalReach, maxJumpHeight, mulberry32, normalizeName, parseLeaderboard, platformState, questionReward,
+  LEADERBOARD_SIZE, LevelGenerator, MAX_PLATFORM_Y, MIN_PLATFORM_Y, PLATFORM_LIFE, QUESTIONS, START_LIVES,
+  addScore, createQuestionDeck, horizontalReach, maxJumpHeight, mulberry32, normalizeName, parseLeaderboard, platformState, questionReward, startingLives,
 } from './sky.mjs';
+
+test('special player names unlock unlimited lives regardless of case or surrounding whitespace', () => {
+  for (const name of ['Phoenix Hoang', 'HHH', ' phoenix hoang ', '\tHhH\n']) {
+    assert.equal(startingLives(name), Infinity, name);
+  }
+});
+
+test('other names keep normal lives, including names that only contain a special name', () => {
+  for (const name of ['', undefined, null, 'Bạn nhỏ', 'Phoenix', 'HHHH', 'HHH extra', 'Phoenix Hoang abcdef', 'X Phoenix Hoang']) {
+    assert.equal(startingLives(name), START_LIVES, String(name));
+  }
+});
 
 test('question bank has four distinct choices per question and the deck tracks the shuffled answer', () => {
   for (const { q, choices } of QUESTIONS) {

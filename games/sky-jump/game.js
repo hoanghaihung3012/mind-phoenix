@@ -1,7 +1,8 @@
 import {
   GRAVITY, JUMP_VELOCITY, LevelGenerator, PLATFORM_LIFE, QUESTION_TIME, RUN_SPEED, START_LIVES, STAR_POINTS, VIEW_HEIGHT,
-  addScore, createQuestionDeck, distancePoints, mulberry32, normalizeName, parseLeaderboard, platformState, questionReward,
+  addScore, createQuestionDeck, distancePoints, mulberry32, normalizeName, parseLeaderboard, platformState, questionReward, startingLives,
 } from './sky.mjs';
+import { createGameAudio } from '../audio.mjs';
 
 const ASSET = '../../assets/mascots/';
 const CHARACTERS = [
@@ -45,7 +46,6 @@ for (const character of CHARACTERS) {
 
 let mode = 'menu';
 let characterId = CHARACTERS.some((c) => c.id === store.get(STORAGE.character)) ? store.get(STORAGE.character) : 'phoenix';
-let soundOn = store.get(STORAGE.sound) !== 'off';
 let board = parseLeaderboard(store.get(STORAGE.board));
 let view = { w: MIN_VIEW_WIDTH, scale: 1, offsetY: 0, dpr: 1, cssW: 0, cssH: 0 };
 let world;
@@ -64,25 +64,12 @@ let clock = 0;
 const input = { left: false, right: false, jumpHeld: false, jumpQueued: false };
 
 /* ---------- Sound ---------- */
-let audio;
-function tone(freq, duration = 0.12, { type = 'sine', volume = 0.12, to, delay = 0 } = {}) {
-  if (!soundOn) return;
-  try {
-    audio ??= new AudioContext();
-    if (audio.state === 'suspended') audio.resume();
-    const start = audio.currentTime + delay;
-    const osc = audio.createOscillator();
-    const gain = audio.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, start);
-    if (to) osc.frequency.exponentialRampToValueAtTime(to, start + duration);
-    gain.gain.setValueAtTime(volume, start);
-    gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
-    osc.connect(gain).connect(audio.destination);
-    osc.start(start);
-    osc.stop(start + duration + 0.02);
-  } catch { /* audio is optional */ }
-}
+const audio = createGameAudio({
+  theme: 'sky', button: ui.soundToggle, enabled: store.get(STORAGE.sound) !== 'off',
+  onEnabledChange: (enabled) => store.set(STORAGE.sound, enabled ? 'on' : 'off'),
+  onError: (message, error) => { console.error(message, error); toast(message, 'bad', 6000); }
+});
+const tone = (...args) => audio.tone(...args);
 const sfx = {
   jump: () => tone(420, 0.16, { type: 'triangle', to: 760, volume: 0.09 }),
   star: () => { tone(988, 0.08, { type: 'square', volume: 0.05 }); tone(1319, 0.14, { type: 'square', volume: 0.05, delay: 0.07 }); },
@@ -151,7 +138,8 @@ function showScreen(screen) {
 }
 
 function updateLives() {
-  ui.lives.replaceChildren(...Array.from({ length: START_LIVES }, (_, i) => {
+  const unlimited = run.lives === Infinity;
+  ui.lives.replaceChildren(...Array.from({ length: unlimited ? 1 : START_LIVES }, (_, i) => {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('class', `icon${i < run.lives ? '' : ' lost'}`);
     svg.setAttribute('aria-hidden', 'true');
@@ -160,7 +148,8 @@ function updateLives() {
     svg.append(use);
     return svg;
   }));
-  ui.lives.setAttribute('aria-label', `Còn ${run.lives} mạng`);
+  if (unlimited) ui.lives.append(Object.assign(document.createElement('strong'), { textContent: '∞', ariaHidden: 'true' }));
+  ui.lives.setAttribute('aria-label', unlimited ? 'Mạng vô hạn' : `Còn ${run.lives} mạng`);
 }
 
 function score() {
@@ -196,7 +185,7 @@ function newGame() {
   generator.start(world, -40, 400, 460);
   player = { x: START_X, y: 400, vx: 0, vy: 0, onGround: true, coyote: 0, buffer: 0, facing: 1, dropping: false, squash: 0, invulnerable: 0, ground: null };
   camera = { x: 0 };
-  run = { lives: START_LIVES, stars: 0, bonus: 0, correct: 0, maxX: START_X, time: 0 };
+  run = { lives: startingLives(ui.name.value), stars: 0, bonus: 0, correct: 0, maxX: START_X, time: 0 };
   deck = createQuestionDeck();
   question = null;
   shake = 0;
@@ -209,17 +198,20 @@ function newGame() {
 
 function startGame(event) {
   event?.preventDefault();
+  void audio.activate();
   store.set(STORAGE.name, ui.name.value.trim());
   newGame();
   setMode('playing');
   showScreen(null);
-  toast('Ô mây vỡ sau 5 giây — nhảy nhanh lên!', '', 2400);
+  toast(run.lives === Infinity ? 'Mạng vô hạn đã bật — bay thỏa thích!' : 'Ô mây vỡ sau 5 giây — nhảy nhanh lên!', '', 2400);
   tone(523, 0.1, { type: 'triangle' });
   document.activeElement?.blur();
 }
 
 function setMode(next) {
   mode = next;
+  audio.setMusicPlaying(next === 'playing' || next === 'question');
+  if (next === 'paused' || next === 'menu') audio.stopVoices();
   document.body.classList.toggle('playing', next === 'playing' || next === 'question');
   ui.pauseToggle.disabled = !(next === 'playing' || next === 'paused');
   const paused = next === 'paused';
@@ -237,6 +229,7 @@ function pause() {
 
 function resume() {
   if (mode !== 'paused') return;
+  void audio.activate();
   setMode('playing');
   showScreen(null);
   lastFrame = performance.now();
@@ -250,7 +243,7 @@ function loseLife() {
   flash = { color: '226, 87, 76', t: 0.5 };
   sfx.fall();
   if (run.lives <= 0) { gameOver(); return; }
-  toast(`Ối, rơi mất rồi! Còn ${run.lives} mạng`, 'bad');
+  toast(run.lives === Infinity ? 'Ối, rơi mất rồi! Mạng vô hạn — bay tiếp nào!' : `Ối, rơi mất rồi! Còn ${run.lives} mạng`, 'bad');
   respawn();
 }
 
@@ -852,14 +845,6 @@ for (const button of document.querySelectorAll('.touch-button')) {
   button.addEventListener('contextmenu', (event) => event.preventDefault());
 }
 
-function syncSound() {
-  ui.soundToggle.setAttribute('aria-pressed', String(soundOn));
-  ui.soundToggle.setAttribute('aria-label', soundOn ? 'Tắt âm thanh' : 'Bật âm thanh');
-  ui.soundToggle.title = ui.soundToggle.getAttribute('aria-label');
-  ui.soundToggle.querySelector('use').setAttribute('href', soundOn ? '#icon-sound' : '#icon-muted');
-}
-
-ui.soundToggle.addEventListener('click', () => { soundOn = !soundOn; store.set(STORAGE.sound, soundOn ? 'on' : 'off'); syncSound(); tone(660, 0.08); });
 ui.pauseToggle.addEventListener('click', () => (mode === 'paused' ? resume() : pause()));
 $('resume-button').addEventListener('click', resume);
 $('quit-button').addEventListener('click', () => { if (mode === 'paused') gameOver(); });
@@ -877,6 +862,5 @@ ui.name.value = store.get(STORAGE.name) ?? '';
 renderCharacters();
 renderBoard($('board-start'));
 updateLives();
-syncSound();
 resize();
 requestAnimationFrame(frame);

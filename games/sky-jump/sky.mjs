@@ -228,6 +228,11 @@ export function normalizeName(name) {
   return [...clean].slice(0, MAX_NAME_LENGTH).join('') || 'Bạn nhỏ';
 }
 
+export function startingLives(name) {
+  const key = String(name ?? '').trim().toLowerCase();
+  return key === 'phoenix hoang' || key === 'hhh' ? Infinity : START_LIVES;
+}
+
 function compareEntries(a, b) {
   return b.score - a.score || a.date - b.date;
 }

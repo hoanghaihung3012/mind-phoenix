@@ -1,4 +1,5 @@
 import { PUZZLES, constrainPosition, createBoard, isWithinSnap } from './puzzle.mjs';
+import { createGameAudio } from '../audio.mjs';
 
 const get = (id) => document.getElementById(id);
 const board = get('puzzle-board');
@@ -15,6 +16,14 @@ let selected = null;
 let drag = null;
 let hints = false;
 let confettiTimer;
+const audio = createGameAudio({
+  theme: 'puzzle', button: get('sound-toggle'),
+  onError: (message, error) => {
+    console.error(message, error);
+    get('game-notice').textContent = message;
+    get('game-notice').hidden = false;
+  }
+});
 
 function svgElement(tag, attributes = {}) {
   const element = document.createElementNS('http://www.w3.org/2000/svg', tag);
@@ -63,6 +72,7 @@ function updatePiece(piece) {
 }
 
 function selectPiece(piece) {
+  if (piece && selected !== piece) audio.tone(520, .08, { volume: .07, to: 640 });
   selected = piece;
   pieces.forEach((item) => {
     if (item !== piece) item.targetElement.classList.remove('is-near');
@@ -111,6 +121,8 @@ function updateProgress() {
 }
 
 function celebrate() {
+  audio.setMusicPlaying(false);
+  audio.chime([523, 659, 784, 1047]);
   const puzzle = PUZZLES[puzzleIndex];
   completed.add(puzzle.id);
   const option = document.querySelector(`[data-puzzle="${puzzle.id}"]`);
@@ -138,6 +150,7 @@ function placePiece(piece, keyboard = false) {
   if (piece.placed) return;
   piece.position = { ...piece.target };
   piece.placed = true;
+  audio.chime([660 + piece.number * 25, 880 + piece.number * 25], .06);
   piece.targetElement.classList.remove('is-near');
   selectPiece(null);
   updateProgress();
@@ -180,6 +193,7 @@ function loadPuzzle(index, preserve = false) {
   clearTimeout(confettiTimer);
   get('confetti').replaceChildren();
   if (completionDialog.open && !preserve) completionDialog.close();
+  audio.setMusicPlaying(!completionDialog.open && !get('help-dialog').open);
   const puzzle = PUZZLES[index];
   if (!preserve) hints = false;
   layout = createBoard(puzzle, compactQuery.matches);
@@ -266,9 +280,12 @@ board.addEventListener('pointerup', (event) => {
   piece.targetElement.classList.remove('is-near');
   if (board.hasPointerCapture(event.pointerId)) board.releasePointerCapture(event.pointerId);
   if (near) placePiece(piece);
-  else get('game-status').textContent = hints ?
-    `Mảnh ${piece.number} chưa khớp. Thử đưa gần bóng có số ${piece.number}, hoặc chạm vào bóng đó nhé!` :
-    `Mảnh ${piece.number} chưa khớp. Nhìn hình mẫu rồi thử sắp xếp lại nhé!`;
+  else {
+    audio.tone(330, .12, { volume: .055, to: 280 });
+    get('game-status').textContent = hints ?
+      `Mảnh ${piece.number} chưa khớp. Thử đưa gần bóng có số ${piece.number}, hoặc chạm vào bóng đó nhé!` :
+      `Mảnh ${piece.number} chưa khớp. Nhìn hình mẫu rồi thử sắp xếp lại nhé!`;
+  }
 });
 ['pointercancel', 'lostpointercapture'].forEach((type) => {
   board.addEventListener(type, (event) => { if (drag?.pointerId === event.pointerId) cancelDrag(); });
@@ -333,7 +350,10 @@ window.addEventListener('blur', cancelDrag);
 document.querySelectorAll('[data-puzzle]').forEach((button) => {
   button.addEventListener('click', () => {
     const index = PUZZLES.findIndex((puzzle) => puzzle.id === button.dataset.puzzle);
-    if (index !== puzzleIndex) loadPuzzle(index);
+    if (index !== puzzleIndex) {
+      audio.tone(740, .1, { volume: .07 });
+      loadPuzzle(index);
+    }
   });
 });
 get('reset-puzzle').addEventListener('click', () => loadPuzzle(puzzleIndex));
@@ -341,12 +361,17 @@ get('play-again').addEventListener('click', () => loadPuzzle(puzzleIndex));
 get('next-puzzle').addEventListener('click', () => loadPuzzle((puzzleIndex + 1) % PUZZLES.length));
 get('hint-toggle').addEventListener('click', () => {
   hints = !hints;
+  audio.tone(hints ? 880 : 660, .12, { volume: .07 });
   renderFrame();
   get('game-status').textContent = hints ? 'Đây là cách ghép: đưa mảnh màu vào bóng có cùng màu và số nhé!' : 'Đã ẩn gợi ý. Bé tiếp tục khám phá nhé!';
 });
 get('open-help').addEventListener('click', () => {
   cancelDrag();
+  audio.setMusicPlaying(false);
   get('help-dialog').showModal();
+});
+[get('help-dialog'), completionDialog].forEach((dialog) => {
+  dialog.addEventListener('close', () => audio.setMusicPlaying(!get('help-dialog').open && !completionDialog.open));
 });
 document.querySelectorAll('[data-close-dialog]').forEach((button) => {
   button.addEventListener('click', () => button.closest('dialog').close());

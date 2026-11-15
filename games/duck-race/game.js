@@ -1,4 +1,5 @@
 import { MAX_NAME_LENGTH, MAX_PARTICIPANTS, createRace, parseNames, progressAt, readNamesFile, remainingNames, selectRacers, shuffle, validateSetup } from './race.mjs';
+import { createGameAudio } from '../audio.mjs';
 
 const get = (id) => document.getElementById(id);
 const namesInput = get('participants');
@@ -32,8 +33,8 @@ let height = 0;
 let trackBottom = 0;
 let importing = false;
 let storageAvailable = true;
-let soundEnabled = false;
-let audio = null;
+let nextQuackAt = 0;
+const audio = createGameAudio({ theme: 'duck', button: get('sound-toggle'), onError: reportError });
 
 function readSetup() {
   return {
@@ -142,6 +143,7 @@ function updateControls() {
 
 function resetRace({ save = false } = {}) {
   phase = 'idle';
+  audio.setMusicPlaying(false);
   elapsed = 0;
   racers = [];
   selected = [];
@@ -178,6 +180,9 @@ function beginRace() {
   selected = [];
   elapsed = 0;
   phase = 'countdown';
+  void audio.activate();
+  audio.setMusicPlaying(true);
+  nextQuackAt = 2500 + Math.random() * 3500;
   countdownDigit = 0;
   countdownEndsAt = performance.now() + 3000;
   get('game-notice').hidden = true;
@@ -190,9 +195,6 @@ function beginRace() {
   get('timer-total').textContent = `/ ${settings.duration} giây`;
   updateControls();
   persistSetup();
-  if (soundEnabled && audio?.state === 'suspended') {
-    audio.resume().catch((error) => disableSound('Trình duyệt chưa cho phép phát âm thanh. Cuộc đua vẫn tiếp tục.', error));
-  }
   if (matchMedia('(max-width: 840px)').matches) {
     panel.scrollIntoView({ behavior: motionQuery.matches ? 'instant' : 'smooth', block: 'start' });
   }
@@ -206,6 +208,8 @@ function pauseRace() {
     return;
   }
   phase = 'paused';
+  audio.setMusicPlaying(false);
+  audio.tone(330, .1, { volume: .06 });
   get('race-timer').textContent = (elapsed / 1000).toFixed(2);
   get('race-status').textContent = 'Cuộc đua đang tạm dừng.';
   updateControls();
@@ -216,6 +220,9 @@ function actOnRace() {
   else if (phase === 'paused') {
     startedAt = performance.now() - elapsed;
     phase = 'running';
+    void audio.activate();
+    audio.setMusicPlaying(true);
+    audio.tone(660, .1, { volume: .06 });
     get('game-notice').hidden = true;
     get('race-status').textContent = `${racers.length} chú vịt đang tăng tốc. Cùng cổ vũ nào!`;
     updateControls();
@@ -224,6 +231,7 @@ function actOnRace() {
 
 function finishRace(now) {
   phase = 'finished';
+  audio.setMusicPlaying(false);
   elapsed = raceSettings.duration * 1000;
   finishedAt = now;
   selected = selectRacers(racers, raceSettings.mode, raceSettings.count);
@@ -240,7 +248,7 @@ function finishRace(now) {
   updateControls();
   renderResults();
   resultsDialog.showModal();
-  [660, 830, 990].forEach((frequency, index) => playTone(frequency, .18, index * .16));
+  audio.chime([660, 830, 990], .16);
 }
 
 function renderResults() {
@@ -306,38 +314,6 @@ async function importNames() {
     feedback.textContent = `Đã nhập ${importedNames.length} tên từ ${file.name}.`;
   }
   updateControls();
-}
-
-function updateSoundButton() {
-  const button = get('sound-toggle');
-  const label = soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh';
-  button.setAttribute('aria-pressed', String(soundEnabled));
-  button.setAttribute('aria-label', label);
-  button.title = label;
-  button.querySelector('use').setAttribute('href', soundEnabled ? '#icon-sound' : '#icon-muted');
-}
-
-function disableSound(message, error) {
-  soundEnabled = false;
-  updateSoundButton();
-  reportError(message, error);
-}
-
-function playTone(frequency, duration = .12, delay = 0) {
-  if (!soundEnabled || !audio || audio.state !== 'running') return;
-  const oscillator = audio.createOscillator();
-  const gain = audio.createGain();
-  const time = audio.currentTime + delay;
-  oscillator.type = 'sine';
-  oscillator.frequency.value = frequency;
-  gain.gain.setValueAtTime(.0001, time);
-  gain.gain.exponentialRampToValueAtTime(.06, time + .02);
-  gain.gain.exponentialRampToValueAtTime(.0001, time + duration);
-  oscillator.connect(gain);
-  gain.connect(audio.destination);
-  oscillator.start(time);
-  oscillator.stop(time + duration);
-  oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
 }
 
 function rounded(ctx, x, y, w, h, radius, fill, stroke = null, lineWidth = 1.5) {
@@ -722,19 +698,23 @@ function animate(now) {
       get('countdown').hidden = true;
       get('race-status').textContent = `${racers.length} chú vịt đang tăng tốc. Cùng cổ vũ nào!`;
       updateControls();
-      playTone(880, .22);
+      audio.tone(880, .22);
     } else {
       const digit = Math.ceil(remaining / 1000);
       if (digit !== countdownDigit) {
         countdownDigit = digit;
         get('countdown-number').textContent = digit;
-        playTone(440);
+        audio.tone(440);
       }
     }
   }
   if (phase === 'running') {
     elapsed = Math.min(raceSettings.duration * 1000, Math.max(0, now - startedAt));
     if (elapsed >= raceSettings.duration * 1000) finishRace(now);
+    else if (elapsed >= nextQuackAt) {
+      audio.quack();
+      nextQuackAt = elapsed + 4000 + Math.random() * 4000;
+    }
   }
   drawFrame(now);
   requestAnimationFrame(animate);
@@ -809,25 +789,6 @@ get('copy-results').addEventListener('click', async () => {
     get('copy-fallback').focus();
     get('copy-fallback').select();
     get('result-feedback').textContent = 'Không thể sao chép tự động. Nội dung đã được chọn; nhấn Ctrl+C hoặc Cmd+C để sao chép.';
-  }
-});
-get('sound-toggle').addEventListener('click', async () => {
-  if (soundEnabled) {
-    soundEnabled = false;
-    updateSoundButton();
-    if (audio) audio.suspend().catch((error) => reportError('Không thể tạm ngưng bộ phát âm thanh của trình duyệt.', error));
-    return;
-  }
-  try {
-    if (!window.AudioContext) throw new Error('Web Audio không được hỗ trợ.');
-    if (!audio) audio = new AudioContext();
-    await audio.resume();
-    if (audio.state !== 'running') throw new Error('Trình duyệt chưa cho phép phát âm thanh.');
-    soundEnabled = true;
-    updateSoundButton();
-    playTone(660);
-  } catch (error) {
-    disableSound('Không thể bật âm thanh. Kiểm tra quyền âm thanh của trình duyệt; bạn vẫn có thể chơi không tiếng.', error);
   }
 });
 get('expand-toggle').addEventListener('click', () => setExpanded(!panel.classList.contains('is-expanded')));

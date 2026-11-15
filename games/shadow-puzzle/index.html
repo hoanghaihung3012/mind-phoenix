@@ -28,6 +28,8 @@
     <symbol id="icon-reset" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="icon-bulb" viewBox="0 0 24 24"><path d="M8 15a6 6 0 1 1 8 0l-1 2H9Zm1 5h6m-5 2h4M12 1v1M3 5l1 1m16 0 1-1M1 12h2m18 0h2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="icon-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9 9a3 3 0 1 1 4 3c-1 .4-1 1-1 2m0 3v.1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="icon-sound" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13-1a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-muted" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13 0 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
     <symbol id="icon-magnet" viewBox="0 0 24 24"><path d="M5 3v9a7 7 0 0 0 14 0V3h-5v9a2 2 0 0 1-4 0V3Zm0 5h5m4 0h5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
@@ -42,6 +44,7 @@
       </a>
       <nav aria-label="Điều hướng">
         <a class="back-link" href="../" aria-label="Tất cả trò chơi"><svg class="icon" aria-hidden="true"><use href="#icon-back"/></svg><span>Tất cả trò chơi</span></a>
+        <button class="help-button sound-button" id="sound-toggle" type="button" aria-label="Tắt âm thanh" aria-pressed="true" title="Tắt âm thanh"><svg class="icon" aria-hidden="true"><use href="#icon-sound"/></svg></button>
         <button class="help-button" id="open-help" type="button" aria-label="Cách chơi"><svg class="icon" aria-hidden="true"><use href="#icon-help"/></svg><span>Cách chơi</span></button>
       </nav>
     </header>
@@ -150,6 +153,7 @@
       <li><strong>Ghép đủ 7 mảnh.</strong> Các mảnh đã đúng chiều, không cần xoay. Mảnh tự hút trong khoảng 15px khi gần đúng vị trí; thả tay để ghép chặt. Khi đang bật gợi ý, bé cũng có thể chạm một mảnh rồi chạm đúng vị trí trong bóng mờ.</li>
     </ol>
     <p class="dialog-note">Không có giới hạn thời gian. Ghép chưa đúng cũng không sao, cứ thử lại nhé!</p>
+    <p class="dialog-note">Nhạc nền nhẹ bắt đầu sau lần chạm hoặc nhấn phím đầu tiên. Chọn mảnh, ghép đúng và hoàn thành đều có tiếng vui nhỏ. Nút loa bật/tắt cả nhạc và hiệu ứng; âm thanh ngừng khi chuyển tab.</p>
     <details><summary>Chơi bằng bàn phím</summary><p>Tab đến mảnh, Enter hoặc dấu cách để chọn. Dùng mũi tên để di chuyển, giữ Shift để đi chậm; Enter để ghép khi gần đúng. Escape bỏ chọn hoặc hủy lần kéo. Khi đang bật gợi ý, bé có thể Tab đến vị trí được đánh dấu rồi nhấn Enter để ghép.</p></details>
     <button class="primary-button" type="button" data-close-dialog>Đã hiểu, chơi thôi!<svg class="icon" aria-hidden="true"><use href="#icon-arrow"/></svg></button>
   </dialog>
