@@ -306,7 +306,7 @@ async function importNames() {
   } finally {
     importing = false;
     fileInput.value = '';
-    get('import-names').querySelector('span').textContent = 'Nhập file .txt';
+    get('import-names').querySelector('span').textContent = 'Thêm lớp 4/6';
   }
   if (importedNames) {
     namesInput.value = importedNames.join('\n');

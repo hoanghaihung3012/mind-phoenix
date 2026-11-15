@@ -57,7 +57,7 @@
         <form id="setup-form">
           <fieldset class="card" id="participants-fieldset">
             <legend class="sr-only">Danh sách người chơi</legend>
-            <div class="section-heading"><h2>Danh sách</h2><output id="participant-count" for="participants" class="count">8 / 200</output></div>
+            <div class="section-heading"><h2>Danh sách</h2><output id="participant-count" for="participants" class="count">10 / 200</output></div>
             <label class="field-label" for="participants">Mỗi dòng một tên</label>
             <textarea id="participants" name="participants" rows="8" spellcheck="false" placeholder="An&#10;Bình&#10;Chi…" aria-describedby="names-note">An
 Bình
@@ -65,17 +65,19 @@ Chi
 Dũng
 Giang
 Hà
-Khoa
-Linh</textarea>
+Thảo
+Phượng
+Hưng
+Long</textarea>
             <div class="list-actions">
               <button class="small-button" id="shuffle-names" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-shuffle"/></svg>Trộn</button>
               <button class="small-button" id="open-numbers" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-numbers"/></svg>Dãy số</button>
               <button class="icon-button clear-button" id="clear-names" type="button" aria-label="Xóa danh sách" title="Xóa danh sách"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg></button>
             </div>
             <input id="import-file" type="file" accept=".txt,text/plain" hidden>
-            <button class="small-button import-button" id="import-names" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-import"/></svg><span>Nhập file .txt</span></button>
+            <button class="small-button import-button" id="import-names" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-import"/></svg><span>Thêm lớp 4/6</span></button>
             <p id="import-feedback" class="field-note" role="status" hidden></p>
-            <p class="field-note">File UTF-8, tối đa 1 MB. Nhập file sẽ thay danh sách.</p>
+            <p class="field-note">Chọn danh sách học sinh .txt UTF-8 trên thiết bị (tối đa 1 MB). Nhập file sẽ thay danh sách.</p>
             <p class="field-note" id="names-note">Tối đa 200 tên. Chỉ lưu trên trình duyệt của bạn.</p>
           </fieldset>
 
