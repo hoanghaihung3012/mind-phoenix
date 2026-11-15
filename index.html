@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#d9d6ff">
   <meta name="description" content="Mind Phoenix is a 2D animation education studio. Cartoon lessons about math, code, space and chemistry, animated frame by frame.">
   <title>Mind Phoenix — 2D animated lessons that make big ideas click</title>
+  <link rel="icon" type="image/png" href="assets/mascots/mind-phoenix-mascot.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
@@ -73,9 +74,9 @@
     .topbar { position: fixed; z-index: 40; inset: 14px 0 auto; pointer-events: none; }
     .nav { pointer-events: auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 10px 12px 10px 16px; background: rgba(255, 250, 245, .86); backdrop-filter: blur(12px); border: var(--outline); border-radius: 22px; box-shadow: 0 5px 0 var(--ink); }
     .brand { display: inline-flex; align-items: center; gap: 10px; font: 700 21px var(--display); white-space: nowrap; }
-    .brand-mark { position: relative; display: grid; place-items: center; width: 42px; height: 42px; border: var(--outline); border-radius: 14px; background: linear-gradient(135deg, var(--berry), var(--gold)); font-size: 22px; transition: transform .4s var(--pop); }
+    .brand-mark { display: grid; place-items: center; width: 48px; height: 48px; transition: transform .4s var(--pop); }
+    .brand-mark img { width: 44px; height: 44px; object-fit: contain; }
     .brand:hover .brand-mark { transform: rotate(-12deg) scale(1.08); }
-    .brand-mark::after { content: ''; position: absolute; width: 8px; height: 8px; top: -6px; right: -6px; background: white; border: 2px solid var(--ink); border-radius: 50%; }
     .nav-links { display: flex; align-items: center; gap: 6px; font: 600 15px var(--display); }
     .nav-links a { padding: 10px 14px; border-radius: 12px; transition: background .2s, transform .2s var(--pop); }
     .nav-links a:hover { background: var(--lilac); transform: translateY(-2px); }
@@ -339,7 +340,7 @@
 
   <header class="topbar">
     <div class="wrap nav">
-      <a class="brand" href="#home" aria-label="Mind Phoenix home"><span class="brand-mark" aria-hidden="true">🔥</span><span>Mind Phoenix</span></a>
+      <a class="brand" href="#home" aria-label="Mind Phoenix home"><span class="brand-mark" aria-hidden="true"><img src="assets/mascots/mind-phoenix-mascot.png" alt=""></span><span>Mind Phoenix</span></a>
       <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Open menu">☰</button>
       <nav class="nav-links" id="nav-links" aria-label="Main">
         <a href="#reel">Showreel</a>
@@ -537,25 +538,25 @@
           <p class="lead">Each channel has its own animated host and its own corner of the universe. Hover to say hi!</p>
         </div>
         <div class="channel-grid">
-          <a class="channel reveal" href="https://www.youtube.com/results?search_query=Mind+Math" target="_blank" rel="noopener noreferrer" style="--c1:#cfe6ff;--c2:#eef6ff;--rd:0s">
+          <a class="channel reveal" href="https://youtube.com/@mindmathhh?si=b8-JZ5E4lBSH-CsZ" target="_blank" rel="noopener noreferrer" style="--c1:#cfe6ff;--c2:#eef6ff;--rd:0s">
             <div class="channel-visual"><span class="channel-ep">CH.01 · LOGIC</span><span class="sparkle" style="top:22%;right:14%" aria-hidden="true">✦</span>
               <div class="toon sigma" style="--w:46%"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/mindmath-sigma-happy.webp" alt="Sigma, the Mind Math host" width="406" height="520" loading="lazy"><img class="wow" src="assets/mascots/mindmath-sigma-wow.webp" alt="" width="406" height="520" loading="lazy"></div>
             </div>
             <div class="channel-body"><h3>Mind Math</h3><p class="channel-host">Σ Hosted by Sigma</p><p class="desc">Playful math, from clever puzzles to patterns hiding in every snowflake.</p><span class="channel-go">Watch ▶</span></div>
           </a>
-          <a class="channel reveal" href="https://www.youtube.com/results?search_query=Mind+Dev" target="_blank" rel="noopener noreferrer" style="--c1:#bfeedd;--c2:#eafaf4;--rd:.1s;--dl:.4s">
+          <a class="channel reveal" href="https://youtube.com/@minddevit?si=SLckp-vE-hbdYAwb" target="_blank" rel="noopener noreferrer" style="--c1:#bfeedd;--c2:#eafaf4;--rd:.1s;--dl:.4s">
             <div class="channel-visual"><span class="channel-ep">CH.02 · BUILD</span><span class="sparkle" style="top:26%;right:12%;animation-delay:.6s" aria-hidden="true">✦</span>
               <div class="toon cmd" style="--w:50%"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/minddev-cmd-happy.webp" alt="Command, the Mind Dev host" width="459" height="520" loading="lazy"><img class="wow" src="assets/mascots/minddev-cmd-wow.webp" alt="" width="459" height="520" loading="lazy"></div>
             </div>
             <div class="channel-body"><h3>Mind Dev</h3><p class="channel-host">⌘ Hosted by Command</p><p class="desc">Code, computers and the clever tech quietly running our digital world.</p><span class="channel-go">Watch ▶</span></div>
           </a>
-          <a class="channel reveal" href="https://www.youtube.com/results?search_query=Mind+Astro" target="_blank" rel="noopener noreferrer" style="--c1:#dcd2ff;--c2:#f3efff;--rd:.2s;--dl:.8s">
+          <a class="channel reveal" href="https://youtube.com/@mindastroq?si=mKxQZIVBd-9OYR23" target="_blank" rel="noopener noreferrer" style="--c1:#dcd2ff;--c2:#f3efff;--rd:.2s;--dl:.8s">
             <div class="channel-visual"><span class="channel-ep">CH.03 · BEYOND</span><span class="sparkle" style="top:20%;left:16%;animation-delay:1s" aria-hidden="true">✦</span>
               <div class="toon lambda" style="--w:74%"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/mindastro-lambda-happy.webp" alt="Lambda, the Mind Astro host" width="697" height="520" loading="lazy"><img class="wow" src="assets/mascots/mindastro-lambda-wow.webp" alt="" width="697" height="520" loading="lazy"></div>
             </div>
             <div class="channel-body"><h3>Mind Astro</h3><p class="channel-host">Λ Hosted by Lambda</p><p class="desc">Journey across planets, distant galaxies and the mysteries of the night sky.</p><span class="channel-go">Watch ▶</span></div>
           </a>
-          <a class="channel reveal" href="https://www.youtube.com/results?search_query=Mind+Chemistry" target="_blank" rel="noopener noreferrer" style="--c1:#ffdccb;--c2:#fff2ea;--rd:.3s;--dl:1.2s">
+          <a class="channel reveal" href="https://youtube.com/@mindchemistryp?si=QJSI7uAPXt-sBzj4" target="_blank" rel="noopener noreferrer" style="--c1:#ffdccb;--c2:#fff2ea;--rd:.3s;--dl:1.2s">
             <div class="channel-visual"><span class="channel-ep">CH.04 · MATTER</span><span class="sparkle" style="top:24%;right:16%;animation-delay:1.4s" aria-hidden="true">✦</span>
               <div class="toon flask" style="--w:44%"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/mindchemistry-flask-happy.webp" alt="Flask, the Mind Chemistry host" width="399" height="520" loading="lazy"><img class="wow" src="assets/mascots/mindchemistry-flask-wow.webp" alt="" width="399" height="520" loading="lazy"></div>
             </div>
@@ -602,7 +603,7 @@
           </div>
         </div>
         <footer class="footer">
-          <a class="brand" href="#home"><span class="brand-mark" aria-hidden="true">🔥</span><span>Mind Phoenix</span></a>
+          <a class="brand" href="#home"><span class="brand-mark" aria-hidden="true"><img src="assets/mascots/mind-phoenix-mascot.png" alt=""></span><span>Mind Phoenix</span></a>
           <span>© <span id="year"></span> Mind Phoenix · 2D animated education</span>
           <nav aria-label="Footer"><a href="#reel">Showreel</a><a href="#channels">Channels</a><a href="https://www.youtube.com/results?search_query=Mind+Phoenix" target="_blank" rel="noopener noreferrer">YouTube ↗</a></nav>
         </footer>
