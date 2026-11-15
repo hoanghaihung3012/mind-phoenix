@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#d9d6ff">
+  <meta name="description" content="Timer đếm ngược miễn phí: chọn mốc 1–60 phút hoặc tự nhập giờ, phút, giây. Có tạm dừng, đặt lại và âm báo khi hết giờ, không cần tài khoản.">
+  <link rel="canonical" href="https://mindphoenix.xyz/tools/timer/">
+  <title>Timer đếm ngược — Mind Phoenix Tools</title>
+  <link rel="icon" type="image/png" href="../../assets/mascots/mind-phoenix-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="timer.css">
+  <script type="module" src="timer.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Đến nội dung chính</a>
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="../../"><img src="../../assets/mascots/mind-phoenix-logo.png" width="42" height="50" alt="">Mind Phoenix <span>Tools</span></a>
+      <a class="back-link" href="../">← Tất cả công cụ</a>
+    </header>
+    <main id="main">
+      <section class="hero" aria-labelledby="page-title">
+        <p class="kicker">Timer · Đồng hồ đếm ngược</p>
+        <h1 id="page-title">Một việc thôi.<br><span>Từng phút một.</span></h1>
+        <p class="lead">Chọn một mốc có sẵn hoặc tự đặt thời gian cho giờ học,<br class="desktop-break"> công việc hay một khoảng nghỉ thật trọn vẹn.</p>
+      </section>
+
+      <noscript><p class="notice">Hãy bật JavaScript để sử dụng đồng hồ đếm ngược.</p></noscript>
+      <div class="timer-layout">
+        <section id="timer-panel" class="timer-panel" data-state="idle" aria-labelledby="timer-heading">
+          <div class="panel-top"><h2 id="timer-heading">Khoảng thời gian của bạn</h2><span id="state-label" class="state-label">Sẵn sàng</span></div>
+          <div class="timer-face">
+            <p id="clock-label" class="eyebrow">Thời gian còn lại</p>
+            <div id="clock" class="clock" role="timer" aria-live="off" aria-labelledby="clock-label">05:00</div>
+            <p id="clock-units" class="clock-units" aria-hidden="true">phút : giây</p>
+            <p id="selected-duration" class="selected-duration">Đã đặt 05:00</p>
+          </div>
+          <p id="timer-status" class="timer-status" role="status">Sẵn sàng rồi. Bắt đầu khi bạn muốn nhé!</p>
+          <div class="timer-actions">
+            <button id="toggle-timer" class="btn primary" type="button">Bắt đầu</button>
+            <button id="reset-timer" class="btn" type="button">Đặt lại</button>
+          </div>
+          <label class="sound-option" for="sound-toggle"><input id="sound-toggle" type="checkbox" checked>Âm báo khi hết giờ</label>
+          <p id="sound-error" class="notice" role="alert" hidden></p>
+          <p class="timer-note">Đồng hồ tiếp tục khi chuyển tab. Giữ trang mở; tải lại trang sẽ đặt lại đồng hồ. Âm báo có thể trễ khi thiết bị ngủ hoặc trình duyệt hạn chế chạy nền.</p>
+        </section>
+
+        <section class="settings-panel" aria-labelledby="settings-heading">
+          <p class="eyebrow">01 / Chọn thời gian</p>
+          <h2 id="settings-heading">Bạn có bao nhiêu phút?</h2>
+          <p class="muted">Một cú chạm, một khoảng tập trung.</p>
+          <div class="presets" role="group" aria-label="Các mốc thời gian có sẵn">
+            <button type="button" data-seconds="60" aria-pressed="false">1 <span>phút</span></button>
+            <button type="button" data-seconds="180" aria-pressed="false">3 <span>phút</span></button>
+            <button type="button" data-seconds="300" aria-pressed="true">5 <span>phút</span></button>
+            <button type="button" data-seconds="600" aria-pressed="false">10 <span>phút</span></button>
+            <button type="button" data-seconds="900" aria-pressed="false">15 <span>phút</span></button>
+            <button type="button" data-seconds="1500" aria-pressed="false">25 <span>phút</span></button>
+            <button type="button" data-seconds="1800" aria-pressed="false">30 <span>phút</span></button>
+            <button type="button" data-seconds="3600" aria-pressed="false">60 <span>phút</span></button>
+          </div>
+          <form id="duration-form" class="custom-duration" novalidate>
+            <h2>Tự đặt theo nhịp của bạn.</h2>
+            <div class="duration-fields">
+              <div class="field"><label for="hours">Giờ</label><input id="hours" name="hours" type="text" inputmode="numeric" maxlength="2" value="0" autocomplete="off" spellcheck="false" aria-describedby="duration-help duration-error"></div>
+              <div class="field"><label for="minutes">Phút</label><input id="minutes" name="minutes" type="text" inputmode="numeric" maxlength="2" value="5" autocomplete="off" spellcheck="false" aria-describedby="duration-help duration-error"></div>
+              <div class="field"><label for="seconds">Giây</label><input id="seconds" name="seconds" type="text" inputmode="numeric" maxlength="2" value="0" autocomplete="off" spellcheck="false" aria-describedby="duration-help duration-error"></div>
+            </div>
+            <p id="duration-help" class="hint">Giờ: 0–99 · Phút, giây: 0–59. Ô trống được tính là 0. Tổng thời gian ít nhất 1 giây.</p>
+            <p id="duration-error" class="notice" role="alert" tabindex="-1" hidden></p>
+            <button class="btn apply" type="submit">Áp dụng thời gian</button>
+          </form>
+          <p class="hint change-note">Chọn mốc hoặc áp dụng thời gian mới sẽ dừng và đặt lại đồng hồ.</p>
+        </section>
+      </div>
+      <p class="local-note">Miễn phí · Không cần tài khoản · Thời gian được xử lý ngay trong trình duyệt.</p>
+    </main>
+    <footer><span>Mind Phoenix · Nuôi dưỡng trí tò mò.</span><nav aria-label="Liên kết cuối trang"><a href="../">Công cụ</a><a href="../../pages/privacy-policy.html">Bảo mật</a><a href="../../pages/terms-of-service.html">Điều khoản</a></nav></footer>
+  </div>
+</body>
+</html>

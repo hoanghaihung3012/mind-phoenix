@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#d9d6ff">
-  <meta name="description" content="Công cụ nhỏ, hữu ích từ Mind Phoenix: học Toán tiểu học, đổi đơn vị, thử phép tính và quản lý kênh YouTube.">
+  <meta name="description" content="Công cụ nhỏ, hữu ích từ Mind Phoenix: học Toán tiểu học, đổi đơn vị, thử phép tính, quản lý kênh YouTube và hẹn giờ đếm ngược.">
   <link rel="canonical" href="https://mindphoenix.xyz/tools/">
   <title>Công cụ — Mind Phoenix Tools</title>
   <link rel="icon" type="image/png" href="../assets/mascots/mind-phoenix-logo.png">
@@ -39,12 +39,16 @@
     .chart i { display: block; width: 32px; height: 45px; border: 2px solid var(--ink); border-radius: 5px 5px 0 0; background: #dcd2ff; }
     .chart i:nth-child(2) { height: 70px; background: #ffd98a; }
     .chart i:nth-child(3) { height: 95px; background: #ff8fa3; }
+    .timer-cover { background-color: #ffebcf; background-image: radial-gradient(#dfc29b 1px, transparent 1px); }
+    .timer-preview { position: relative; display: grid; place-items: center; width: 126px; height: 126px; border: 3px solid var(--ink); border-radius: 50%; background: #fffaf5; box-shadow: 0 5px 0 var(--ink); font: 800 32px 'Baloo 2', system-ui, sans-serif; transform: rotate(-7deg); }
+    .timer-preview::before { content: ''; position: absolute; top: -17px; width: 30px; height: 14px; border: 2px solid var(--ink); border-radius: 5px 5px 0 0; background: #ffd98a; }
     .copy { display: flex; flex-direction: column; align-items: flex-start; flex: 1; padding: 26px; }
     .tag { color: #7754ae; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
     h2 { margin: 12px 0; font-size: 28px; }
     .copy p { flex: 1; margin: 0 0 22px; color: var(--muted); font-size: 13px; }
     .open { padding: 8px 15px; border: 2px solid var(--ink); border-radius: 10px; background: #dcd2ff; box-shadow: 0 3px 0 var(--ink); font: 700 14px 'Baloo 2', system-ui, sans-serif; }
-    .tool:last-child .open { background: #bfeedd; }
+    .dashboard-tool .open { background: #bfeedd; }
+    .timer-tool .open { background: #ffd98a; }
     footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; padding: 24px 0; border-top: 1px solid #ded7e8; color: var(--muted); font-size: 12px; }
     footer nav { display: flex; flex-wrap: wrap; gap: 18px; }
     @media (max-width: 650px) { .tools { grid-template-columns: 1fr; } main { padding-top: 32px; } .brand { font-size: 21px; } .cover { height: 170px; } }
@@ -63,9 +67,13 @@
           <div class="cover" aria-hidden="true"><img src="../assets/mascots/mindmath-sigma-happy.webp" width="125" height="140" alt=""><span class="formula">ƒ(x) = ?</span></div>
           <div class="copy"><span class="tag">Toán tiểu học · Cho học sinh &amp; thầy cô</span><h2>Mini Formula<br>&amp; Unit Sandbox</h2><p>Cùng tính chu vi, diện tích, thể tích, trung bình cộng và tỉ số phần trăm; đổi 6 nhóm đơn vị quen thuộc. Tự thử phép tính, xem cách làm và sao chép hoặc in lời giải.</p><span class="open">Khám phá ngay →</span></div>
         </a>
-        <a class="tool" href="youtube-dashboard/">
+        <a class="tool dashboard-tool" href="youtube-dashboard/">
           <div class="cover dashboard-cover" aria-hidden="true"><div class="chart"><i></i><i></i><i></i></div></div>
           <div class="copy"><span class="tag">Nhà sáng tạo · Kết nối Google</span><h2>YouTube<br>Channel Dashboard</h2><p>Theo dõi các kênh bạn quản lý, tổng hợp chỉ số và xem video mới nhất trong một giao diện gọn gàng. Giữ nguyên các cài đặt Dashboard hiện có.</p><span class="open">Mở Dashboard →</span></div>
+        </a>
+        <a class="tool timer-tool" href="timer/">
+          <div class="cover timer-cover" aria-hidden="true"><span class="timer-preview">05:00</span></div>
+          <div class="copy"><span class="tag">Tập trung · Học tập &amp; Nghỉ ngơi</span><h2>Timer<br>Đồng hồ đếm ngược</h2><p>Chọn nhanh các mốc 1–60 phút hoặc tự nhập giờ, phút, giây. Bắt đầu, tạm dừng, đặt lại và nghe âm báo khi hết giờ, ngay trong trình duyệt.</p><span class="open">Mở Timer →</span></div>
         </a>
       </div>
     </main>
