@@ -95,6 +95,10 @@
     .panel label { display: block; margin: 18px 0 6px; font: 700 15px var(--display); }
     .panel input, .panel textarea { width: 100%; padding: 12px 14px; border: 2.5px solid var(--ink); border-radius: 14px; background: var(--snow); font: 500 14px var(--mono); }
     .panel textarea { min-height: 150px; resize: vertical; }
+    .panel input[type="file"] { cursor: pointer; }
+    .client-status { margin: 8px 0 0; font: 500 13px var(--mono); word-break: break-all; }
+    .client-status.ok { color: #1f7a57; }
+    .client-status.bad { color: var(--berry-deep); }
     .panel .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
     .notice { margin: 0 0 24px; padding: 14px 18px; border: 2.5px solid var(--ink); border-radius: 16px; background: var(--peach); }
     .skeleton { min-height: 420px; background: linear-gradient(90deg, #f4f1ff 25%, #fff 50%, #f4f1ff 75%) 0 0 / 200% 100%; animation: shimmer 1.2s linear infinite; }
@@ -116,6 +120,7 @@
           <option value="custom">Thứ tự mặc định</option>
         </select>
         <button id="refresh" class="btn mint" type="button">↻ Làm mới</button>
+        <button id="auth" class="btn primary hidden" type="button">G Đăng nhập Google</button>
         <button id="open-settings" class="btn" type="button" aria-controls="settings">⚙ Cài đặt</button>
       </div>
     </header>
@@ -130,13 +135,16 @@
 
     <section id="settings" class="panel hidden" aria-labelledby="settings-title">
       <h2 id="settings-title">Cài đặt</h2>
-      <p>Dashboard dùng <strong>YouTube Data API v3</strong> để lấy số liệu công khai của kênh. API key chỉ được lưu trong trình duyệt này (localStorage).</p>
+      <p>Dashboard đăng nhập bằng tài khoản Google (OAuth, quyền chỉ đọc YouTube) để gọi <strong>YouTube Data API v3</strong>. Không cần API key.</p>
       <ol>
         <li>Vào <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener noreferrer">Google Cloud Console</a> và bật <em>YouTube Data API v3</em>.</li>
-        <li>Tạo <em>API key</em> ở mục Credentials. Nên giới hạn key theo HTTP referrer (vd. <code>mindphoenix.xyz/*</code>) và chỉ cho phép YouTube Data API.</li>
+        <li>Ở <em>Credentials → Create credentials → OAuth client ID</em>, chọn loại <strong>Web application</strong>, thêm <em>Authorized JavaScript origins</em>: <code>https://mindphoenix.xyz</code>.</li>
+        <li>Ở <em>OAuth consent screen</em>, nếu app đang ở chế độ Testing thì thêm email của bạn vào <em>Test users</em>.</li>
+        <li>Tải file <code>client_secret_….json</code> về và chọn file đó bên dưới.</li>
       </ol>
-      <label for="api-key">API key</label>
-      <input id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="AIza...">
+      <label for="client-file">File OAuth client (JSON)</label>
+      <input id="client-file" type="file" accept=".json,application/json">
+      <p id="client-status" class="client-status"></p>
       <label for="channels">Danh sách kênh (mỗi dòng một @handle, link kênh hoặc channel ID)</label>
       <textarea id="channels" spellcheck="false"></textarea>
       <div class="row">
@@ -152,7 +160,9 @@
   <script>
     (() => {
       const API = 'https://www.googleapis.com/youtube/v3/';
-      const STORE = { key: 'ytdash.apiKey', channels: 'ytdash.channels', cache: 'ytdash.cache', sort: 'ytdash.sort' };
+      const STORE = { clientId: 'ytdash.clientId', token: 'ytdash.token', channels: 'ytdash.channels', cache: 'ytdash.cache', sort: 'ytdash.sort' };
+      const SCOPE = 'https://www.googleapis.com/auth/youtube.readonly';
+      const GIS_SRC = 'https://accounts.google.com/gsi/client';
       const CACHE_TTL = 30 * 60 * 1000;
       const LATEST_COUNT = 3;
       const DEFAULT_CHANNELS = ['@mindmathhh', '@minddevit', '@mindastroq', '@mindchemistryp', '@phoenixhoang_2202'];
@@ -161,7 +171,7 @@
       const $ = (id) => document.getElementById(id);
       const els = {
         grid: $('grid'), summary: $('summary'), updated: $('updated'), notice: $('notice'), settings: $('settings'),
-        apiKey: $('api-key'), channels: $('channels'), refresh: $('refresh'), sort: $('sort')
+        clientFile: $('client-file'), clientStatus: $('client-status'), auth: $('auth'), channels: $('channels'), refresh: $('refresh'), sort: $('sort')
       };
 
       const nf = new Intl.NumberFormat('vi-VN');
@@ -191,6 +201,81 @@
         return [y && `${y} năm`, m && `${m} tháng`].filter(Boolean).join(' ') || 'mới tạo';
       }
 
+      // ---------- OAuth (Google Identity Services, token model) ----------
+      let gisPromise = null;
+      let tokenClient = null;
+
+      function loadGis() {
+        gisPromise ??= new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = GIS_SRC;
+          s.async = true;
+          s.onload = () => resolve(window.google.accounts.oauth2);
+          s.onerror = () => { gisPromise = null; reject(new Error('Không tải được Google Sign-In')); };
+          document.head.appendChild(s);
+        });
+        return gisPromise;
+      }
+
+      function readToken() {
+        try {
+          const t = JSON.parse(sessionStorage.getItem(STORE.token));
+          return t && t.exp - 60000 > Date.now() ? t.value : null;
+        } catch { return null; }
+      }
+
+      function clearToken() {
+        const t = readToken();
+        sessionStorage.removeItem(STORE.token);
+        if (t && window.google?.accounts?.oauth2) google.accounts.oauth2.revoke(t, () => {});
+        updateAuthButton();
+      }
+
+      // Must be called from a user gesture so the Google popup isn't blocked.
+      async function signIn() {
+        const clientId = localStorage.getItem(STORE.clientId);
+        if (!clientId) throw new Error('Chưa có file OAuth client');
+        const oauth2 = await loadGis();
+        return new Promise((resolve, reject) => {
+          tokenClient = oauth2.initTokenClient({
+            client_id: clientId,
+            scope: SCOPE,
+            callback: (resp) => {
+              if (resp.error) return reject(new Error(resp.error_description || resp.error));
+              if (!oauth2.hasGrantedAllScopes(resp, SCOPE)) return reject(new Error('Bạn chưa cấp quyền đọc dữ liệu YouTube'));
+              sessionStorage.setItem(STORE.token, JSON.stringify({ value: resp.access_token, exp: Date.now() + resp.expires_in * 1000 }));
+              updateAuthButton();
+              resolve(resp.access_token);
+            },
+            error_callback: (err) => reject(new Error(err.type === 'popup_closed' ? 'Cửa sổ đăng nhập đã bị đóng' : `Đăng nhập thất bại (${err.type})`))
+          });
+          tokenClient.requestAccessToken();
+        });
+      }
+
+      function updateAuthButton() {
+        const hasClient = !!localStorage.getItem(STORE.clientId);
+        els.auth.classList.toggle('hidden', !hasClient);
+        els.auth.textContent = readToken() ? '⎋ Đăng xuất' : 'G Đăng nhập Google';
+      }
+
+      // Accepts the client_secret_*.json downloaded from Google Cloud Console.
+      function parseClientFile(text) {
+        let json;
+        try { json = JSON.parse(text); } catch { throw new Error('File không phải JSON hợp lệ'); }
+        if (json.type === 'service_account') throw new Error('Đây là file Service Account. Hãy tạo OAuth client loại "Web application".');
+        if (json.installed) throw new Error('Đây là OAuth client loại Desktop app. Hãy tạo OAuth client loại "Web application".');
+        const id = json.web?.client_id;
+        if (!/^[\w-]+\.apps\.googleusercontent\.com$/.test(id || '')) throw new Error('Không tìm thấy web.client_id trong file');
+        const origins = json.web.javascript_origins || [];
+        return { id, originOk: origins.includes(location.origin) };
+      }
+
+      function showClientStatus(msg, ok) {
+        els.clientStatus.textContent = msg;
+        els.clientStatus.className = 'client-status ' + (ok ? 'ok' : 'bad');
+      }
+
       function getChannelList() {
         try { return JSON.parse(localStorage.getItem(STORE.channels)) || DEFAULT_CHANNELS; } catch { return DEFAULT_CHANNELS; }
       }
@@ -206,9 +291,12 @@
       }
 
       async function api(path, params) {
+        const token = readToken();
+        if (!token) throw new Error('Phiên đăng nhập đã hết hạn, hãy đăng nhập lại');
         const url = new URL(API + path);
-        Object.entries({ ...params, key: localStorage.getItem(STORE.key) }).forEach(([k, v]) => url.searchParams.set(k, v));
-        const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+        Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(15000) });
+        if (res.status === 401) { clearToken(); throw new Error('Phiên đăng nhập đã hết hạn, hãy đăng nhập lại'); }
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
         return data;
@@ -313,7 +401,7 @@
           <article class="card">
             <div class="banner" style="--c1:${c1};--c2:${c2};${esc(banner)}">${rank ? `<span class="rank">#${rank}</span>` : ''}</div>
             <div class="head">
-              <img class="avatar" src="${esc(safeUrl(c.avatar))}" alt="" loading="lazy">
+              <img class="avatar" src="${esc(safeUrl(c.avatar) || '../../assets/mascots/mind-phoenix-logo.png')}" alt="" loading="lazy">
               <div class="names"><h3 title="${esc(c.title)}">${esc(c.title)}</h3>
                 <a class="handle" href="${url}" target="_blank" rel="noopener noreferrer">${esc(c.handle || c.id)} ↗</a></div>
             </div>
@@ -350,17 +438,27 @@
         try { return JSON.parse(localStorage.getItem(STORE.cache)); } catch { return null; }
       }
 
-      async function load(force = false) {
-        if (!localStorage.getItem(STORE.key)) {
+      async function load(force = false, interactive = false) {
+        if (!localStorage.getItem(STORE.clientId)) {
           openSettings();
-          showNotice('Nhập YouTube Data API key để bắt đầu.');
+          showNotice('Chọn file OAuth client (JSON) trong Cài đặt để bắt đầu.');
           return;
         }
         const refs = getChannelList();
         const cache = readCache();
-        if (!force && cache && JSON.stringify(cache.refs) === JSON.stringify(refs) && Date.now() - cache.at < CACHE_TTL) {
+        const sameRefs = cache && JSON.stringify(cache.refs) === JSON.stringify(refs);
+        if (!force && sameRefs && Date.now() - cache.at < CACHE_TTL) {
           render(current = cache);
           return;
+        }
+
+        if (!readToken()) {
+          if (!interactive) {
+            if (sameRefs) render(current = cache);
+            showNotice('Bấm "Đăng nhập Google" để tải dữ liệu mới nhất.');
+            return;
+          }
+          try { await signIn(); } catch (e) { showNotice(e.message); return; }
         }
 
         els.refresh.disabled = true;
@@ -381,30 +479,58 @@
         els.refresh.disabled = false;
       }
 
+      let pendingClientId = null;
+
       function openSettings() {
-        els.apiKey.value = localStorage.getItem(STORE.key) || '';
+        pendingClientId = null;
+        els.clientFile.value = '';
+        const id = localStorage.getItem(STORE.clientId);
+        if (id) showClientStatus(`✓ Đang dùng Client ID: ${id}`, true);
+        else showClientStatus('', true);
         els.channels.value = getChannelList().join('\n');
         els.settings.classList.remove('hidden');
-        els.apiKey.focus();
+        els.clientFile.focus();
       }
 
+      els.clientFile.addEventListener('change', async () => {
+        pendingClientId = null;
+        const file = els.clientFile.files[0];
+        if (!file) return;
+        try {
+          const { id, originOk } = parseClientFile(await file.text());
+          pendingClientId = id;
+          showClientStatus(`✓ Client ID: ${id}` + (originOk ? '' : ` — lưu ý: chưa thấy ${location.origin} trong Authorized JavaScript origins`), true);
+        } catch (e) {
+          showClientStatus(`✗ ${e.message}`, false);
+        }
+      });
       $('open-settings').addEventListener('click', () => {
         if (els.settings.classList.contains('hidden')) openSettings();
         else els.settings.classList.add('hidden');
       });
       $('cancel-settings').addEventListener('click', () => els.settings.classList.add('hidden'));
       $('save-settings').addEventListener('click', () => {
-        const key = els.apiKey.value.trim();
+        if (pendingClientId && pendingClientId !== localStorage.getItem(STORE.clientId)) {
+          clearToken();
+          localStorage.setItem(STORE.clientId, pendingClientId);
+        }
         const list = els.channels.value.split('\n').map((s) => s.trim()).filter(Boolean);
-        if (key) localStorage.setItem(STORE.key, key); else localStorage.removeItem(STORE.key);
         localStorage.setItem(STORE.channels, JSON.stringify(list.length ? list : DEFAULT_CHANNELS));
         els.settings.classList.add('hidden');
-        load(true);
+        updateAuthButton();
+        load(true, true);
       });
-      els.refresh.addEventListener('click', () => load(true));
+      els.auth.addEventListener('click', () => {
+        if (readToken()) { clearToken(); showNotice('Đã đăng xuất.'); }
+        else load(true, true);
+      });
+      els.refresh.addEventListener('click', () => load(true, true));
       els.sort.value = localStorage.getItem(STORE.sort) || 'subs';
       els.sort.addEventListener('change', () => { localStorage.setItem(STORE.sort, els.sort.value); render(current); });
 
+      updateAuthButton();
+      if (localStorage.getItem(STORE.clientId)) loadGis().catch(() => {});
+      localStorage.removeItem('ytdash.apiKey');
       load();
     })();
   </script>

@@ -146,6 +146,8 @@
     .nav-links .nav-cta:hover { background: var(--gold); }
     .nav-links .nav-contact { background: var(--gold); }
     .nav-links .nav-contact:hover { background: var(--berry); }
+    .nav-links .nav-tools-link { margin-left: 6px; padding: 10px 18px; border: 2.5px solid var(--ink); background: var(--lilac); box-shadow: 0 3px 0 var(--ink); white-space: nowrap; }
+    .nav-links .nav-tools-link:hover { background: var(--mint); }
     .nav-tools { display: flex; align-items: center; gap: 10px; }
     .lang-toggle { display: inline-flex; padding: 3px; border: 2.5px solid var(--ink); border-radius: 14px; background: white; box-shadow: 0 3px 0 var(--ink); }
     .lang-toggle button { min-width: 40px; min-height: 36px; padding: 0 8px; border: 0; border-radius: 10px; background: transparent; font: 600 14px var(--display); cursor: pointer; transition: background .2s; }
@@ -404,7 +406,7 @@
       .menu-toggle { display: grid; place-items: center; }
       .nav-links { position: absolute; top: calc(100% + 10px); left: 16px; right: 16px; flex-direction: column; align-items: stretch; padding: 12px; background: var(--snow); border: var(--outline); border-radius: 22px; box-shadow: 0 5px 0 var(--ink); opacity: 0; visibility: hidden; transform: translateY(-10px) scale(.97); transition: opacity .2s, transform .3s var(--pop), visibility .2s; }
       .nav-links.is-open { opacity: 1; visibility: visible; transform: none; }
-      .nav-links .nav-cta, .nav-links .nav-contact { margin: 6px 0 0; text-align: center; }
+      .nav-links .nav-cta, .nav-links .nav-contact, .nav-links .nav-tools-link { margin: 6px 0 0; text-align: center; }
     }
     @media (max-width: 1080px) {
       .reel-layout { grid-template-columns: 1fr; }
@@ -474,6 +476,7 @@
         <a href="#reel" data-i18n="nav.reel">Showreel</a>
         <a href="#how" data-i18n="nav.how">How we animate</a>
         <a href="#channels" data-i18n="nav.channels">Channels</a>
+        <a class="nav-tools-link" href="tools/" data-i18n="nav.tools">🛠 Tools</a>
         <a class="nav-cta" href="#channels" data-i18n="nav.watch">▶ Watch now</a>
         <a class="nav-contact" href="mailto:haihung1988@gmail.com" data-i18n="nav.contact">Contact us</a>
       </nav>
@@ -846,7 +849,7 @@
       const VI = {
         'nav.home': 'Trang chủ Mind Phoenix',
         'nav.reel': 'Showreel', 'nav.how': 'Cách tụi mình làm phim', 'nav.channels': 'Các kênh', 'nav.guest': 'Khách mời', 'nav.watch': '▶ Xem ngay',
-        'nav.contact': 'Liên hệ',
+        'nav.contact': 'Liên hệ', 'nav.tools': '🛠 Công cụ',
         'hero.tag': 'Kênh giáo dục hoạt hình 2D',
         'hero.sub': 'Bài học hoạt hình về <b>toán, lập trình, vũ trụ &amp; hoá học</b>, vẽ và diễn hoạt từng khung hình để ý tưởng lớn trở nên dễ hiểu.',
         'hero.play': 'Xem showreel', 'hero.cast': 'Gặp dàn nhân vật ✨',
