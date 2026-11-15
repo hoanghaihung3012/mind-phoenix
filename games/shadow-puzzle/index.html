@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#faf8f2">
+  <meta name="description" content="Ghép 7 mảnh tangram đầy màu sắc thành thuyền buồm, chú mèo và ngôi nhà. Game kéo thả cho bé, tự khớp trong khoảng 15px, chơi được trên điện thoại.">
+  <title>Ghép bóng hình — Mind Phoenix Games</title>
+  <link rel="canonical" href="https://mindphoenix.xyz/games/shadow-puzzle/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Mind Phoenix">
+  <meta property="og:title" content="Ghép bóng hình — Mind Phoenix Games">
+  <meta property="og:description" content="Bảy mảnh nhỏ, thật nhiều điều kỳ diệu. Cùng bé khám phá hình học qua trò chơi tangram kéo thả!">
+  <meta property="og:url" content="https://mindphoenix.xyz/games/shadow-puzzle/">
+  <meta property="og:locale" content="vi_VN">
+  <meta property="og:image" content="https://mindphoenix.xyz/assets/og/mind-phoenix-social.png">
+  <link rel="icon" type="image/png" href="../../assets/mascots/mind-phoenix-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="game.css">
+  <script type="module" src="game.js"></script>
+</head>
+<body>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-back" viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-reset" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-bulb" viewBox="0 0 24 24"><path d="M8 15a6 6 0 1 1 8 0l-1 2H9Zm1 5h6m-5 2h4M12 1v1M3 5l1 1m16 0 1-1M1 12h2m18 0h2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9 9a3 3 0 1 1 4 3c-1 .4-1 1-1 2m0 3v.1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="icon-magnet" viewBox="0 0 24 24"><path d="M5 3v9a7 7 0 0 0 14 0V3h-5v9a2 2 0 0 1-4 0V3Zm0 5h5m4 0h5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-star" viewBox="0 0 24 24"><path d="m12 2 3 6.3 7 1-5 4.9 1.2 6.8L12 17.8 5.8 21 7 14.2 2 9.3l7-1Z" fill="currentColor" stroke="currentColor" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <div class="page-wrap">
+    <header class="topbar">
+      <a class="brand" href="../../" aria-label="Trang chủ Mind Phoenix">
+        <img src="../../assets/mascots/mind-phoenix-logo.png" width="42" height="42" alt="">
+        <span>Mind Phoenix<small>CHƠI MÀ HỌC</small></span>
+      </a>
+      <nav aria-label="Điều hướng">
+        <a class="back-link" href="../" aria-label="Tất cả trò chơi"><svg class="icon" aria-hidden="true"><use href="#icon-back"/></svg><span>Tất cả trò chơi</span></a>
+        <button class="help-button" id="open-help" type="button" aria-label="Cách chơi"><svg class="icon" aria-hidden="true"><use href="#icon-help"/></svg><span>Cách chơi</span></button>
+      </nav>
+    </header>
+
+    <main>
+      <header class="intro">
+        <div>
+          <p class="eyebrow"><span aria-hidden="true">✦</span> Xưởng sáng tạo nho nhỏ</p>
+          <h1>Ghép <span>bóng hình</span><svg aria-hidden="true" viewBox="0 0 40 40"><path d="m20 3 4 12 12 5-12 4-4 13-4-13-12-4 12-5Z" fill="#efc45d"/></svg></h1>
+          <p id="board-instructions">Kéo những mảnh màu vào bóng mờ. Điều kỳ diệu đang chờ bé!</p>
+        </div>
+        <span class="learning-tag"><svg class="icon" aria-hidden="true"><use href="#icon-star"/></svg>7 mảnh nhỏ, vô vàn sáng tạo</span>
+      </header>
+
+      <div class="game-layout">
+        <aside class="puzzle-picker" aria-labelledby="picker-title">
+          <div class="picker-heading"><h2 id="picker-title">Bé muốn ghép gì?</h2><span>3 hình</span></div>
+          <div class="puzzle-options">
+            <button class="puzzle-option" type="button" data-puzzle="boat" aria-pressed="true">
+              <span class="preview-wrap boat-preview"><svg data-preview="boat" aria-hidden="true"></svg></span>
+              <span class="option-copy"><strong>Thuyền buồm</strong><small>Cùng ra khơi nào!</small></span>
+              <span class="option-check" aria-hidden="true"><svg class="icon"><use href="#icon-check"/></svg></span>
+              <span class="completion-label sr-only"></span>
+            </button>
+            <button class="puzzle-option" type="button" data-puzzle="cat" aria-pressed="false">
+              <span class="preview-wrap cat-preview"><svg data-preview="cat" aria-hidden="true"></svg></span>
+              <span class="option-copy"><strong>Chú mèo</strong><small>Một người bạn nhỏ</small></span>
+              <span class="option-check" aria-hidden="true"><svg class="icon"><use href="#icon-check"/></svg></span>
+              <span class="completion-label sr-only"></span>
+            </button>
+            <button class="puzzle-option" type="button" data-puzzle="house" aria-pressed="false">
+              <span class="preview-wrap house-preview"><svg data-preview="house" aria-hidden="true"></svg></span>
+              <span class="option-copy"><strong>Ngôi nhà</strong><small>Mái ấm đầy màu sắc</small></span>
+              <span class="option-check" aria-hidden="true"><svg class="icon"><use href="#icon-check"/></svg></span>
+              <span class="completion-label sr-only"></span>
+            </button>
+          </div>
+          <div class="buddy-card">
+            <span class="buddy-spark" aria-hidden="true">✦</span>
+            <img src="../../assets/mascots/mindmath-sigma-happy.webp" width="124" height="124" alt="Bạn Sigma đang mỉm cười">
+            <p>Cứ thử nhé!<br><strong>Bé làm được mà.</strong></p>
+            <span class="no-rush">Không đếm giờ. Không vội vàng.</span>
+          </div>
+          <p class="shape-note"><span aria-hidden="true">△ ◇ ▱</span>Tam giác, hình vuông, hình bình hành.<br>Cùng khám phá những hình quen thuộc!</p>
+        </aside>
+
+        <section class="play-panel" aria-labelledby="puzzle-title">
+          <header class="panel-heading">
+            <div class="puzzle-name"><span class="level-badge" id="level-number">01</span><div><p class="eyebrow">Bức tranh của bé</p><h2 id="puzzle-title">Thuyền buồm</h2></div></div>
+            <div class="progress-counter" role="progressbar" aria-label="Số mảnh đã ghép" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0"><svg class="icon" aria-hidden="true"><use href="#icon-check"/></svg><span id="piece-count">0 <small>/ 7 mảnh</small></span></div>
+          </header>
+
+          <div class="difficulty-bar">
+            <div class="difficulty-options" role="group" aria-label="Mức độ">
+              <button type="button" data-difficulty="easy" aria-pressed="false">Dễ</button>
+              <button type="button" data-difficulty="hard" aria-pressed="true">Khó</button>
+            </div>
+            <p id="difficulty-note">Không có khung · bấm Gợi ý để xem</p>
+          </div>
+
+          <div class="board-wrap">
+            <svg id="puzzle-board" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="group" aria-labelledby="board-title" aria-describedby="board-instructions keyboard-instructions">
+              <title id="board-title">Bảng ghép hình thuyền buồm</title>
+              <g id="board-decoration" aria-hidden="true"></g>
+              <g id="targets"></g>
+              <g id="pieces"></g>
+            </svg>
+            <div id="confetti" aria-hidden="true"></div>
+            <noscript><p class="game-notice">Hãy bật JavaScript để chơi Ghép bóng hình.</p></noscript>
+          </div>
+
+          <footer class="panel-footer">
+            <p class="magnet-note"><svg class="icon" aria-hidden="true"><use href="#icon-magnet"/></svg><span>Đến gần là <strong>tự khớp!</strong></span></p>
+            <div class="board-actions">
+              <button class="secondary-button" id="reset-puzzle" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-reset"/></svg>Làm lại</button>
+              <button class="hint-button" id="hint-toggle" type="button" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-bulb"/></svg><span>Gợi ý</span></button>
+            </div>
+          </footer>
+          <p class="game-status" id="game-status" role="status">Bé thử ghép lại hình mẫu ở giữa bảng nhé!</p>
+          <p class="game-notice" id="game-notice" role="alert" hidden></p>
+          <p class="sr-only" id="keyboard-instructions">Dùng Tab để đến mảnh ghép. Nhấn Enter hoặc dấu cách để chọn, dùng phím mũi tên để di chuyển, giữ Shift để đi chậm, nhấn Enter để ghép. Nhấn Escape để bỏ chọn.</p>
+        </section>
+      </div>
+    </main>
+
+    <footer class="page-footer"><span>Một chút chơi, cả trời khám phá.</span><a href="../../">Made with curiosity · Mind Phoenix</a></footer>
+  </div>
+
+  <dialog id="help-dialog" aria-labelledby="help-title">
+    <button class="dialog-close" type="button" data-close-dialog aria-label="Đóng hướng dẫn"><svg class="icon" aria-hidden="true"><use href="#icon-close"/></svg></button>
+    <p class="eyebrow">Chơi thật dễ, vui thật nhiều</p>
+    <h2 id="help-title">Cùng ghép hình nào!</h2>
+    <ol class="help-steps">
+      <li><strong>Chọn một bức tranh.</strong> Thuyền buồm, chú mèo hay ngôi nhà?</li>
+      <li><strong>Mặc định là mức Khó.</strong> Không có khung; bé nhìn hình mẫu rồi ghép lại ở giữa bảng. Bí quá thì bấm “Gợi ý” để hiện cách ghép (khung màu có số), bấm lần nữa để ẩn. Mức Dễ luôn có khung bóng mờ. Đổi mức độ hoặc đổi hình sẽ bắt đầu lại và ẩn gợi ý.</li>
+      <li><strong>Ghép đủ 7 mảnh.</strong> Các mảnh đã đúng chiều, không cần xoay. Cả hai mức đều tự hút trong khoảng 15px khi gần đúng vị trí; thả tay để ghép chặt. Khi khung đang hiện, bé cũng có thể chạm một mảnh rồi chạm đúng vị trí trong bóng mờ.</li>
+    </ol>
+    <p class="dialog-note">Không có giới hạn thời gian. Ghép chưa đúng cũng không sao, cứ thử lại nhé!</p>
+    <details><summary>Chơi bằng bàn phím</summary><p>Tab đến mảnh, Enter hoặc dấu cách để chọn. Dùng mũi tên để di chuyển, giữ Shift để đi chậm; Enter để ghép khi gần đúng. Escape bỏ chọn hoặc hủy lần kéo. Khi khung đang hiện (mức Dễ hoặc đang bật Gợi ý), bé có thể Tab đến vị trí được đánh dấu rồi nhấn Enter để ghép.</p></details>
+    <button class="primary-button" type="button" data-close-dialog>Đã hiểu, chơi thôi!<svg class="icon" aria-hidden="true"><use href="#icon-arrow"/></svg></button>
+  </dialog>
+
+  <dialog id="completion-dialog" aria-labelledby="completion-title">
+    <button class="dialog-close" type="button" data-close-dialog aria-label="Đóng lời chúc mừng"><svg class="icon" aria-hidden="true"><use href="#icon-close"/></svg></button>
+    <div class="award" aria-hidden="true"><svg><use href="#icon-star"/></svg><span>✦</span><span>✧</span></div>
+    <p class="eyebrow">7 / 7 mảnh · Hoàn thành!</p>
+    <h2 id="completion-title">Ghép giỏi quá!</h2>
+    <p id="completion-message"></p>
+    <div class="completion-preview"><svg id="finished-preview" aria-hidden="true"></svg></div>
+    <div class="dialog-actions">
+      <button class="secondary-button" id="play-again" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-reset"/></svg>Chơi lại</button>
+      <button class="primary-button" id="next-puzzle" type="button" autofocus>Hình tiếp theo<svg class="icon" aria-hidden="true"><use href="#icon-arrow"/></svg></button>
+    </div>
+  </dialog>
+</body>
+</html>

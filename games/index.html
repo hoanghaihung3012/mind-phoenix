@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#faf8f2">
+  <meta name="description" content="Chơi mà học cùng Mind Phoenix: ghép bóng hình tangram cho bé và đua vịt chọn tên vui nhộn. Miễn phí, chơi ngay trên trình duyệt.">
+  <link rel="canonical" href="https://mindphoenix.xyz/games/">
+  <title>Trò chơi — Mind Phoenix Games</title>
+  <link rel="icon" type="image/png" href="../assets/mascots/mind-phoenix-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #faf8f2; color: #304b4a; font: 600 15px/1.6 "Nunito", system-ui, sans-serif; }
+    a { color: inherit; text-decoration: none; }
+    a:focus-visible { outline: 3px solid #d9963d; outline-offset: 5px; }
+    .wrap { width: min(1000px, calc(100% - 40px)); margin: 0 auto; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 92px; border-bottom: 1px solid #e8e7df; }
+    .brand { display: flex; align-items: center; gap: 10px; font: 800 22px "Baloo 2", system-ui, sans-serif; }
+    .brand img { width: 42px; height: 42px; object-fit: contain; }
+    .home-link { color: #7b8882; font-size: 12px; }
+    main { padding: 48px 0; }
+    .eyebrow { margin: 0 0 12px; color: #ae8760; font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    h1 { margin: 0; font: 800 clamp(34px, 6vw, 52px)/1.15 "Baloo 2", system-ui, sans-serif; letter-spacing: -.03em; }
+    h1 span { color: #358b79; }
+    .intro { margin: 14px 0 32px; color: #7b8882; font-size: 14px; }
+    .games { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+    .game { overflow: hidden; border: 1.5px solid #e4e5db; border-radius: 22px; background: #fffefa; box-shadow: 0 5px 0 #e9e7dd; transition: transform .18s, border-color .18s; }
+    .game:hover { transform: translateY(-4px); border-color: #7bb7a1; }
+    .cover { display: grid; place-items: center; height: 210px; background-color: #edf3e9; background-image: radial-gradient(#d4dfce 1px, transparent 1px); background-size: 22px 22px; }
+    .cover svg { width: 230px; height: 160px; overflow: visible; }
+    .duck-cover { background-color: #e5f1f3; background-image: radial-gradient(#cbdfe3 1px, transparent 1px); }
+    .game-copy { padding: 23px; }
+    .tag { color: #9caa91; font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    h2 { margin: 9px 0; font: 700 28px/1.1 "Baloo 2", system-ui, sans-serif; }
+    .game-copy p { min-height: 47px; margin: 0; color: #84907f; font-size: 12px; }
+    .play { display: inline-flex; align-items: center; gap: 9px; margin-top: 20px; padding: 9px 16px; border-radius: 10px; background: #358b79; color: white; font-size: 12px; font-weight: 800; }
+    footer { padding: 18px 0 32px; color: #a0a497; font-size: 10px; text-align: center; }
+    @media (max-width: 600px) { .games { grid-template-columns: 1fr; gap: 22px; } main { padding: 30px 0; } header { min-height: 76px; } .brand { font-size: 19px; } .cover { height: 180px; } }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header><a class="brand" href="../"><img src="../assets/mascots/mind-phoenix-logo.png" width="42" height="42" alt="">Mind Phoenix Games</a><a class="home-link" href="../">← Trang chủ</a></header>
+    <main>
+      <p class="eyebrow">Chơi mà học · Mind Phoenix</p>
+      <h1>Một chút chơi,<br><span>cả trời khám phá.</span></h1>
+      <p class="intro">Những trò chơi nhỏ, niềm vui lớn. Chọn một trò và cùng khám phá nào!</p>
+      <div class="games">
+        <a class="game" href="shadow-puzzle/">
+          <div class="cover" aria-hidden="true"><svg viewBox="0 0 300 210"><g stroke="#fffefa" stroke-width="2.5" stroke-linejoin="round"><polygon points="40,140 150,140 150,30" fill="#ef8276"/><polygon points="150,30 150,140 260,140" fill="#efc45d"/><polygon points="12.5,140 122.5,140 67.5,195" fill="#ac99d5"/><polygon points="177.5,140 232.5,140 232.5,195 177.5,195" fill="#7bbfa7"/><polygon points="122.5,140 177.5,140 122.5,195 67.5,195" fill="#82b6d5"/><polygon points="177.5,140 177.5,195 122.5,195" fill="#eca36c"/><polygon points="232.5,140 287.5,140 232.5,195" fill="#d98eb5"/></g></svg></div>
+          <div class="game-copy"><span class="tag">Tư duy hình học · Kéo thả</span><h2>Ghép bóng hình</h2><p>Ghép 7 mảnh màu thành thuyền buồm, chú mèo và ngôi nhà. Đến gần là tự khớp!</p><span class="play">Chơi ngay <span aria-hidden="true">→</span></span></div>
+        </a>
+        <a class="game" href="duck-race/">
+          <div class="cover duck-cover" aria-hidden="true"><svg viewBox="0 0 300 210"><path d="M30 183q30-12 60 0t60 0t60 0t60 0" fill="none" stroke="#9cc9cf" stroke-width="3" stroke-linecap="round"/><g stroke="#314650" stroke-width="3" stroke-linejoin="round"><path d="m86 138-22-24 39 4" fill="#ffd575"/><ellipse cx="143" cy="145" rx="68" ry="36" fill="#ffd575"/><circle cx="204" cy="94" r="40" fill="#ffd575"/><path d="m236 98 30 13-32 12" fill="#f4a34c"/><path d="M116 140q27 32 52 0" fill="none" stroke-linecap="round"/></g><circle cx="214" cy="86" r="4" fill="#314650"/><path d="m68 54 4 11 11 4-11 4-4 11-4-11-11-4 11-4Z" fill="#edb75d"/></svg></div>
+          <div class="game-copy"><span class="tag">Giờ ra chơi · Chọn tên ngẫu nhiên</span><h2>Đua vịt Phú Thọ</h2><p>Nhập danh sách và cổ vũ những chú vịt đầy màu sắc trong sân trường Phú Thọ.</p><span class="play">Cùng đua nào <span aria-hidden="true">→</span></span></div>
+        </a>
+      </div>
+    </main>
+    <footer>Một chút tò mò, thật nhiều niềm vui · Mind Phoenix</footer>
+  </div>
+</body>
+</html>

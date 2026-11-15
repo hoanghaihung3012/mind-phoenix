@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#fffaf1">
+  <meta name="description" content="Đua vịt chọn tên ngẫu nhiên trong sân Trường Tiểu học Phú Thọ. Nhập danh sách, chọn thời gian và cùng cổ vũ những chú vịt đầy màu sắc!">
+  <title>Đua vịt Phú Thọ — Mind Phoenix Games</title>
+  <link rel="canonical" href="https://mindphoenix.xyz/games/duck-race/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Mind Phoenix">
+  <meta property="og:title" content="Đua vịt Phú Thọ — Mind Phoenix Games">
+  <meta property="og:description" content="Một đường đua vịt vui nhộn trong sân Trường Tiểu học Phú Thọ. Chọn tên ngẫu nhiên cho giờ học và giờ ra chơi.">
+  <meta property="og:url" content="https://mindphoenix.xyz/games/duck-race/">
+  <meta property="og:locale" content="vi_VN">
+  <meta property="og:image" content="https://mindphoenix.xyz/assets/og/mind-phoenix-social.png">
+  <link rel="icon" type="image/png" href="../../assets/mascots/mind-phoenix-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="game.css">
+  <script type="module" src="game.js"></script>
+</head>
+<body>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-duck" viewBox="0 0 32 32">
+      <path d="M5 20 2 16l7 1" fill="currentColor" stroke="#314650" stroke-width="1.5" stroke-linejoin="round"/>
+      <ellipse cx="14" cy="22" rx="11" ry="7" fill="currentColor" stroke="#314650" stroke-width="1.5"/>
+      <circle cx="23" cy="12" r="7" fill="currentColor" stroke="#314650" stroke-width="1.5"/>
+      <path d="m28 12 4 2-5 2" fill="#f4a34c" stroke="#314650" stroke-width="1.5" stroke-linejoin="round"/>
+      <circle cx="25" cy="10" r="1.2" fill="#314650"/>
+      <path d="M10 21q4 5 9 0" fill="none" stroke="#314650" stroke-width="1.5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24"><path d="m9 5 11 7-11 7Z" fill="currentColor"/></symbol>
+    <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zm7 0h4v14h-4z" fill="currentColor"/></symbol>
+    <symbol id="icon-shuffle" viewBox="0 0 24 24"><path d="M3 6h3c5 0 7 12 12 12h3m-4-4 4 4-4 4M3 18h3c2 0 4-3 6-6s4-6 6-6h3m-4-4 4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-numbers" viewBox="0 0 24 24"><path d="m9 3-2 18m10-18-2 18M3 9h18M2 16h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24"><path d="M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-reset" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-sound" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13-1a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-muted" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13 0 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-expand" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="icon-copy" viewBox="0 0 24 24"><path d="M9 9h12v12H9Zm6-4V3H3v12h2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-import" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 14v6h16v-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 9a3 3 0 1 1 4 3c-1 .4-1 1-1 2m0 3v.1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  </svg>
+
+  <main class="app">
+    <aside class="sidebar" aria-labelledby="game-title">
+      <header class="brand">
+        <span class="brand-duck" aria-hidden="true"><svg><use href="#icon-duck"/></svg></span>
+        <div><a class="brand-kicker" href="../../">Mind Phoenix Games</a><h1 id="game-title">Đua vịt <span>Phú Thọ</span></h1></div>
+      </header>
+
+      <div class="sidebar-scroll">
+        <form id="setup-form">
+          <fieldset class="card" id="participants-fieldset">
+            <legend class="sr-only">Danh sách người chơi</legend>
+            <div class="section-heading"><h2>Danh sách</h2><output id="participant-count" for="participants" class="count">8 / 200</output></div>
+            <label class="field-label" for="participants">Mỗi dòng một tên</label>
+            <textarea id="participants" name="participants" rows="8" spellcheck="false" placeholder="An&#10;Bình&#10;Chi…" aria-describedby="names-note">An
+Bình
+Chi
+Dũng
+Giang
+Hà
+Khoa
+Linh</textarea>
+            <div class="list-actions">
+              <button class="small-button" id="shuffle-names" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-shuffle"/></svg>Trộn</button>
+              <button class="small-button" id="open-numbers" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-numbers"/></svg>Dãy số</button>
+              <button class="icon-button clear-button" id="clear-names" type="button" aria-label="Xóa danh sách" title="Xóa danh sách"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg></button>
+            </div>
+            <input id="import-file" type="file" accept=".txt,text/plain" hidden>
+            <button class="small-button import-button" id="import-names" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-import"/></svg><span>Nhập file .txt</span></button>
+            <p id="import-feedback" class="field-note" role="status" hidden></p>
+            <p class="field-note">File UTF-8, tối đa 1 MB. Nhập file sẽ thay danh sách.</p>
+            <p class="field-note" id="names-note">Tối đa 200 tên. Chỉ lưu trên trình duyệt của bạn.</p>
+          </fieldset>
+
+          <fieldset class="card" id="settings-fieldset">
+            <legend class="sr-only">Thiết lập cuộc đua</legend>
+            <div class="section-heading"><h2>Cuộc đua</h2><span class="tiny-duck" aria-hidden="true">✦</span></div>
+            <fieldset class="option-group">
+              <legend>Thời lượng</legend>
+              <div class="segmented">
+                <label><input type="radio" name="duration" value="15"><span>15 giây</span></label>
+                <label><input type="radio" name="duration" value="30" checked><span>30 giây</span></label>
+                <label><input type="radio" name="duration" value="60"><span>60 giây</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="option-group">
+              <legend>Chọn người</legend>
+              <div class="segmented two">
+                <label><input type="radio" name="pick-mode" value="first" checked><span>🏁 Về đầu</span></label>
+                <label><input type="radio" name="pick-mode" value="last"><span>🐢 Về cuối</span></label>
+              </div>
+            </fieldset>
+            <div class="count-row">
+              <label for="winner-count">Số người chọn</label>
+              <div class="stepper">
+                <button id="fewer-winners" type="button" aria-label="Bớt một người">−</button>
+                <input id="winner-count" name="winner-count" type="number" min="1" max="8" step="1" value="1" inputmode="numeric">
+                <button id="more-winners" type="button" aria-label="Thêm một người">+</button>
+              </div>
+            </div>
+            <label class="switch-row" for="remove-picked">
+              <span>Loại người đã chọn<small>Không đua lại ở lượt tiếp theo</small></span>
+              <input id="remove-picked" name="remove-picked" type="checkbox" role="switch">
+            </label>
+          </fieldset>
+        </form>
+      </div>
+
+      <footer class="sidebar-footer">
+        <p class="setup-error" id="setup-error" role="alert" hidden></p>
+        <button class="primary-button start-button" id="start-race" type="button" disabled><svg class="icon" aria-hidden="true"><use href="#icon-play"/></svg><span>Bắt đầu đua</span></button>
+        <button class="reset-button" id="reset-race" type="button" disabled><svg class="icon" aria-hidden="true"><use href="#icon-reset"/></svg>Về vạch xuất phát</button>
+        <div class="footer-links"><a href="../../">← Trang chủ</a><button id="open-help" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-help"/></svg>Cách chơi</button></div>
+      </footer>
+    </aside>
+
+    <section class="race-panel" id="race-panel" aria-labelledby="race-title">
+      <canvas id="race-canvas" role="img" aria-label="Những chú vịt đua trong hồ nước trước sân Trường Tiểu học Phú Thọ. Kết quả được hiển thị bằng văn bản sau cuộc đua.">Trình duyệt của bạn cần hỗ trợ Canvas để hiển thị đường đua.</canvas>
+      <header class="race-toolbar">
+        <div><p class="eyebrow"><span aria-hidden="true"></span>Giờ ra chơi!</p><h2 id="race-title">Đường đua Phú Thọ</h2></div>
+        <div class="toolbar-actions">
+          <button class="scene-button" id="sound-toggle" type="button" aria-label="Bật âm thanh" aria-pressed="false" title="Bật âm thanh"><svg class="icon" aria-hidden="true"><use href="#icon-muted"/></svg></button>
+          <button class="scene-button" id="expand-toggle" type="button" aria-label="Phóng to đường đua" aria-pressed="false" title="Phóng to đường đua"><svg class="icon" aria-hidden="true"><use href="#icon-expand"/></svg></button>
+        </div>
+      </header>
+      <div class="timer-card" role="timer" aria-live="off" aria-label="Thời gian cuộc đua"><strong id="race-timer">0.00</strong><span id="timer-total">/ 30 giây</span></div>
+      <div class="leader-pill"><span id="leader-caption">Cùng cổ vũ nào</span><strong id="leader-name">Ai sẽ về đích đầu tiên?</strong></div>
+      <div class="countdown" id="countdown" hidden><strong id="countdown-number" aria-live="assertive">3</strong><span>Vào vị trí!</span></div>
+      <div class="game-notice" id="game-notice" role="status" hidden></div>
+      <div class="race-footer">
+        <div class="race-status"><span class="status-dot" id="status-dot" aria-hidden="true"></span><p id="race-status" role="status">8 chú vịt đã sẵn sàng xuất phát!</p></div>
+        <div class="track-controls">
+          <button class="primary-button" id="track-start" type="button" disabled><svg class="icon" aria-hidden="true"><use href="#icon-play"/></svg><span>Bắt đầu đua</span></button>
+          <button class="scene-button" id="track-reset" type="button" aria-label="Về vạch xuất phát" title="Về vạch xuất phát" disabled><svg class="icon" aria-hidden="true"><use href="#icon-reset"/></svg></button>
+        </div>
+      </div>
+      <noscript><p class="game-notice">Hãy bật JavaScript để chơi game đua vịt.</p></noscript>
+
+      <dialog id="results-dialog" aria-labelledby="results-title" class="results-dialog">
+        <button class="dialog-close icon-button" type="button" data-close-dialog aria-label="Đóng kết quả"><svg class="icon" aria-hidden="true"><use href="#icon-close"/></svg></button>
+        <div class="result-emblem" aria-hidden="true"><svg><use href="#icon-duck"/></svg><span>✦</span></div>
+        <p class="eyebrow result-kicker">Đường đua Phú Thọ</p>
+        <h2 id="results-title">Chúc mừng!</h2>
+        <p id="results-subtitle" class="dialog-intro"></p>
+        <ol id="selected-list" class="selected-list"></ol>
+        <p id="removal-note" class="field-note"></p>
+        <details class="rankings"><summary>Xem toàn bộ bảng xếp hạng</summary><ol id="ranking-list"></ol></details>
+        <p id="result-feedback" class="field-note" role="status"></p>
+        <textarea id="copy-fallback" readonly aria-label="Kết quả để sao chép thủ công" hidden></textarea>
+        <div class="dialog-actions">
+          <button class="small-button" id="copy-results" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-copy"/></svg>Sao chép</button>
+          <button class="primary-button" id="race-again" type="button" autofocus><svg class="icon" aria-hidden="true"><use href="#icon-reset"/></svg><span>Đua lại</span></button>
+        </div>
+      </dialog>
+
+      <dialog id="numbers-dialog" aria-labelledby="numbers-title">
+        <button class="dialog-close icon-button" type="button" data-close-dialog aria-label="Đóng dãy số"><svg class="icon" aria-hidden="true"><use href="#icon-close"/></svg></button>
+        <p class="eyebrow">Thêm thật nhanh</p><h2 id="numbers-title">Tạo dãy số</h2>
+        <p class="dialog-intro">Mỗi số là một chú vịt. Dãy số sẽ thay thế danh sách hiện tại.</p>
+        <form id="numbers-form">
+          <div class="number-fields"><label>Từ số<input id="number-from" type="number" min="1" max="99999" step="1" value="1" required></label><label>Đến số<input id="number-to" type="number" min="1" max="99999" step="1" value="20" required></label></div>
+          <p class="setup-error" id="numbers-error" role="alert" hidden></p>
+          <button class="primary-button" type="submit">Tạo danh sách</button>
+        </form>
+      </dialog>
+
+      <dialog id="help-dialog" aria-labelledby="help-title">
+        <button class="dialog-close icon-button" type="button" data-close-dialog aria-label="Đóng hướng dẫn"><svg class="icon" aria-hidden="true"><use href="#icon-close"/></svg></button>
+        <p class="eyebrow">Một chút vui cho giờ học</p><h2 id="help-title">Cách chơi đua vịt</h2>
+        <ol class="help-steps">
+          <li><strong>Nhập danh sách.</strong> Mỗi dòng là một người chơi; bỏ qua dòng trống. Có thể dùng dãy số, trộn tên hoặc nhập file <code>.txt</code> UTF-8 (tối đa 1 MB). File hợp lệ sẽ thay danh sách hiện tại.</li>
+          <li><strong>Chọn luật đua.</strong> Đặt thời lượng 15, 30 hoặc 60 giây; chọn người về đầu hoặc về cuối và số người cần chọn.</li>
+          <li><strong>Cùng cổ vũ!</strong> Nhấn “Bắt đầu đua”, chờ đếm ngược và xem kết quả. Bạn có thể tạm dừng hoặc đưa vịt về vạch xuất phát.</li>
+        </ol>
+        <p class="dialog-intro">Mỗi dòng có cơ hội được chọn như nhau, kể cả khi trùng tên. “Loại người đã chọn” chỉ loại đúng những dòng đã được chọn sau khi cuộc đua hoàn tất.</p>
+        <p class="dialog-intro">Nút “Phóng to đường đua” mở rộng sân đua trong cửa sổ trình duyệt. Nhấn lại nút hoặc phím Esc để thu nhỏ.</p>
+        <p class="field-note">Danh sách tối đa 200 người, mỗi tên tối đa 80 ký tự. Khi chuyển tab, cuộc đua tự tạm dừng. Danh sách và cài đặt chỉ lưu trên thiết bị của bạn, không gửi lên máy chủ.</p>
+        <p class="field-note">Bối cảnh Trường Tiểu học Phú Thọ là hình minh họa vui nhộn, không phải ảnh chụp của trường.</p>
+        <button class="primary-button" type="button" data-close-dialog>Đã hiểu, cùng đua nào!</button>
+      </dialog>
+    </section>
+  </main>
+</body>
+</html>
