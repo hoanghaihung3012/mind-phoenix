@@ -79,7 +79,6 @@
     .facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: 14px; }
     .facts dt { color: var(--ink-soft); }
     .facts dd { margin: 0; text-align: right; }
-    .desc { margin: 0; font-size: 14px; color: var(--ink-soft); line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-line; }
     .videos h4 { margin: 0 0 8px; font: 700 14px var(--display); text-transform: uppercase; letter-spacing: .05em; }
     .video { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; padding: 6px; border-radius: 12px; text-decoration: none; }
     .video:hover { background: var(--lilac); }
@@ -176,8 +175,6 @@
 
       const nf = new Intl.NumberFormat('vi-VN');
       const cf = new Intl.NumberFormat('vi-VN', { notation: 'compact', maximumFractionDigits: 1 });
-      const df = new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
-      const regionName = (() => { try { return new Intl.DisplayNames(['vi'], { type: 'region' }); } catch { return null; } })();
 
       const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
       const num = (v) => (v == null ? null : Number(v));
@@ -193,12 +190,6 @@
         if (days < 30) return `${days} ngày trước`;
         if (days < 365) return `${Math.floor(days / 30)} tháng trước`;
         return `${Math.floor(days / 365)} năm trước`;
-      }
-
-      function channelAge(iso) {
-        const months = Math.max(0, Math.floor((Date.now() - new Date(iso)) / (86400000 * 30.44)));
-        const y = Math.floor(months / 12), m = months % 12;
-        return [y && `${y} năm`, m && `${m} tháng`].filter(Boolean).join(' ') || 'mới tạo';
       }
 
       // ---------- OAuth (Google Identity Services, token model) ----------
@@ -331,11 +322,8 @@
           id: ch.id,
           title: ch.snippet.title,
           handle: ch.snippet.customUrl,
-          description: ch.snippet.description,
           avatar: ch.snippet.thumbnails?.medium?.url || ch.snippet.thumbnails?.default?.url,
           banner: ch.brandingSettings?.image?.bannerExternalUrl,
-          country: ch.snippet.country,
-          publishedAt: ch.snippet.publishedAt,
           subs: s.hiddenSubscriberCount ? null : num(s.subscriberCount),
           views: num(s.viewCount),
           videos: num(s.videoCount),
@@ -390,7 +378,6 @@
         const url = `https://www.youtube.com/channel/${encodeURIComponent(c.id)}`;
         const avg = c.videos ? Math.round(c.views / c.videos) : null;
         const banner = cssUrl(c.banner) ? `background-image:url(${cssUrl(c.banner)}=w1060)` : '';
-        const country = c.country ? (regionName?.of(c.country) || c.country) : '—';
         const videos = c.latest.map((v) => `
           <a class="video" href="https://www.youtube.com/watch?v=${encodeURIComponent(v.id)}" target="_blank" rel="noopener noreferrer">
             <img src="${esc(safeUrl(v.thumb))}" alt="" loading="lazy">
@@ -413,11 +400,7 @@
               </div>
               <dl class="facts">
                 <dt>Views TB / video</dt><dd>${avg == null ? '—' : nf.format(avg)}</dd>
-                <dt>Ngày tạo kênh</dt><dd>${df.format(new Date(c.publishedAt))} (${channelAge(c.publishedAt)})</dd>
-                <dt>Video gần nhất</dt><dd>${c.latest[0] ? timeAgo(c.latest[0].publishedAt) : '—'}</dd>
-                <dt>Quốc gia</dt><dd>${esc(country)}</dd>
               </dl>
-              ${c.description ? `<p class="desc">${esc(c.description)}</p>` : ''}
               ${videos ? `<div class="videos"><h4>Video mới nhất</h4>${videos}</div>` : ''}
             </div>
           </article>`;
