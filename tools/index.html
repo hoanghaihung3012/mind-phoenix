@@ -2,12 +2,74 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="robots" content="noindex, nofollow">
-  <meta http-equiv="refresh" content="0; url=youtube-dashboard/">
-  <link rel="canonical" href="https://mindphoenix.xyz/tools/youtube-dashboard/">
-  <title>Mind Phoenix Tools</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#d9d6ff">
+  <meta name="description" content="Công cụ nhỏ, hữu ích từ Mind Phoenix: học Toán tiểu học, đổi đơn vị, thử phép tính và quản lý kênh YouTube.">
+  <link rel="canonical" href="https://mindphoenix.xyz/tools/">
+  <title>Công cụ — Mind Phoenix Tools</title>
+  <link rel="icon" type="image/png" href="../assets/mascots/mind-phoenix-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { color-scheme: light; --ink: #2b2550; --muted: #625c7b; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: #fffaf5 radial-gradient(ellipse at 90% 0, #e8e0ff, transparent 55%) no-repeat; font: 600 15px/1.7 'Nunito', system-ui, sans-serif; }
+    a { color: inherit; }
+    a:focus-visible { outline: 3px dashed #7754ae; outline-offset: 5px; }
+    .wrap { width: min(1060px, calc(100% - 40px)); margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 24px 0; border-bottom: 1px solid #ded7e8; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; font: 800 24px 'Baloo 2', system-ui, sans-serif; text-decoration: none; }
+    .brand img { object-fit: contain; }
+    .home-link { color: var(--muted); font-size: 13px; text-underline-offset: 4px; }
+    main { padding: 48px 0 60px; }
+    .kicker { margin: 0 0 12px; color: #8251a2; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .13em; }
+    h1, h2 { font-family: 'Baloo 2', system-ui, sans-serif; line-height: 1.15; }
+    h1 { margin: 0; font-size: clamp(36px, 5.5vw, 58px); letter-spacing: -.025em; }
+    h1 span { color: #7754ae; }
+    .intro { margin: 18px 0 34px; color: var(--muted); }
+    .tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px; }
+    .tool { display: flex; flex-direction: column; overflow: hidden; border: 2.5px solid var(--ink); border-radius: 22px; background: white; box-shadow: 0 5px 0 var(--ink); text-decoration: none; transition: transform .18s; }
+    .tool:hover { transform: translateY(-4px); }
+    .cover { display: flex; align-items: center; justify-content: center; gap: 24px; height: 190px; border-bottom: 2.5px solid var(--ink); background: #e5dcff radial-gradient(#c0aede 1px, transparent 1px) 0 0 / 20px 20px; }
+    .cover img { width: 125px; height: 140px; object-fit: contain; transform: rotate(-7deg); }
+    .formula { padding: 10px 16px; border: 2px solid var(--ink); border-radius: 12px; background: #fffaf5; box-shadow: 0 4px 0 var(--ink); font: 700 25px 'Baloo 2', system-ui, sans-serif; transform: rotate(5deg); }
+    .dashboard-cover { background-color: #d7eee3; background-image: radial-gradient(#a7cbb8 1px, transparent 1px); }
+    .chart { display: flex; align-items: end; gap: 13px; padding: 18px 25px; border: 2px solid var(--ink); border-radius: 14px; background: white; transform: rotate(-4deg); box-shadow: 0 4px 0 var(--ink); }
+    .chart i { display: block; width: 32px; height: 45px; border: 2px solid var(--ink); border-radius: 5px 5px 0 0; background: #dcd2ff; }
+    .chart i:nth-child(2) { height: 70px; background: #ffd98a; }
+    .chart i:nth-child(3) { height: 95px; background: #ff8fa3; }
+    .copy { display: flex; flex-direction: column; align-items: flex-start; flex: 1; padding: 26px; }
+    .tag { color: #7754ae; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    h2 { margin: 12px 0; font-size: 28px; }
+    .copy p { flex: 1; margin: 0 0 22px; color: var(--muted); font-size: 13px; }
+    .open { padding: 8px 15px; border: 2px solid var(--ink); border-radius: 10px; background: #dcd2ff; box-shadow: 0 3px 0 var(--ink); font: 700 14px 'Baloo 2', system-ui, sans-serif; }
+    .tool:last-child .open { background: #bfeedd; }
+    footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; padding: 24px 0; border-top: 1px solid #ded7e8; color: var(--muted); font-size: 12px; }
+    footer nav { display: flex; flex-wrap: wrap; gap: 18px; }
+    @media (max-width: 650px) { .tools { grid-template-columns: 1fr; } main { padding-top: 32px; } .brand { font-size: 21px; } .cover { height: 170px; } }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  </style>
 </head>
 <body>
-  <p><a href="youtube-dashboard/">YouTube Channel Dashboard</a></p>
+  <div class="wrap">
+    <header><a class="brand" href="../"><img src="../assets/mascots/mind-phoenix-logo.png" width="42" height="50" alt="">Mind Phoenix Tools</a><a class="home-link" href="../">← Trang chủ</a></header>
+    <main>
+      <p class="kicker">Hộp đồ nghề cho trí tò mò</p>
+      <h1>Công cụ nhỏ.<br><span>Khả năng không nhỏ.</span></h1>
+      <p class="intro">Cho một giờ học thú vị hơn, một ý tưởng rõ ràng hơn, một ngày làm việc nhẹ nhàng hơn.</p>
+      <div class="tools">
+        <a class="tool" href="formula-sandbox/">
+          <div class="cover" aria-hidden="true"><img src="../assets/mascots/mindmath-sigma-happy.webp" width="125" height="140" alt=""><span class="formula">ƒ(x) = ?</span></div>
+          <div class="copy"><span class="tag">Toán tiểu học · Cho học sinh &amp; thầy cô</span><h2>Mini Formula<br>&amp; Unit Sandbox</h2><p>Cùng tính chu vi, diện tích, thể tích, trung bình cộng và tỉ số phần trăm; đổi 6 nhóm đơn vị quen thuộc. Tự thử phép tính, xem cách làm và sao chép hoặc in lời giải.</p><span class="open">Khám phá ngay →</span></div>
+        </a>
+        <a class="tool" href="youtube-dashboard/">
+          <div class="cover dashboard-cover" aria-hidden="true"><div class="chart"><i></i><i></i><i></i></div></div>
+          <div class="copy"><span class="tag">Nhà sáng tạo · Kết nối Google</span><h2>YouTube<br>Channel Dashboard</h2><p>Theo dõi các kênh bạn quản lý, tổng hợp chỉ số và xem video mới nhất trong một giao diện gọn gàng. Giữ nguyên các cài đặt Dashboard hiện có.</p><span class="open">Mở Dashboard →</span></div>
+        </a>
+      </div>
+    </main>
+    <footer><span>Mind Phoenix · Nuôi dưỡng trí tò mò.</span><nav aria-label="Liên kết cuối trang"><a href="../games/">Trò chơi</a><a href="../pages/privacy-policy.html">Bảo mật</a><a href="../pages/terms-of-service.html">Điều khoản</a></nav></footer>
+  </div>
 </body>
 </html>

@@ -47,6 +47,7 @@
     .btn:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
     .btn.primary { background: var(--berry); }
     .btn.mint { background: var(--mint); }
+    .btn.small { padding: 6px 10px; font-size: 13px; border-width: 2px; box-shadow: 0 2px 0 var(--ink); }
     .btn:disabled { opacity: .55; cursor: wait; }
     select.btn { appearance: none; }
 
@@ -60,6 +61,22 @@
     .stat .label { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); }
     .stat .value { font: 700 34px var(--display); margin-top: 4px; }
     .stat .sub { font-size: 13px; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .schedule { margin-bottom: 36px; }
+    .schedule h2 { font-size: 30px; }
+    .schedule-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 18px; }
+    .schedule-card { min-width: 0; padding: 20px; border: var(--outline); border-radius: 22px; background: white; box-shadow: 0 5px 0 var(--ink); }
+    .schedule-channel { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+    .schedule-channel h3 { font-size: 22px; overflow-wrap: anywhere; }
+    .schedule-status { margin: 6px 0 0; font-size: 13px; color: var(--ink-soft); }
+    .schedule-days { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+    .schedule-day { min-width: 0; padding: 12px; border-radius: 14px; background: var(--snow); }
+    .schedule-day h4 { margin: 0 0 10px; font: 700 16px var(--display); }
+    .schedule .video { grid-template-columns: 64px minmax(0, 1fr); padding: 6px 0; }
+    .schedule .video img { width: 64px; }
+    .schedule-time { display: block; margin-bottom: 4px; font: 500 13px var(--mono); color: var(--berry-deep); }
+    .schedule-empty { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.5; }
+    .schedule-card.skeleton { min-height: 180px; }
 
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; padding-bottom: 48px; }
     .card { display: flex; flex-direction: column; overflow: hidden; border: var(--outline); border-radius: 26px; background: white; box-shadow: 0 6px 0 var(--ink); }
@@ -106,9 +123,11 @@
     .client-status.bad { color: var(--berry-deep); }
     .panel .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
     .notice { margin: 0 0 24px; padding: 14px 18px; border: 2.5px solid var(--ink); border-radius: 16px; background: var(--peach); }
+    .legal-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px 24px; padding: 24px 0 32px; color: var(--ink-soft); font-size: 14px; }
     .skeleton { min-height: 420px; background: linear-gradient(90deg, #f4f1ff 25%, #fff 50%, #f4f1ff 75%) 0 0 / 200% 100%; animation: shimmer 1.2s linear infinite; }
     @keyframes shimmer { to { background-position: -200% 0; } }
-    @media (max-width: 860px) { .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 860px) { .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } .schedule-grid { grid-template-columns: minmax(0, 1fr); } }
+    @media (max-width: 520px) { .schedule-days { grid-template-columns: minmax(0, 1fr); } }
     @media (max-width: 420px) { .grid, .summary { grid-template-columns: minmax(0, 1fr); } }
   </style>
 </head>
@@ -141,6 +160,7 @@
     <section id="settings" class="panel hidden" aria-labelledby="settings-title">
       <h2 id="settings-title">Cài đặt</h2>
       <p>Dashboard đăng nhập bằng tài khoản Google (OAuth, quyền chỉ đọc YouTube và Analytics) để gọi <strong>YouTube Data API v3</strong> và <strong>YouTube Analytics API</strong>. Không cần API key.</p>
+      <p>Xem <a href="../../pages/privacy-policy.html">Chính sách bảo mật</a> và <a href="../../pages/terms-of-service.html">Điều khoản dịch vụ</a> trước khi kết nối tài khoản Google.</p>
       <ol>
         <li>Vào <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener noreferrer">Google Cloud Console</a> và bật <em>YouTube Data API v3</em>.</li>
         <li>Bật thêm <a href="https://console.cloud.google.com/apis/library/youtubeanalytics.googleapis.com" target="_blank" rel="noopener noreferrer">YouTube Analytics API</a> để lấy thời lượng xem trung bình.</li>
@@ -148,8 +168,9 @@
         <li>Ở <em>OAuth consent screen</em>, nếu app đang ở chế độ Testing thì thêm email của bạn vào <em>Test users</em>.</li>
         <li>Tải file <code>client_secret_….json</code> về và chọn file đó bên dưới.</li>
       </ol>
-      <p>Analytics yêu cầu đăng nhập bằng tài khoản chủ sở hữu kênh; nếu dùng Brand Account, chọn đúng kênh khi Google yêu cầu. Kênh không có quyền Analytics vẫn hiển thị các chỉ số công khai. Nếu đã đăng nhập trước đây, bấm <strong>Cấp quyền Analytics</strong> để cấp thêm quyền.</p>
-      <p><strong>View duration TB</strong> là thời lượng xem trung bình từ khi video được đăng, không phải độ dài video; dữ liệu có thể trễ vài ngày. Dashboard chưa lấy tự động <strong>Stayed to watch</strong> và <strong>CTR thumbnail</strong>; xem hai chỉ số này qua link YouTube Studio dưới mỗi video. Cache dữ liệu được lưu trên trình duyệt này.</p>
+      <p>Analytics và video hẹn giờ yêu cầu quyền của đúng kênh. Bấm <strong>Kết nối kênh</strong> ở từng kênh và chọn đúng tài khoản hoặc Brand Account trong cửa sổ Google. Các kết nối được giữ riêng trong phiên trình duyệt, không thay thế nhau. Kênh chưa kết nối vẫn hiển thị số liệu công khai.</p>
+      <p><strong>Video mới nhất</strong> chỉ gồm video đã công khai, không gồm bản nháp, video hẹn giờ hoặc buổi phát sắp tới. <strong>View duration TB</strong> là thời lượng xem trung bình từ khi công khai, không phải độ dài video; video mới có thể phải chờ YouTube xử lý vài ngày. YouTube Analytics API không cung cấp <strong>Stayed to watch</strong> và <strong>CTR thumbnail</strong>; mở YouTube Studio để xem đúng hai chỉ số này.</p>
+      <p><strong>Lịch đăng</strong> hiển thị video riêng tư có giờ công khai trong hôm nay và ngày mai, chỉ khi chưa đến giờ đăng, theo <strong>giờ Việt Nam (UTC+7)</strong>. Dashboard duyệt toàn bộ danh sách tải lên của kênh đã kết nối để không bỏ sót video hẹn giờ được tải lên từ trước; kênh nhiều video có thể tải lâu hơn. Báo cáo và lịch đăng được lưu đệm trên trình duyệt tối đa 30 phút trước khi cần làm mới; đăng xuất sẽ xóa cache và các kết nối, giữ lại cài đặt.</p>
       <label for="client-file">File OAuth client (JSON)</label>
       <input id="client-file" type="file" accept=".json,application/json">
       <p id="client-status" class="client-status"></p>
@@ -162,18 +183,30 @@
     </section>
 
     <section id="summary" class="summary" aria-label="Tổng quan"></section>
+    <section id="schedule" class="schedule hidden" aria-labelledby="schedule-title">
+      <h2 id="schedule-title">Video đang lên lịch</h2>
+      <p id="schedule-meta" class="meta">Hôm nay và ngày mai · Giờ Việt Nam (UTC+7)</p>
+      <div id="schedule-grid" class="schedule-grid" aria-live="polite"></div>
+    </section>
     <section id="grid" class="grid" aria-label="Danh sách kênh" aria-live="polite"></section>
+    <footer>
+      <nav class="legal-links" aria-label="Pháp lý">
+        <a href="../../pages/privacy-policy.html">Chính sách bảo mật</a>
+        <a href="../../pages/terms-of-service.html">Điều khoản dịch vụ</a>
+      </nav>
+    </footer>
   </div>
 
   <script>
     (() => {
       const API = 'https://www.googleapis.com/youtube/v3/';
       const ANALYTICS_API = 'https://youtubeanalytics.googleapis.com/v2/';
-      const STORE = { clientId: 'ytdash.clientId', token: 'ytdash.token', channels: 'ytdash.channels', cache: 'ytdash.cache', sort: 'ytdash.sort' };
+      const STORE = { clientId: 'ytdash.clientId', token: 'ytdash.token', channelTokens: 'ytdash.channelTokens', channels: 'ytdash.channels', cache: 'ytdash.cache', sort: 'ytdash.sort' };
       const SCOPE = 'https://www.googleapis.com/auth/youtube.readonly';
       const ANALYTICS_SCOPE = 'https://www.googleapis.com/auth/yt-analytics.readonly';
       const GIS_SRC = 'https://accounts.google.com/gsi/client';
       const CACHE_TTL = 30 * 60 * 1000;
+      const CACHE_VERSION = 2;
       const LATEST_COUNT = 3;
       const DEFAULT_CHANNELS = ['@mindmathhh', '@minddevit', '@mindastroq', '@mindchemistryp', '@phoenixhoang_2202'];
       const PALETTE = [['#cfe6ff', '#eef6ff'], ['#bfeedd', '#eafaf4'], ['#dcd2ff', '#f3efff'], ['#ffdccb', '#fff2ea'], ['#ffd98a', '#fff6de']];
@@ -181,12 +214,18 @@
       const $ = (id) => document.getElementById(id);
       const els = {
         grid: $('grid'), summary: $('summary'), updated: $('updated'), notice: $('notice'), settings: $('settings'),
+        schedule: $('schedule'), scheduleGrid: $('schedule-grid'), scheduleMeta: $('schedule-meta'),
         clientFile: $('client-file'), clientStatus: $('client-status'), auth: $('auth'), channels: $('channels'), refresh: $('refresh'), sort: $('sort')
       };
 
       const nf = new Intl.NumberFormat('vi-VN');
       const cf = new Intl.NumberFormat('vi-VN', { notation: 'compact', maximumFractionDigits: 1 });
       const reportDateFormat = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' });
+      const scheduleDateFormat = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit' });
+      const scheduleTimeFormat = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+
+      let current = null;
+      let loadGeneration = 0;
 
       const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
       const num = (v) => (v == null ? null : Number(v));
@@ -204,10 +243,22 @@
         return `${Math.floor(days / 365)} năm trước`;
       }
 
-      function reportDate(date) {
-        const parts = Object.fromEntries(reportDateFormat.formatToParts(date).map(({ type, value }) => [type, value]));
+      function dateKey(date, format = reportDateFormat) {
+        const parts = Object.fromEntries(format.formatToParts(date).map(({ type, value }) => [type, value]));
         return `${parts.year}-${parts.month}-${parts.day}`;
       }
+
+      function scheduleDays() {
+        const today = dateKey(new Date(), scheduleDateFormat);
+        const tomorrow = new Date(`${today}T00:00:00Z`);
+        tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+        return [
+          { key: today, label: 'Hôm nay' },
+          { key: tomorrow.toISOString().slice(0, 10), label: 'Ngày mai' }
+        ];
+      }
+
+      const apiError = (e, service) => e.name === 'TimeoutError' ? `Hết thời gian chờ phản hồi từ ${service}` : e.message;
 
       function viewDuration(seconds) {
         if (seconds == null) return '—';
@@ -221,6 +272,8 @@
       // ---------- OAuth (Google Identity Services, token model) ----------
       let gisPromise = null;
       let tokenClient = null;
+      let authPending = false;
+      let authGeneration = 0;
 
       function loadGis() {
         gisPromise ??= new Promise((resolve, reject) => {
@@ -234,47 +287,114 @@
         return gisPromise;
       }
 
-      function readToken(requireAnalytics = false) {
+      function readAuth() {
         try {
-          const t = JSON.parse(sessionStorage.getItem(STORE.token));
-          if (requireAnalytics && !t?.scope?.split(/\s+/).includes(ANALYTICS_SCOPE)) return null;
-          return t && t.exp - 60000 > Date.now() ? t.value : null;
-        } catch { return null; }
+          const channels = JSON.parse(sessionStorage.getItem(STORE.channelTokens)) || {};
+          if (typeof channels !== 'object' || Array.isArray(channels)) throw new Error('Invalid channel tokens');
+          return { primary: JSON.parse(sessionStorage.getItem(STORE.token)), channels };
+        } catch {
+          sessionStorage.removeItem(STORE.token);
+          sessionStorage.removeItem(STORE.channelTokens);
+          showNotice('Dữ liệu đăng nhập đã lưu không hợp lệ. Hãy kết nối lại các kênh.');
+          return { primary: null, channels: {} };
+        }
       }
 
-      function clearToken() {
-        const t = readToken();
-        sessionStorage.removeItem(STORE.token);
-        if (t && window.google?.accounts?.oauth2) google.accounts.oauth2.revoke(t, () => {});
+      function readTokenRecord(requireAnalytics = false, channelId = '') {
+        const { primary, channels } = readAuth();
+        const candidates = channelId ? [channels[channelId]] : [primary, ...Object.values(channels)];
+        return candidates.find((t) => t && typeof t.value === 'string' && Number.isFinite(t.exp) && t.exp - 60000 > Date.now()
+          && (!requireAnalytics || (typeof t.scope === 'string' && t.scope.split(/\s+/).includes(ANALYTICS_SCOPE)))) || null;
+      }
+
+      function readToken(requireAnalytics = false, channelId = '') {
+        return readTokenRecord(requireAnalytics, channelId)?.value || null;
+      }
+
+      function clearToken(value) {
+        const { primary, channels } = readAuth();
+        const tokens = [...new Set([primary, ...Object.values(channels)].map((t) => t?.value).filter(Boolean))];
+        if (value) {
+          if (primary?.value === value) sessionStorage.removeItem(STORE.token);
+          sessionStorage.setItem(STORE.channelTokens, JSON.stringify(Object.fromEntries(
+            Object.entries(channels).filter(([, t]) => t.value !== value)
+          )));
+        } else {
+          sessionStorage.removeItem(STORE.token);
+          sessionStorage.removeItem(STORE.channelTokens);
+          localStorage.removeItem(STORE.cache);
+          if (current) {
+            current = { ...current, channels: current.channels.map((c) => c.error ? c : {
+              ...c, scheduled: [], scheduleLoaded: false, scheduleError: '', analyticsError: '',
+              latest: c.latest.map(({ averageViewDuration, analyticsState, analyticsError, ...video }) => video)
+            }) };
+          }
+          loadGeneration++;
+          authGeneration++;
+          els.refresh.disabled = false;
+        }
+        if (!value && window.google?.accounts?.oauth2) {
+          tokens.forEach((t) => google.accounts.oauth2.revoke(t, () => {}));
+        }
+        updateAuthButton();
+      }
+
+      async function linkToken(record, expectedChannelId = '', generation = authGeneration) {
+        const checkConnection = () => {
+          if (generation !== authGeneration) throw new Error('Kết nối đã bị hủy do đăng xuất hoặc đổi OAuth client.');
+        };
+        checkConnection();
+        const data = await api('channels', { part: 'snippet', mine: true, maxResults: 50 }, API, record.value);
+        checkConnection();
+        const owned = data.items || [];
+        if (!owned.length) throw new Error('Tài khoản Google vừa chọn không có kênh YouTube. Hãy chọn đúng tài khoản hoặc Brand Account.');
+        if (expectedChannelId && !owned.some((c) => c.id === expectedChannelId)) {
+          throw new Error(`Bạn vừa chọn kênh “${owned.map((c) => c.snippet.title).join(', ')}”, không phải kênh cần kết nối. Hãy chọn lại đúng kênh hoặc Brand Account.`);
+        }
+        const { channels } = readAuth();
+        owned.forEach((c) => { channels[c.id] = record; });
+        sessionStorage.setItem(STORE.channelTokens, JSON.stringify(channels));
+        sessionStorage.setItem(STORE.token, JSON.stringify(record));
         updateAuthButton();
       }
 
       // Must be called from a user gesture so the Google popup isn't blocked.
-      async function signIn() {
+      async function signIn(channelId = '') {
+        if (authPending) throw new Error('Đang chờ đăng nhập Google. Hãy hoàn tất cửa sổ đang mở.');
         const clientId = localStorage.getItem(STORE.clientId);
         if (!clientId) throw new Error('Chưa có file OAuth client');
-        const oauth2 = await loadGis();
-        return new Promise((resolve, reject) => {
-          tokenClient = oauth2.initTokenClient({
-            client_id: clientId,
-            scope: `${SCOPE} ${ANALYTICS_SCOPE}`,
-            callback: (resp) => {
-              if (resp.error) return reject(new Error(resp.error_description || resp.error));
-              if (!oauth2.hasGrantedAllScopes(resp, SCOPE, ANALYTICS_SCOPE)) return reject(new Error('Bạn chưa cấp đủ quyền đọc dữ liệu và Analytics YouTube'));
-              sessionStorage.setItem(STORE.token, JSON.stringify({ value: resp.access_token, exp: Date.now() + resp.expires_in * 1000, scope: resp.scope }));
-              updateAuthButton();
-              resolve(resp.access_token);
-            },
-            error_callback: (err) => reject(new Error(err.type === 'popup_closed' ? 'Cửa sổ đăng nhập đã bị đóng' : `Đăng nhập thất bại (${err.type})`))
+        authPending = true;
+        const generation = authGeneration;
+        updateAuthButton();
+        try {
+          const oauth2 = await loadGis();
+          return await new Promise((resolve, reject) => {
+            tokenClient = oauth2.initTokenClient({
+              client_id: clientId,
+              scope: `${SCOPE} ${ANALYTICS_SCOPE}`,
+              callback: async (resp) => {
+                if (resp.error) return reject(new Error(resp.error_description || resp.error));
+                if (!oauth2.hasGrantedAllScopes(resp, SCOPE, ANALYTICS_SCOPE)) return reject(new Error('Bạn chưa cấp đủ quyền đọc dữ liệu và Analytics YouTube'));
+                try {
+                  await linkToken({ value: resp.access_token, exp: Date.now() + resp.expires_in * 1000, scope: resp.scope }, channelId, generation);
+                  resolve(resp.access_token);
+                } catch (e) { reject(e); }
+              },
+              error_callback: (err) => reject(new Error(err.type === 'popup_closed' ? 'Cửa sổ đăng nhập đã bị đóng' : `Đăng nhập thất bại (${err.type})`))
+            });
+            tokenClient.requestAccessToken({ prompt: 'consent select_account' });
           });
-          tokenClient.requestAccessToken();
-        });
+        } finally {
+          authPending = false;
+          updateAuthButton();
+        }
       }
 
       function updateAuthButton() {
         const hasClient = !!localStorage.getItem(STORE.clientId);
         els.auth.classList.toggle('hidden', !hasClient);
-        els.auth.textContent = readToken() ? (readToken(true) ? '⎋ Đăng xuất' : 'G Cấp quyền Analytics') : 'G Đăng nhập Google';
+        els.auth.textContent = readToken() ? '⎋ Đăng xuất tất cả' : 'G Đăng nhập Google';
+        els.auth.disabled = authPending;
       }
 
       // Accepts the client_secret_*.json downloaded from Google Cloud Console.
@@ -308,38 +428,42 @@
         return { handle: '@' + s.replace(/^\/+|\/+$/g, '') };
       }
 
-      async function api(path, params, base = API) {
-        const token = readToken();
+      async function api(path, params, base = API, token = readToken()) {
         if (!token) throw new Error('Phiên đăng nhập đã hết hạn, hãy đăng nhập lại');
-        if (base === ANALYTICS_API && !readToken(true)) throw new Error('Cần đăng nhập lại và cấp quyền YouTube Analytics');
         const url = new URL(base + path);
         Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
         const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(15000) });
-        if (res.status === 401) { clearToken(); throw new Error('Phiên đăng nhập đã hết hạn, hãy đăng nhập lại'); }
+        if (res.status === 401) { clearToken(token); throw new Error('Phiên kết nối kênh đã hết hạn, hãy kết nối lại kênh'); }
         const data = await res.json();
         if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
         return data;
       }
 
       async function fetchVideoAnalytics(channelId, videos) {
-        const data = await api('reports', {
-          ids: `channel==${channelId}`,
-          startDate: reportDate(new Date(Math.min(Date.now(), ...videos.map((v) => new Date(v.publishedAt).getTime())))),
-          endDate: reportDate(new Date()),
-          dimensions: 'video',
-          filters: `video==${videos.map((v) => v.id).join(',')}`,
-          metrics: 'averageViewDuration'
-        }, ANALYTICS_API);
-        const videoIndex = data.columnHeaders?.findIndex((h) => h.name === 'video');
-        const durationIndex = data.columnHeaders?.findIndex((h) => h.name === 'averageViewDuration');
-        if (!(videoIndex >= 0 && durationIndex >= 0)) throw new Error('Báo cáo Analytics thiếu cột video hoặc averageViewDuration');
-        return new Map((data.rows || []).map((row) => {
-          const seconds = row[durationIndex];
-          if (typeof row[videoIndex] !== 'string' || typeof seconds !== 'number' || !Number.isFinite(seconds) || seconds < 0) {
-            throw new Error('Báo cáo Analytics chứa thời lượng xem không hợp lệ');
+        const token = readToken(true, channelId);
+        if (!token) throw new Error('Cần kết nối đúng kênh và cấp quyền YouTube Analytics');
+        return new Map(await Promise.all(videos.map(async (v) => {
+          try {
+            const data = await api('reports', {
+              ids: `channel==${channelId}`,
+              startDate: dateKey(new Date(Math.min(Date.now(), new Date(v.publishedAt).getTime()))),
+              endDate: dateKey(new Date()),
+              filters: `video==${v.id}`,
+              metrics: 'averageViewDuration'
+            }, ANALYTICS_API, token);
+            const durationIndex = data.columnHeaders?.findIndex((h) => h.name === 'averageViewDuration');
+            if (!(durationIndex >= 0)) throw new Error('Báo cáo Analytics thiếu cột averageViewDuration');
+            const rows = data.rows || [];
+            if (!rows.length) return [v.id, { averageViewDuration: null, analyticsState: 'pending' }];
+            const seconds = rows[0][durationIndex];
+            if (rows.length !== 1 || typeof seconds !== 'number' || !Number.isFinite(seconds) || seconds < 0) {
+              throw new Error('Báo cáo Analytics chứa thời lượng xem không hợp lệ');
+            }
+            return [v.id, { averageViewDuration: seconds, analyticsState: 'ready' }];
+          } catch (e) {
+            return [v.id, { averageViewDuration: null, analyticsState: 'error', analyticsError: apiError(e, 'Analytics API') }];
           }
-          return [row[videoIndex], seconds];
-        }));
+        })));
       }
 
       async function fetchChannel(ref) {
@@ -349,30 +473,50 @@
         if (!ch) throw new Error('Không tìm thấy kênh');
 
         let latest = [];
+        const scheduled = [];
+        let videosError = '';
+        const channelToken = readToken(false, ch.id);
+        const token = channelToken || readToken();
         const uploads = ch.contentDetails?.relatedPlaylists?.uploads;
-        if (uploads && Number(ch.statistics.videoCount) > 0) {
-          const pl = await api('playlistItems', { part: 'contentDetails', playlistId: uploads, maxResults: LATEST_COUNT });
-          const ids = (pl.items || []).map((i) => i.contentDetails.videoId).join(',');
-          if (ids) {
-            const vids = await api('videos', { part: 'snippet,statistics', id: ids });
-            latest = vids.items.map((v) => ({
-              id: v.id,
-              title: v.snippet.title,
-              publishedAt: v.snippet.publishedAt,
-              thumb: v.snippet.thumbnails?.medium?.url || v.snippet.thumbnails?.default?.url,
-              views: num(v.statistics.viewCount),
-              likes: num(v.statistics.likeCount)
-            })).sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+        if (uploads) {
+          try {
+            let pageToken = '';
+            do {
+              const pl = await api('playlistItems', { part: 'contentDetails', playlistId: uploads, maxResults: 50, ...(pageToken ? { pageToken } : {}) }, API, token);
+              const ids = (pl.items || []).map((i) => i.contentDetails.videoId).join(',');
+              if (ids) {
+                const vids = await api('videos', { part: 'snippet,statistics,status', id: ids }, API, token);
+                for (const v of vids.items || []) {
+                  const video = {
+                    id: v.id,
+                    title: v.snippet.title,
+                    publishedAt: v.snippet.publishedAt,
+                    thumb: v.snippet.thumbnails?.medium?.url || v.snippet.thumbnails?.default?.url,
+                    views: num(v.statistics?.viewCount),
+                    likes: num(v.statistics?.likeCount)
+                  };
+                  if (v.status?.privacyStatus === 'public' && v.snippet.liveBroadcastContent !== 'upcoming') latest.push(video);
+                  if (channelToken && v.status?.privacyStatus === 'private' && v.status.publishAt) {
+                    if (!Number.isFinite(new Date(v.status.publishAt).getTime())) throw new Error('YouTube trả về giờ hẹn đăng không hợp lệ');
+                    scheduled.push({ ...video, publishAt: v.status.publishAt });
+                  }
+                }
+              }
+              pageToken = pl.nextPageToken || '';
+            } while (pageToken && (channelToken || latest.length < LATEST_COUNT));
+          } catch (e) {
+            videosError = apiError(e, 'YouTube API');
           }
         }
+        latest = latest.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt)).slice(0, LATEST_COUNT);
 
         let analyticsError = '';
-        if (latest.length) {
+        if (latest.length && readToken(true, ch.id)) {
           try {
-            const durations = await fetchVideoAnalytics(ch.id, latest);
-            latest = latest.map((v) => ({ ...v, averageViewDuration: durations.get(v.id) ?? null }));
+            const analytics = await fetchVideoAnalytics(ch.id, latest);
+            latest = latest.map((v) => ({ ...v, ...analytics.get(v.id) }));
           } catch (e) {
-            analyticsError = e.name === 'TimeoutError' ? 'Hết thời gian chờ phản hồi từ Analytics API' : e.message;
+            analyticsError = apiError(e, 'Analytics API');
           }
         }
 
@@ -387,6 +531,10 @@
           views: num(s.viewCount),
           videos: num(s.videoCount),
           latest,
+          scheduled,
+          scheduleLoaded: !!channelToken,
+          videosError,
+          scheduleError: channelToken ? videosError : '',
           analyticsError
         };
       }
@@ -429,6 +577,51 @@
           </div>`).join('');
       }
 
+      function renderConnectButton(c) {
+        if (readToken(true, c.id)) return '';
+        return `<button type="button" class="btn small mint" data-connect-channel="${esc(c.id)}"${authPending ? ' disabled' : ''}>${readToken(false, c.id) ? 'Cấp quyền Analytics' : 'Kết nối kênh'}</button>`;
+      }
+
+      function renderSchedules(list, at) {
+        const days = scheduleDays();
+        const now = Date.now();
+        els.schedule.classList.toggle('hidden', !list.length);
+        els.scheduleMeta.textContent = `${days.map((d) => `${d.label} (${d.key.split('-').reverse().join('/')})`).join(' và ')} · Giờ Việt Nam (UTC+7) · Chỉ video chưa đến giờ công khai.${now - at >= CACHE_TTL ? ' Dữ liệu cũ — bấm “Làm mới” để kiểm tra lịch.' : ''}`;
+        els.scheduleGrid.innerHTML = list.map((c) => {
+          if (c.error) return `<article class="schedule-card"><h3>${esc(c.ref)}</h3><p class="analytics-note error">Không tải được kênh: ${esc(c.error)}</p></article>`;
+          const connected = !!readToken(false, c.id);
+          const pending = connected ? (c.scheduled || []).filter((v) => new Date(v.publishAt).getTime() > now) : [];
+          const grouped = days.map((day) => ({
+            ...day,
+            videos: pending.filter((v) => dateKey(new Date(v.publishAt), scheduleDateFormat) === day.key)
+              .sort((a, b) => new Date(a.publishAt) - new Date(b.publishAt))
+          }));
+          const count = grouped.reduce((total, day) => total + day.videos.length, 0);
+          const status = !connected ? 'Chưa kết nối kênh'
+            : !c.scheduleLoaded ? 'Chưa tải lịch đăng'
+              : `${count} video còn lên lịch hôm nay và ngày mai${c.scheduleError ? ' · Kết quả chưa đầy đủ' : ''}`;
+          return `<article class="schedule-card">
+            <div class="schedule-channel">
+              <div><h3><a href="https://www.youtube.com/channel/${encodeURIComponent(c.id)}" target="_blank" rel="noopener noreferrer">${esc(c.title)}</a></h3><p class="schedule-status">${esc(status)}</p></div>
+              ${renderConnectButton(c) || '<span class="schedule-status">Đã kết nối</span>'}
+            </div>
+            ${!connected
+              ? '<p class="analytics-note">Kết nối đúng tài khoản hoặc Brand Account của kênh để đọc video hẹn giờ riêng tư. Không thể suy ra lịch đăng từ dữ liệu công khai.</p>'
+              : !c.scheduleLoaded
+                ? '<p class="analytics-note">Bấm “Làm mới” để tải lịch đăng của kênh vừa kết nối.</p>'
+                : `${c.scheduleError ? `<p class="analytics-note error" role="status">Chưa tải hết lịch đăng: ${esc(c.scheduleError)}. Bấm “Làm mới” để thử lại.</p>` : ''}
+                  <div class="schedule-days">${grouped.map((day) => `<section class="schedule-day">
+                    <h4>${esc(day.label)} · ${day.videos.length}</h4>
+                    ${day.videos.length ? day.videos.map((v) => `<div class="video">
+                      <a href="https://studio.youtube.com/video/${encodeURIComponent(v.id)}/edit" target="_blank" rel="noopener noreferrer"><img src="${esc(safeUrl(v.thumb))}" alt="" loading="lazy"></a>
+                      <div><time class="schedule-time" datetime="${esc(v.publishAt)}">${esc(scheduleTimeFormat.format(new Date(v.publishAt)))}</time>
+                        <a class="vt" href="https://studio.youtube.com/video/${encodeURIComponent(v.id)}/edit" target="_blank" rel="noopener noreferrer">${esc(v.title)}</a></div>
+                    </div>`).join('') : `<p class="schedule-empty">${c.scheduleError ? 'Chưa tìm thấy video trong phần dữ liệu đã tải.' : 'Không còn video hẹn giờ.'}</p>`}
+                  </section>`).join('')}</div>`}
+          </article>`;
+        }).join('');
+      }
+
       function renderCard(c, i, rank) {
         const [c1, c2] = PALETTE[i % PALETTE.length];
         if (c.error) {
@@ -438,27 +631,37 @@
         const url = `https://www.youtube.com/channel/${encodeURIComponent(c.id)}`;
         const avg = c.videos ? Math.round(c.views / c.videos) : null;
         const banner = cssUrl(c.banner) ? `background-image:url(${cssUrl(c.banner)}=w1060)` : '';
-        const analyticsNote = c.analyticsError
-          ? `Không tải được Analytics: ${c.analyticsError}. Kiểm tra đã bật Analytics API và đăng nhập đúng tài khoản chủ sở hữu kênh.`
-          : !readToken(true)
-            ? 'Đăng nhập và cấp quyền Analytics để tải view duration.'
+        const hasAnalytics = !!readToken(true, c.id);
+        const hasAnalyticsError = c.analyticsError || c.latest.some((v) => v.analyticsState === 'error');
+        const analyticsNote = !hasAnalytics
+          ? 'Kết nối đúng kênh và cấp quyền Analytics để tải view duration. Kết nối một kênh không cấp quyền cho các kênh khác.'
+          : c.analyticsError
+            ? `Không tải được Analytics: ${c.analyticsError}. Kiểm tra đã bật YouTube Analytics API.`
             : c.latest.some((v) => v.averageViewDuration === undefined)
               ? 'Bấm “Làm mới” để tải view duration.'
-              : 'View duration TB: từ khi đăng · dữ liệu Analytics có thể trễ vài ngày. “—” nghĩa là chưa có dữ liệu.';
-        const videos = c.latest.map((v) => `
+              : 'View duration TB: từ khi công khai · dữ liệu có thể trễ vài ngày. Lỗi Analytics được ghi rõ tại từng video.';
+        const videos = c.latest.map((v) => {
+          const studioUrl = `https://studio.youtube.com/video/${encodeURIComponent(v.id)}/analytics/tab-overview`;
+          const stateNote = !hasAnalytics ? '' : v.analyticsState === 'pending'
+            ? '<p class="analytics-note" role="status">Chưa có dữ liệu Analytics; YouTube có thể đang xử lý video mới.</p>'
+            : v.analyticsState === 'error'
+              ? `<p class="analytics-note error" role="status">Lỗi Analytics: ${esc(v.analyticsError)}</p>` : '';
+          return `
           <div class="video">
             <a href="https://www.youtube.com/watch?v=${encodeURIComponent(v.id)}" target="_blank" rel="noopener noreferrer"><img src="${esc(safeUrl(v.thumb))}" alt="${esc(v.title)}" loading="lazy"></a>
             <div>
               <a class="vt" href="https://www.youtube.com/watch?v=${encodeURIComponent(v.id)}" target="_blank" rel="noopener noreferrer">${esc(v.title)}</a>
               <div class="vm">${compact(v.views)} views · ${compact(v.likes)} likes · ${timeAgo(v.publishedAt)}</div>
               <dl class="video-metrics">
-                <div><dt>Stayed to watch</dt><dd title="Dashboard chưa lấy tự động chỉ số này; xem trong YouTube Studio">—</dd></div>
-                <div><dt>CTR thumbnail</dt><dd title="Dashboard chưa lấy tự động chỉ số này; xem trong YouTube Studio">—</dd></div>
-                <div><dt>View duration TB</dt><dd title="Thời lượng xem trung bình (giờ:phút:giây hoặc phút:giây)">${viewDuration(v.averageViewDuration)}</dd></div>
+                <div><dt>Stayed to watch</dt><dd><a class="studio-link" href="${studioUrl}" target="_blank" rel="noopener noreferrer">Studio ↗</a></dd></div>
+                <div><dt>CTR thumbnail</dt><dd><a class="studio-link" href="${studioUrl}" target="_blank" rel="noopener noreferrer">Studio ↗</a></dd></div>
+                <div><dt>View duration TB</dt><dd title="Thời lượng xem trung bình (giờ:phút:giây hoặc phút:giây)">${viewDuration(hasAnalytics ? v.averageViewDuration : null)}</dd></div>
               </dl>
-              <a class="studio-link" href="https://studio.youtube.com/video/${encodeURIComponent(v.id)}/analytics/tab-overview" target="_blank" rel="noopener noreferrer">YouTube Studio ↗</a>
+              ${stateNote}
+              <a class="studio-link" href="${studioUrl}" target="_blank" rel="noopener noreferrer">YouTube Studio ↗</a>
             </div>
-          </div>`).join('');
+          </div>`;
+        }).join('');
         return `
           <article class="card">
             <div class="banner" style="--c1:${c1};--c2:${c2};${esc(banner)}">${rank ? `<span class="rank">#${rank}</span>` : ''}</div>
@@ -476,29 +679,43 @@
               <dl class="facts">
                 <dt>Views TB / video</dt><dd>${avg == null ? '—' : nf.format(avg)}</dd>
               </dl>
-              ${videos ? `<div class="videos"><h4>Video mới nhất</h4>${videos}
-                <p class="analytics-note">Stayed to watch và CTR chưa được dashboard lấy tự động. Xem số liệu trong YouTube Studio.</p>
-                <p class="analytics-note${c.analyticsError ? ' error' : ''}" role="status">${esc(analyticsNote)}</p></div>` : ''}
+              <div class="videos"><h4>Video mới nhất</h4>
+                ${c.videosError ? `<p class="analytics-note error" role="status">Chưa tải hết danh sách video: ${esc(c.videosError)}</p>` : ''}
+                ${videos || (c.videosError ? '' : '<p class="analytics-note">Chưa có video công khai.</p>')}
+                ${videos ? `<p class="analytics-note">YouTube Analytics API không cung cấp Stayed to watch và CTR thumbnail. Xem trong YouTube Studio.</p>
+                  <p class="analytics-note${hasAnalyticsError ? ' error' : ''}" role="status">${esc(analyticsNote)}</p>` : ''}
+                ${renderConnectButton(c)}
+              </div>
             </div>
           </article>`;
       }
 
       function render(data) {
-        if (!data) return;
+        if (!data) {
+          els.summary.innerHTML = '';
+          els.grid.innerHTML = '';
+          els.scheduleGrid.innerHTML = '';
+          els.schedule.classList.add('hidden');
+          els.updated.textContent = '';
+          return;
+        }
         const sorted = sortChannels(data.channels);
         const ranked = els.sort.value !== 'custom';
         renderSummary(data.channels);
+        renderSchedules(sorted, data.at);
         els.grid.innerHTML = sorted.map((c, pos) => renderCard(c, data.channels.indexOf(c), ranked && !c.error ? pos + 1 : 0)).join('');
         els.updated.textContent = `Cập nhật lúc ${new Date(data.at).toLocaleString('vi-VN')} · ${data.channels.length} kênh`;
       }
 
-      let current = null;
-
       function readCache() {
-        try { return JSON.parse(localStorage.getItem(STORE.cache)); } catch { return null; }
+        try {
+          const cache = JSON.parse(localStorage.getItem(STORE.cache));
+          return cache?.version === CACHE_VERSION ? cache : null;
+        } catch { return null; }
       }
 
       async function load(force = false, interactive = false) {
+        const generation = ++loadGeneration;
         if (!localStorage.getItem(STORE.clientId)) {
           openSettings();
           showNotice('Chọn file OAuth client (JSON) trong Cài đặt để bắt đầu.');
@@ -507,36 +724,69 @@
         const refs = getChannelList();
         const cache = readCache();
         const sameRefs = cache && JSON.stringify(cache.refs) === JSON.stringify(refs);
+        const record = readTokenRecord();
+        if (record && !Object.values(readAuth().channels).some((t) => t.value === record.value)) {
+          try { await linkToken(record); } catch (e) {
+            if (generation === loadGeneration) showNotice(apiError(e, 'YouTube API'));
+            return;
+          }
+          if (generation !== loadGeneration) return;
+        }
         if (!force && sameRefs && Date.now() - cache.at < CACHE_TTL) {
           render(current = cache);
+          if (!readToken()) showNotice('Đang xem dữ liệu lưu đệm. Kết nối lại từng kênh để xem Analytics và lịch đăng.');
           return;
         }
 
-        if (!readToken(true)) {
+        if (!readToken()) {
           if (!interactive) {
             if (sameRefs) render(current = cache);
-            showNotice('Bấm "Đăng nhập Google" hoặc "Cấp quyền Analytics" để tải dữ liệu mới nhất.');
+            showNotice('Bấm "Đăng nhập Google" hoặc "Kết nối kênh" để tải dữ liệu mới nhất.');
             return;
           }
-          try { await signIn(); } catch (e) { showNotice(e.message); return; }
+          try { await signIn(); } catch (e) {
+            if (generation === loadGeneration) showNotice(e.message);
+            return;
+          }
+          if (generation !== loadGeneration) return;
         }
 
         els.refresh.disabled = true;
         showNotice('');
         els.grid.innerHTML = refs.map(() => '<div class="card skeleton"></div>').join('');
-        const channels = await Promise.all(refs.map(async (r) => {
-          try { return await fetchChannel(parseChannelRef(r)); } catch (e) {
-            return { ref: r, error: e.name === 'TimeoutError' ? 'Hết thời gian chờ phản hồi từ YouTube API' : e.message };
+        els.schedule.classList.remove('hidden');
+        els.scheduleMeta.textContent = 'Đang kiểm tra lịch đăng của các kênh đã kết nối · Giờ Việt Nam (UTC+7)';
+        els.scheduleGrid.innerHTML = refs.map(() => '<div class="schedule-card skeleton"></div>').join('');
+        try {
+          const channels = await Promise.all(refs.map(async (r) => {
+            try { return await fetchChannel(parseChannelRef(r)); } catch (e) {
+              return { ref: r, error: apiError(e, 'YouTube API') };
+            }
+          }));
+          if (generation !== loadGeneration) return;
+          current = { version: CACHE_VERSION, at: Date.now(), refs, channels };
+          if (channels.every((c) => c.error)) {
+            showNotice(`Không tải được dữ liệu: ${channels[0]?.error || 'chưa có kênh nào'}`);
+          } else {
+            localStorage.setItem(STORE.cache, JSON.stringify(current));
           }
-        }));
-        current = { at: Date.now(), refs, channels };
-        if (channels.every((c) => c.error)) {
-          showNotice(`Không tải được dữ liệu: ${channels[0]?.error || 'chưa có kênh nào'}`);
-        } else {
-          localStorage.setItem(STORE.cache, JSON.stringify(current));
+          render(current);
+        } catch (e) {
+          if (generation === loadGeneration) showNotice(`Không cập nhật được dashboard: ${e.message}`);
+        } finally {
+          if (generation === loadGeneration) els.refresh.disabled = false;
         }
-        render(current);
-        els.refresh.disabled = false;
+      }
+
+      async function connectFromButton(event) {
+        const button = event.target.closest('button[data-connect-channel]');
+        if (!button) return;
+        button.disabled = true;
+        try {
+          await signIn(button.dataset.connectChannel);
+          await load(true);
+        } catch (e) { showNotice(e.message); }
+        finally { button.disabled = false; }
       }
 
       let pendingClientId = null;
@@ -581,9 +831,11 @@
         load(true, true);
       });
       els.auth.addEventListener('click', () => {
-        if (readToken(true)) { clearToken(); showNotice('Đã đăng xuất.'); }
+        if (readToken()) { clearToken(); render(current); showNotice('Đã đăng xuất tất cả kênh và xóa báo cáo, lịch đăng lưu đệm.'); }
         else load(true, true);
       });
+      els.grid.addEventListener('click', connectFromButton);
+      els.scheduleGrid.addEventListener('click', connectFromButton);
       els.refresh.addEventListener('click', () => load(true, true));
       els.sort.value = localStorage.getItem(STORE.sort) || 'subs';
       els.sort.addEventListener('change', () => { localStorage.setItem(STORE.sort, els.sort.value); render(current); });
@@ -591,6 +843,10 @@
       updateAuthButton();
       if (localStorage.getItem(STORE.clientId)) loadGis().catch(() => {});
       localStorage.removeItem('ytdash.apiKey');
+      setInterval(() => {
+        if (current && !els.refresh.disabled && !authPending) render(current);
+        updateAuthButton();
+      }, 60000);
       load();
     })();
   </script>

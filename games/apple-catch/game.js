@@ -958,7 +958,7 @@ function drawBubble(time, id) {
   ctx.textBaseline = 'alphabetic';
 }
 
-function drawItems(time) {
+function drawItemShadows() {
   for (const item of items) {
     const near = Math.max(0, Math.min(1, (item.y + 40) / (GROUND_Y + 40)));
     ctx.fillStyle = `rgba(0, 0, 0, ${0.08 + near * 0.16})`;
@@ -966,6 +966,9 @@ function drawItems(time) {
     ctx.ellipse(item.x, GROUND_Y + 2, 6 + near * 12, 2 + near * 3, 0, 0, Math.PI * 2);
     ctx.fill();
   }
+}
+
+function drawItems(time) {
   for (const item of items) {
     ctx.save();
     ctx.translate(item.x, item.y);
@@ -1213,8 +1216,9 @@ function render(time) {
   if (scene === 'morning') drawMorning(time);
   else if (scene === 'sunset') drawSunset(time);
   else drawNight(time);
-  drawItems(time);
+  drawItemShadows();
   drawPlayer(time);
+  drawItems(time);
   drawEffects();
   ctx.restore();
   drawBanner(time);

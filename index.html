@@ -142,11 +142,11 @@
     .nav-links { display: flex; align-items: center; gap: 6px; font: 600 15px var(--display); }
     .nav-links a { padding: 10px 14px; border-radius: 12px; transition: background .2s, transform .2s var(--pop); }
     .nav-links a:hover { background: var(--lilac); transform: translateY(-2px); }
-    .nav-links .nav-cta, .nav-links .nav-contact { margin-left: 6px; padding: 10px 18px; border: 2.5px solid var(--ink); background: var(--mint); box-shadow: 0 3px 0 var(--ink); white-space: nowrap; }
-    .nav-links .nav-cta:hover { background: var(--gold); }
+    .nav-links .nav-cta, .nav-links .nav-contact, .nav-links .nav-games-link, .nav-links .nav-tools-link { margin-left: 6px; padding: 10px 18px; border: 2.5px solid var(--ink); background: var(--mint); box-shadow: 0 3px 0 var(--ink); white-space: nowrap; }
+    .nav-links .nav-cta:hover, .nav-links .nav-games-link:hover { background: var(--gold); }
     .nav-links .nav-contact { background: var(--gold); }
     .nav-links .nav-contact:hover { background: var(--berry); }
-    .nav-links .nav-tools-link { margin-left: 6px; padding: 10px 18px; border: 2.5px solid var(--ink); background: var(--lilac); box-shadow: 0 3px 0 var(--ink); white-space: nowrap; }
+    .nav-links .nav-tools-link { background: var(--lilac); }
     .nav-links .nav-tools-link:hover { background: var(--mint); }
     .nav-tools { display: flex; align-items: center; gap: 10px; }
     .lang-toggle { display: inline-flex; padding: 3px; border: 2.5px solid var(--ink); border-radius: 14px; background: white; box-shadow: 0 3px 0 var(--ink); }
@@ -279,8 +279,8 @@
     .channel-visual::after { content: ''; position: absolute; left: -10%; right: -10%; bottom: -30px; height: 70px; border-top: 2.5px solid var(--ink); border-radius: 50% 50% 0 0; background: white; }
     .channel-visual .toon { z-index: 1; width: var(--w, 52%); margin-bottom: 24px; animation: idle 2.8s ease-in-out infinite; animation-delay: var(--dl, 0s); }
     .channel-visual .wow { position: absolute; inset: 0; opacity: 0; transition: opacity .15s; }
-    .channel-visual .toon > img:first-child { transition: opacity .15s; }
-    .channel:hover .toon > img:first-child, .channel:focus-visible .toon > img:first-child { opacity: 0; }
+    .channel-visual .toon > img:not(.wow) { transition: opacity .15s; }
+    .channel:hover .toon > img:not(.wow), .channel:focus-visible .toon > img:not(.wow) { opacity: 0; }
     .channel:hover .wow, .channel:focus-visible .wow { opacity: 1; }
     .channel:hover .channel-visual .toon, .channel:focus-visible .channel-visual .toon { animation: jump .6s var(--pop); }
     .channel-visual .sparkle { position: absolute; z-index: 1; font-size: 20px; color: white; -webkit-text-stroke: 1.5px var(--ink); animation: twinkle 2.2s ease-in-out infinite; }
@@ -363,7 +363,7 @@
     .tool-status { display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; padding: 8px 12px; border: 2px dashed var(--ink-soft); border-radius: 12px; background: rgba(255, 255, 255, .7); color: var(--ink-soft); font: 700 13px var(--body); }
     .tool-status::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--ink-soft); }
     .footer { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; margin-top: 50px; padding-top: 28px; border-top: 2.5px dashed rgba(43, 37, 80, .25); font-size: 15px; color: var(--ink-soft); }
-    .footer nav { display: flex; gap: 20px; }
+    .footer nav { display: flex; flex-wrap: wrap; gap: 12px 20px; }
     .footer nav a:hover { color: var(--berry-deep); }
 
     /* ---------- Reveal ---------- */
@@ -473,10 +473,7 @@
     <div class="wrap nav">
       <a class="brand" href="#home" aria-label="Mind Phoenix home" data-i18n-aria="nav.home"><span class="brand-mark" aria-hidden="true"><img src="assets/mascots/mind-phoenix-logo.png" alt="" width="109" height="128"></span><span>Mind Phoenix</span></a>
       <nav class="nav-links" id="nav-links" aria-label="Main">
-        <a href="#reel" data-i18n="nav.reel">Showreel</a>
-        <a href="#how" data-i18n="nav.how">How we animate</a>
-        <a href="#channels" data-i18n="nav.channels">Channels</a>
-        <a href="games/" data-i18n="nav.games">🎮 Games</a>
+        <a class="nav-games-link" href="games/" data-i18n="nav.games">🎮 Games</a>
         <a class="nav-tools-link" href="tools/" data-i18n="nav.tools">🛠 Tools</a>
         <a class="nav-cta" href="#channels" data-i18n="nav.watch">▶ Watch now</a>
         <a class="nav-contact" href="mailto:haihung1988@gmail.com" data-i18n="nav.contact">Contact us</a>
@@ -636,7 +633,7 @@
             <p class="kicker" data-i18n="how.kicker">How a lesson comes alive</p>
             <h2 class="title" id="how-title"><span data-i18n="how.t1">From a question<br>to a</span> <span class="squiggle"><span data-i18n="how.t2">moving picture.</span><svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M2 12 Q 25 2 50 12 T 100 12 T 150 12 T 198 12" fill="none" stroke="#bfeedd" stroke-width="7" stroke-linecap="round"/></svg></span></h2>
           </div>
-          <p class="lead" data-i18n="how.lead">Four steps, many cups of cocoa, and thousands of hand‑timed frames.</p>
+          <p class="lead" data-i18n="how.lead">Four steps, many cups of cocoa, and thousands of hand‑timed frames, with AI supporting our creative process from idea to animation.</p>
         </div>
         <div class="steps">
           <article class="step reveal" style="--rd:0s">
@@ -832,7 +829,7 @@
         <footer class="footer">
           <a class="brand" href="#home"><span class="brand-mark" aria-hidden="true"><img src="assets/mascots/mind-phoenix-logo.png" alt="" width="109" height="128"></span><span>Mind Phoenix</span></a>
           <span>© <span id="year"></span> Mind Phoenix · <span data-i18n="f.tag">2D animated education</span></span>
-          <nav aria-label="Footer"><a href="#reel" data-i18n="nav.reel">Showreel</a><a href="#channels" data-i18n="nav.channels">Channels</a><a href="#guest" data-i18n="nav.guest">Special guest</a></nav>
+          <nav aria-label="Footer"><a href="#reel" data-i18n="nav.reel">Showreel</a><a href="#channels" data-i18n="nav.channels">Channels</a><a href="#guest" data-i18n="nav.guest">Special guest</a><a href="pages/privacy-policy.html" data-i18n="nav.privacy">Privacy Policy</a><a href="pages/terms-of-service.html" data-i18n="nav.terms">Terms of Service</a></nav>
         </footer>
       </div>
     </section>
@@ -851,6 +848,7 @@
         'nav.home': 'Trang chủ Mind Phoenix',
         'nav.reel': 'Showreel', 'nav.how': 'Cách tụi mình làm phim', 'nav.channels': 'Các kênh', 'nav.guest': 'Khách mời', 'nav.watch': '▶ Xem ngay',
         'nav.contact': 'Liên hệ', 'nav.tools': '🛠 Công cụ', 'nav.games': '🎮 Trò chơi',
+        'nav.privacy': 'Chính sách bảo mật', 'nav.terms': 'Điều khoản dịch vụ',
         'hero.tag': 'Kênh giáo dục hoạt hình 2D',
         'hero.sub': 'Bài học hoạt hình về <b>toán, lập trình, vũ trụ &amp; hoá học</b>, vẽ và diễn hoạt từng khung hình để ý tưởng lớn trở nên dễ hiểu.',
         'hero.play': 'Xem showreel', 'hero.cast': 'Gặp dàn nhân vật ✨',
@@ -864,7 +862,7 @@
         'ep1.alt': 'Sigma, host của Mind Math, đang ngạc nhiên', 'ep2.alt': 'Command, host của Mind Dev, đang ngạc nhiên',
         'ep3.alt': 'Lambda, host của Mind Astro, đang ngạc nhiên', 'ep4.alt': 'Flask, host của Mind Chemistry, đang ngạc nhiên',
         'how.kicker': 'Một bài học ra đời thế nào', 'how.t1': 'Từ một câu hỏi thành', 'how.t2': 'thước phim sống động.',
-        'how.lead': 'Bốn bước, rất nhiều cốc ca cao và hàng nghìn khung hình được canh nhịp bằng tay.',
+        'how.lead': 'Bốn bước, rất nhiều cốc ca cao và hàng nghìn khung hình được canh nhịp bằng tay, với AI hỗ trợ quá trình sáng tạo từ ý tưởng đến diễn hoạt.',
         's1.h': 'Khơi gợi câu hỏi', 's1.p': 'Tụi mình săn lùng khoảnh khắc “ủa, sao vậy?” khiến chủ đề quen thuộc trở nên bất ngờ.',
         's2.h': 'Viết câu chuyện', 's2.p': 'Nghiên cứu được biến thành kịch bản có nhân vật chính, cú twist và một pha gây cười.',
         's3.h': 'Vẽ storyboard', 's3.p': 'Từng nhịp truyện được phác thành khung tranh để ý tưởng hiểu ngay chỉ với một cái nhìn.',

@@ -4,6 +4,12 @@
     <loc>https://mindphoenix.xyz/</loc>
   </url>
   <url>
+    <loc>https://mindphoenix.xyz/pages/privacy-policy.html</loc>
+  </url>
+  <url>
+    <loc>https://mindphoenix.xyz/pages/terms-of-service.html</loc>
+  </url>
+  <url>
     <loc>https://mindphoenix.xyz/games/duck-race/</loc>
   </url>
   <url>
@@ -17,5 +23,11 @@
   </url>
   <url>
     <loc>https://mindphoenix.xyz/games/apple-catch/</loc>
+  </url>
+  <url>
+    <loc>https://mindphoenix.xyz/tools/</loc>
+  </url>
+  <url>
+    <loc>https://mindphoenix.xyz/tools/formula-sandbox/</loc>
   </url>
 </urlset>
