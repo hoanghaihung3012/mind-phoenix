@@ -6,10 +6,10 @@
   <meta name="theme-color" content="#d9d6ff">
   <meta name="description" content="Mind Phoenix is a 2D animation education studio. Cartoon lessons about math, code, space and chemistry, animated frame by frame.">
   <title>Mind Phoenix — 2D animated lessons that make big ideas click</title>
-  <link rel="icon" type="image/png" href="assets/mascots/mind-phoenix-mascot.png">
+  <link rel="icon" type="image/png" href="assets/mascots/mind-phoenix-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&family=DM+Mono:wght@500&family=Baloo+2:wght@500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
   <style>
     :root {
       --ink: #2b2550;
@@ -31,6 +31,8 @@
       --outline: 3px solid var(--ink);
       --drop: 0 6px 0 var(--ink);
     }
+    html[lang="vi"] { --display: 'Baloo 2', 'Nunito', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace; }
+    html[lang="vi"] .squiggle svg { bottom: .04em; }
 
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; scroll-padding-top: 96px; overflow-x: clip; }
@@ -73,15 +75,19 @@
     /* ---------- Topbar ---------- */
     .topbar { position: fixed; z-index: 40; inset: 14px 0 auto; pointer-events: none; }
     .nav { pointer-events: auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 10px 12px 10px 16px; background: rgba(255, 250, 245, .86); backdrop-filter: blur(12px); border: var(--outline); border-radius: 22px; box-shadow: 0 5px 0 var(--ink); }
-    .brand { display: inline-flex; align-items: center; gap: 10px; font: 700 21px var(--display); white-space: nowrap; }
-    .brand-mark { display: grid; place-items: center; width: 48px; height: 48px; transition: transform .4s var(--pop); }
-    .brand-mark img { width: 44px; height: 44px; object-fit: contain; }
+    .brand { display: inline-flex; align-items: center; gap: 4px; font: 700 21px var(--display); white-space: nowrap; }
+    .brand-mark { display: grid; place-items: center; margin-block: -8px; transition: transform .4s var(--pop); }
+    .brand-mark img { width: auto; height: 60px; transform: translateY(-17%); filter: drop-shadow(0 3px 0 rgba(43, 37, 80, .15)); }
     .brand:hover .brand-mark { transform: rotate(-12deg) scale(1.08); }
     .nav-links { display: flex; align-items: center; gap: 6px; font: 600 15px var(--display); }
     .nav-links a { padding: 10px 14px; border-radius: 12px; transition: background .2s, transform .2s var(--pop); }
     .nav-links a:hover { background: var(--lilac); transform: translateY(-2px); }
     .nav-links .nav-cta { margin-left: 6px; padding: 10px 18px; border: 2.5px solid var(--ink); background: var(--mint); box-shadow: 0 3px 0 var(--ink); }
     .nav-links .nav-cta:hover { background: var(--gold); }
+    .nav-tools { display: flex; align-items: center; gap: 10px; }
+    .lang-toggle { display: inline-flex; padding: 3px; border: 2.5px solid var(--ink); border-radius: 14px; background: white; box-shadow: 0 3px 0 var(--ink); }
+    .lang-toggle button { min-width: 40px; min-height: 36px; padding: 0 8px; border: 0; border-radius: 10px; background: transparent; font: 600 14px var(--display); cursor: pointer; transition: background .2s; }
+    .lang-toggle button[aria-pressed="true"] { background: var(--gold); }
     .menu-toggle { display: none; width: 46px; height: 46px; border: 2.5px solid var(--ink); border-radius: 14px; background: white; cursor: pointer; font-size: 20px; }
 
     /* ---------- Hero ---------- */
@@ -142,7 +148,7 @@
     .reel .lead { max-width: 440px; margin: 22px 0 0; }
     .reel-points { display: grid; gap: 14px; margin: 30px 0 0; padding: 0; list-style: none; }
     .reel-points li { display: flex; align-items: center; gap: 14px; font: 600 18px var(--display); }
-    .reel-points li span { display: grid; place-items: center; flex-shrink: 0; width: 42px; height: 42px; border: var(--outline); border-radius: 14px; background: var(--c); box-shadow: 0 3px 0 var(--ink); font-size: 20px; }
+    .reel-points li > span:first-child { display: grid; place-items: center; flex-shrink: 0; width: 42px; height: 42px; border: var(--outline); border-radius: 14px; background: var(--c); box-shadow: 0 3px 0 var(--ink); font-size: 20px; }
     .player { position: relative; padding: 16px; border: var(--outline); border-radius: 32px; background: var(--ink); box-shadow: 12px 12px 0 var(--berry); transform: rotate(1.5deg); }
     .player::before, .player::after { content: ''; position: absolute; left: 44px; right: 44px; height: 8px; background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .35) 0 16px, transparent 16px 30px); }
     .player::before { top: 4px; }
@@ -222,6 +228,23 @@
     .channel-go { display: inline-flex; align-items: center; gap: 10px; align-self: flex-start; margin-top: 18px; padding: 10px 16px; border: 2.5px solid var(--ink); border-radius: 14px; background: var(--c1); font: 600 15px var(--display); box-shadow: 0 3px 0 var(--ink); transition: transform .2s var(--pop); }
     .channel:hover .channel-go { transform: translateX(4px); }
 
+    /* ---------- Special guest ---------- */
+    .guest { padding: 0 0 130px; }
+    .guest-card { position: relative; display: grid; grid-template-columns: .9fr 1.1fr; align-items: center; gap: 48px; padding: 48px 56px; overflow: hidden; border: var(--outline); border-radius: 40px; background: radial-gradient(circle at 24% 50%, #fff4c9 0 18%, transparent 46%), linear-gradient(135deg, #ffd8c9 0%, #ffc4d3 52%, #f5d7ff 100%); box-shadow: 0 10px 0 var(--ink); }
+    .guest-art { position: relative; display: grid; place-items: center; height: 380px; }
+    .guest-rays { position: absolute; width: 420px; height: 420px; border-radius: 50%; background: repeating-conic-gradient(rgba(255, 255, 255, .55) 0 10deg, transparent 10deg 20deg); -webkit-mask: radial-gradient(circle, #000 30%, transparent 70%); mask: radial-gradient(circle, #000 30%, transparent 70%); animation: spin 26s linear infinite; }
+    .guest-ring { position: absolute; width: 270px; height: 270px; border: 3px dashed rgba(43, 37, 80, .35); border-radius: 50%; animation: spin 18s linear infinite reverse; }
+    .guest-phoenix { position: relative; z-index: 2; width: 250px; animation: soar 3.2s ease-in-out infinite; transform-origin: 50% 80%; }
+    .guest-phoenix img { width: 100%; height: auto; filter: drop-shadow(0 10px 0 rgba(43, 37, 80, .14)); }
+    .guest-shadow { position: absolute; z-index: 1; bottom: 18px; width: 150px; height: 18px; border-radius: 50%; background: rgba(43, 37, 80, .18); animation: soar-shadow 3.2s ease-in-out infinite; }
+    .ember { position: absolute; z-index: 3; bottom: 30%; left: var(--x); width: var(--s, 12px); height: var(--s, 12px); border: 2px solid var(--ink); border-radius: 50% 0 50% 50%; background: var(--c, var(--gold)); transform: rotate(-45deg); opacity: 0; animation: ember var(--d, 3s) ease-out infinite; animation-delay: var(--dl, 0s); }
+    .guest-badge { position: absolute; z-index: 4; top: 12px; left: 0; display: grid; place-items: center; width: 112px; height: 112px; padding: 14px; border: var(--outline); border-radius: 50%; background: var(--gold); box-shadow: 0 5px 0 var(--ink); font: 700 14px/1.1 var(--display); text-align: center; text-transform: uppercase; animation: wobble 3s ease-in-out infinite; }
+    .guest-copy .lead { max-width: 500px; margin: 18px 0 0; }
+    .guest-handle { display: inline-flex; align-items: center; gap: 8px; margin-top: 22px; padding: 7px 14px; border: 2.5px solid var(--ink); border-radius: 99px; background: white; font: 500 14px var(--mono); }
+    .guest-handle::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: #ff4f6d; animation: blink 1.2s steps(2) infinite; }
+    .guest-actions { margin-top: 26px; }
+    .guest .btn { background: var(--gold); }
+
     /* ---------- Parade ---------- */
     .parade { position: relative; overflow: hidden; padding: 120px 0 0; background: linear-gradient(180deg, #ffe2ec 0%, #e3d8ff 100%); border-top: var(--outline); text-align: center; }
     .garland { position: absolute; top: 0; left: 0; right: 0; height: 80px; pointer-events: none; }
@@ -236,6 +259,8 @@
     .march { position: absolute; z-index: 1; bottom: 60px; left: 0; display: flex; align-items: flex-end; gap: 70px; width: max-content; animation: march 26s linear infinite; }
     .march .toon { width: var(--w); animation: waddle .5s ease-in-out infinite alternate; transform-origin: 50% 100%; }
     .march .toon:nth-child(even) { animation-delay: .25s; }
+    .march .flyer { width: var(--w); margin-bottom: 70px; animation: soar 1.6s ease-in-out infinite; }
+    .march .flyer img { width: 100%; height: auto; }
     .march .gift { width: 64px; height: 56px; border: var(--outline); border-radius: 8px; background: linear-gradient(90deg, transparent 42%, var(--berry-deep) 42% 58%, transparent 58%), var(--c); animation: waddle .5s ease-in-out infinite alternate; position: relative; }
     .march .gift::before { content: ''; position: absolute; top: -16px; left: 50%; width: 30px; height: 16px; margin-left: -15px; border: 3px solid var(--berry-deep); border-radius: 50% 50% 0 0; border-bottom: 0; }
 
@@ -281,6 +306,10 @@
     @keyframes ball-shadow { 0% { transform: scale(.45); opacity: .4; } 100% { transform: scale(1.1); opacity: 1; } }
     @keyframes bulb { 0%, 100% { opacity: 1; box-shadow: 0 0 16px 4px var(--c); } 50% { opacity: .55; box-shadow: 0 0 0 0 transparent; } }
     @keyframes march { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
+    @keyframes soar { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-24px) rotate(4deg); } }
+    @keyframes soar-shadow { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.7); opacity: .5; } }
+    @keyframes ember { 0% { opacity: 0; transform: translateY(0) rotate(-45deg) scale(.6); } 15% { opacity: 1; } 100% { opacity: 0; transform: translateY(-220px) translateX(var(--dx, 20px)) rotate(-45deg) scale(1.1); } }
+    @keyframes wobble { 0%, 100% { transform: rotate(-10deg) scale(1); } 50% { transform: rotate(8deg) scale(1.06); } }
     @keyframes waddle { from { transform: rotate(-5deg) translateY(0); } to { transform: rotate(5deg) translateY(-8px); } }
 
     /* ---------- Responsive ---------- */
@@ -289,6 +318,7 @@
       .steps, .channel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .cta-card { grid-template-columns: 1fr; }
       .cta-cast { height: 220px; }
+      .guest-card { grid-template-columns: 1fr; }
     }
     @media (max-width: 760px) {
       .wrap { width: calc(100% - 32px); }
@@ -310,7 +340,13 @@
       .steps, .channel-grid { grid-template-columns: 1fr; }
       .section-head { flex-direction: column; align-items: start; }
       .player-bar { flex-wrap: wrap; }
-      .cta-card { padding: 34px 24px; }
+      .cta-card, .guest-card { padding: 34px 24px; }
+      .guest-art { height: 300px; }
+      .guest-phoenix { width: 190px; }
+      .guest-badge { width: 92px; height: 92px; font-size: 12px; }
+      .brand > span:last-child { font-size: 18px; }
+      .brand-mark img { height: 50px; }
+      .lang-toggle button { min-width: 36px; }
       .road { height: 230px; }
       .march .toon { width: calc(var(--w) * .7); }
     }
@@ -340,14 +376,21 @@
 
   <header class="topbar">
     <div class="wrap nav">
-      <a class="brand" href="#home" aria-label="Mind Phoenix home"><span class="brand-mark" aria-hidden="true"><img src="assets/mascots/mind-phoenix-mascot.png" alt=""></span><span>Mind Phoenix</span></a>
-      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Open menu">☰</button>
+      <a class="brand" href="#home" aria-label="Mind Phoenix home" data-i18n-aria="nav.home"><span class="brand-mark" aria-hidden="true"><img src="assets/mascots/mind-phoenix-logo.png" alt="" width="109" height="128"></span><span>Mind Phoenix</span></a>
       <nav class="nav-links" id="nav-links" aria-label="Main">
-        <a href="#reel">Showreel</a>
-        <a href="#how">How we animate</a>
-        <a href="#channels">Channels</a>
-        <a class="nav-cta" href="https://www.youtube.com/results?search_query=Mind+Phoenix" target="_blank" rel="noopener noreferrer">▶ Watch now</a>
+        <a href="#reel" data-i18n="nav.reel">Showreel</a>
+        <a href="#how" data-i18n="nav.how">How we animate</a>
+        <a href="#channels" data-i18n="nav.channels">Channels</a>
+        <a href="#guest" data-i18n="nav.guest">Special guest</a>
+        <a class="nav-cta" href="#channels" data-i18n="nav.watch">▶ Watch now</a>
       </nav>
+      <div class="nav-tools">
+        <div class="lang-toggle" role="group" aria-label="Language / Ngôn ngữ">
+          <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>
+          <button type="button" data-lang="vi" aria-pressed="false" lang="vi">VI</button>
+        </div>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Open menu">☰</button>
+      </div>
     </div>
   </header>
 
@@ -374,12 +417,12 @@
       </div>
 
       <div class="hero-copy">
-        <span class="tag"><i></i> 2D animated education channel</span>
+        <span class="tag"><i></i> <span data-i18n="hero.tag">2D animated education channel</span></span>
         <h1 id="hero-title" data-split>Mind Phoenix</h1>
-        <p class="hero-sub">Cartoon lessons about <b>math, code, space &amp; chemistry</b>, drawn and animated frame by frame so big ideas finally click.</p>
+        <p class="hero-sub" data-i18n="hero.sub">Cartoon lessons about <b>math, code, space &amp; chemistry</b>, drawn and animated frame by frame so big ideas finally click.</p>
         <div class="hero-actions">
-          <a class="btn" href="#reel"><span class="play" aria-hidden="true">▶</span> Play the showreel</a>
-          <a class="btn alt" href="#channels">Meet the cast ✨</a>
+          <a class="btn" href="#reel"><span class="play" aria-hidden="true">▶</span> <span data-i18n="hero.play">Play the showreel</span></a>
+          <a class="btn alt" href="#channels" data-i18n="hero.cast">Meet the cast ✨</a>
         </div>
       </div>
 
@@ -426,8 +469,8 @@
 
     <div class="ribbon" aria-hidden="true">
       <div class="ribbon-track">
-        <span>Mathematics</span><span>Technology</span><span>Astronomy</span><span>Chemistry</span><span>Hand‑drawn 2D</span><span>Frame by frame</span><span>Made for curious minds</span>
-        <span>Mathematics</span><span>Technology</span><span>Astronomy</span><span>Chemistry</span><span>Hand‑drawn 2D</span><span>Frame by frame</span><span>Made for curious minds</span>
+        <span data-i18n="rib.0">Mathematics</span><span data-i18n="rib.1">Technology</span><span data-i18n="rib.2">Astronomy</span><span data-i18n="rib.3">Chemistry</span><span data-i18n="rib.4">Hand‑drawn 2D</span><span data-i18n="rib.5">Frame by frame</span><span data-i18n="rib.6">Made for curious minds</span>
+        <span data-i18n="rib.0">Mathematics</span><span data-i18n="rib.1">Technology</span><span data-i18n="rib.2">Astronomy</span><span data-i18n="rib.3">Chemistry</span><span data-i18n="rib.4">Hand‑drawn 2D</span><span data-i18n="rib.5">Frame by frame</span><span data-i18n="rib.6">Made for curious minds</span>
       </div>
     </div>
 
@@ -435,41 +478,41 @@
     <section class="reel" id="reel" aria-labelledby="reel-title">
       <div class="wrap reel-layout">
         <div class="reveal">
-          <p class="kicker">Now showing</p>
-          <h2 class="title" id="reel-title">Every lesson is a <span class="squiggle">cartoon.<svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M2 12 Q 25 2 50 12 T 100 12 T 150 12 T 198 12" fill="none" stroke="#ffd98a" stroke-width="7" stroke-linecap="round"/></svg></span></h2>
-          <p class="lead">We turn tricky questions into short, funny 2D animated stories. Our hosts squash, stretch and wonder out loud, so ideas stick long after the episode ends.</p>
+          <p class="kicker" data-i18n="reel.kicker">Now showing</p>
+          <h2 class="title" id="reel-title"><span data-i18n="reel.t1">Every lesson is a</span> <span class="squiggle"><span data-i18n="reel.t2">cartoon.</span><svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M2 12 Q 25 2 50 12 T 100 12 T 150 12 T 198 12" fill="none" stroke="#ffd98a" stroke-width="7" stroke-linecap="round"/></svg></span></h2>
+          <p class="lead" data-i18n="reel.lead">We turn tricky questions into short, funny 2D animated stories. Our hosts squash, stretch and wonder out loud, so ideas stick long after the episode ends.</p>
           <ul class="reel-points">
-            <li><span style="--c:var(--lilac)">✏️</span> Hand‑drawn characters &amp; worlds</li>
-            <li><span style="--c:var(--mint)">🎬</span> Story‑first scripts, zero boring slides</li>
-            <li><span style="--c:var(--peach)">🧠</span> Fact‑checked science for every age</li>
+            <li><span style="--c:var(--lilac)">✏️</span> <span data-i18n="reel.p1">Hand‑drawn characters &amp; worlds</span></li>
+            <li><span style="--c:var(--mint)">🎬</span> <span data-i18n="reel.p2">Story‑first scripts, zero boring slides</span></li>
+            <li><span style="--c:var(--peach)">🧠</span> <span data-i18n="reel.p3">Fact‑checked science for every age</span></li>
           </ul>
         </div>
         <div class="reveal" style="--rd:.15s">
           <div class="player" id="player">
-            <span class="player-tag" aria-hidden="true">🎄 Holiday episodes</span>
+            <span class="player-tag" aria-hidden="true" data-i18n="reel.tag">🎄 Holiday episodes</span>
             <div class="screen" id="screen" aria-live="polite">
               <div class="scene active" data-bg="#cfe6ff" role="tabpanel" id="ep-1" aria-labelledby="tab-1">
                 <span class="fx" style="top:10%;right:12%" aria-hidden="true">❄</span><span class="fx" style="top:58%;left:8%;animation-delay:1s" aria-hidden="true">✶</span>
-                <p class="q"><small>MIND MATH · EP.12</small>Why is every snowflake six‑sided?</p>
-                <div class="toon sigma"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/mindmath-sigma-wow.webp" alt="Sigma, the Mind Math host, looking amazed" width="406" height="520"></div>
+                <p class="q"><small>MIND MATH · EP.12</small><span data-i18n="ep1.q">Why is every snowflake six‑sided?</span></p>
+                <div class="toon sigma"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/mindmath-sigma-wow.webp" alt="Sigma, the Mind Math host, looking amazed" data-i18n-alt="ep1.alt" width="406" height="520"></div>
                 <div class="scene-ground" aria-hidden="true"></div>
               </div>
               <div class="scene" data-bg="#bfeedd" role="tabpanel" id="ep-2" aria-labelledby="tab-2">
                 <span class="fx" style="top:12%;right:10%" aria-hidden="true">{ }</span><span class="fx" style="top:60%;left:6%;animation-delay:1s" aria-hidden="true">01</span>
-                <p class="q"><small>MIND DEV · EP.08</small>How does a computer count to a million in a blink?</p>
-                <div class="toon cmd"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/minddev-cmd-wow.webp" alt="Command, the Mind Dev host, looking amazed" width="459" height="520"></div>
+                <p class="q"><small>MIND DEV · EP.08</small><span data-i18n="ep2.q">How does a computer count to a million in a blink?</span></p>
+                <div class="toon cmd"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/minddev-cmd-wow.webp" alt="Command, the Mind Dev host, looking amazed" data-i18n-alt="ep2.alt" width="459" height="520"></div>
                 <div class="scene-ground" aria-hidden="true"></div>
               </div>
               <div class="scene" data-bg="#dcd2ff" role="tabpanel" id="ep-3" aria-labelledby="tab-3">
                 <span class="fx" style="top:10%;right:14%" aria-hidden="true">★</span><span class="fx" style="top:56%;left:8%;animation-delay:1s" aria-hidden="true">🪐</span>
-                <p class="q"><small>MIND ASTRO · EP.21</small>How far away is the North Star, really?</p>
-                <div class="toon lambda"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/mindastro-lambda-wow.webp" alt="Lambda, the Mind Astro host, looking amazed" width="697" height="520"></div>
+                <p class="q"><small>MIND ASTRO · EP.21</small><span data-i18n="ep3.q">How far away is the North Star, really?</span></p>
+                <div class="toon lambda"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/mindastro-lambda-wow.webp" alt="Lambda, the Mind Astro host, looking amazed" data-i18n-alt="ep3.alt" width="697" height="520"></div>
                 <div class="scene-ground" aria-hidden="true"></div>
               </div>
               <div class="scene" data-bg="#ffdccb" role="tabpanel" id="ep-4" aria-labelledby="tab-4">
                 <span class="fx" style="top:12%;right:12%" aria-hidden="true">H₂O</span><span class="fx" style="top:58%;left:8%;animation-delay:1s" aria-hidden="true">⚛</span>
-                <p class="q"><small>MIND CHEMISTRY · EP.05</small>Why does ice float instead of sink?</p>
-                <div class="toon flask"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/mindchemistry-flask-wow.webp" alt="Flask, the Mind Chemistry host, looking amazed" width="399" height="520"></div>
+                <p class="q"><small>MIND CHEMISTRY · EP.05</small><span data-i18n="ep4.q">Why does ice float instead of sink?</span></p>
+                <div class="toon flask"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/mindchemistry-flask-wow.webp" alt="Flask, the Mind Chemistry host, looking amazed" data-i18n-alt="ep4.alt" width="399" height="520"></div>
                 <div class="scene-ground" aria-hidden="true"></div>
               </div>
               <div class="wipe" id="wipe" aria-hidden="true"></div>
@@ -493,35 +536,35 @@
       <div class="wrap">
         <div class="section-head reveal">
           <div>
-            <p class="kicker">How a lesson comes alive</p>
-            <h2 class="title" id="how-title">From a question<br>to a <span class="squiggle">moving picture.<svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M2 12 Q 25 2 50 12 T 100 12 T 150 12 T 198 12" fill="none" stroke="#bfeedd" stroke-width="7" stroke-linecap="round"/></svg></span></h2>
+            <p class="kicker" data-i18n="how.kicker">How a lesson comes alive</p>
+            <h2 class="title" id="how-title"><span data-i18n="how.t1">From a question<br>to a</span> <span class="squiggle"><span data-i18n="how.t2">moving picture.</span><svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M2 12 Q 25 2 50 12 T 100 12 T 150 12 T 198 12" fill="none" stroke="#bfeedd" stroke-width="7" stroke-linecap="round"/></svg></span></h2>
           </div>
-          <p class="lead">Four steps, many cups of cocoa, and thousands of hand‑timed frames.</p>
+          <p class="lead" data-i18n="how.lead">Four steps, many cups of cocoa, and thousands of hand‑timed frames.</p>
         </div>
         <div class="steps">
           <article class="step reveal" style="--rd:0s">
             <span class="step-num">01</span>
             <div class="step-art" style="--c:#fff1c9" aria-hidden="true"><div class="rays"><i style="--r:0"></i><i style="--r:1"></i><i style="--r:2"></i><i style="--r:3"></i><i style="--r:4"></i><i style="--r:5"></i><i style="--r:6"></i><i style="--r:7"></i></div><div class="bulb"></div></div>
-            <h3>Spark a question</h3>
-            <p>We hunt for the “wait, why?” that makes a familiar topic feel surprising.</p>
+            <h3 data-i18n="s1.h">Spark a question</h3>
+            <p data-i18n="s1.p">We hunt for the “wait, why?” that makes a familiar topic feel surprising.</p>
           </article>
           <article class="step reveal" style="--rd:.1s">
             <span class="step-num">02</span>
             <div class="step-art" style="--c:#ffe0e7" aria-hidden="true"><div class="script"><i style="--n:0"></i><i style="--n:1"></i><i style="--n:2"></i><i style="--n:3"></i></div></div>
-            <h3>Write the story</h3>
-            <p>Research becomes a script with a hero, a twist and a punchline.</p>
+            <h3 data-i18n="s2.h">Write the story</h3>
+            <p data-i18n="s2.p">Research becomes a script with a hero, a twist and a punchline.</p>
           </article>
           <article class="step reveal" style="--rd:.2s">
             <span class="step-num">03</span>
             <div class="step-art" style="--c:#e4dcff" aria-hidden="true"><div class="boards"><i style="--n:1"></i><i style="--n:2"></i><i style="--n:3"></i><i style="--n:4"></i><i style="--n:5"></i><i style="--n:6"></i></div></div>
-            <h3>Storyboard it</h3>
-            <p>Every beat is sketched as panels so the idea reads at a glance.</p>
+            <h3 data-i18n="s3.h">Storyboard it</h3>
+            <p data-i18n="s3.p">Every beat is sketched as panels so the idea reads at a glance.</p>
           </article>
           <article class="step reveal" style="--rd:.3s">
             <span class="step-num">04</span>
             <div class="step-art" style="--c:#d6f5ea" aria-hidden="true"><div class="ball-stage"><span class="ghost" style="top:4px"></span><span class="ghost" style="top:44px"></span><div class="ball"></div><div class="ball-shadow"></div></div></div>
-            <h3>Animate in 2D</h3>
-            <p>Squash, stretch and timing bring the characters, and the ideas, to life.</p>
+            <h3 data-i18n="s4.h">Animate in 2D</h3>
+            <p data-i18n="s4.p">Squash, stretch and timing bring the characters, and the ideas, to life.</p>
           </article>
         </div>
       </div>
@@ -532,36 +575,61 @@
       <div class="wrap">
         <div class="section-head reveal">
           <div>
-            <p class="kicker">Meet the cast</p>
-            <h2 class="title" id="channels-title">Four hosts. <span class="squiggle">Four worlds.<svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M2 12 Q 25 2 50 12 T 100 12 T 150 12 T 198 12" fill="none" stroke="#ff8fa3" stroke-width="7" stroke-linecap="round"/></svg></span></h2>
+            <p class="kicker" data-i18n="ch.kicker">Meet the cast</p>
+            <h2 class="title" id="channels-title"><span data-i18n="ch.t1">Four hosts.</span> <span class="squiggle"><span data-i18n="ch.t2">Four worlds.</span><svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M2 12 Q 25 2 50 12 T 100 12 T 150 12 T 198 12" fill="none" stroke="#ff8fa3" stroke-width="7" stroke-linecap="round"/></svg></span></h2>
           </div>
-          <p class="lead">Each channel has its own animated host and its own corner of the universe. Hover to say hi!</p>
+          <p class="lead" data-i18n="ch.lead">Each channel has its own animated host and its own corner of the universe. Hover to say hi!</p>
         </div>
         <div class="channel-grid">
           <a class="channel reveal" href="https://youtube.com/@mindmathhh?si=b8-JZ5E4lBSH-CsZ" target="_blank" rel="noopener noreferrer" style="--c1:#cfe6ff;--c2:#eef6ff;--rd:0s">
             <div class="channel-visual"><span class="channel-ep">CH.01 · LOGIC</span><span class="sparkle" style="top:22%;right:14%" aria-hidden="true">✦</span>
-              <div class="toon sigma" style="--w:46%"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/mindmath-sigma-happy.webp" alt="Sigma, the Mind Math host" width="406" height="520" loading="lazy"><img class="wow" src="assets/mascots/mindmath-sigma-wow.webp" alt="" width="406" height="520" loading="lazy"></div>
+              <div class="toon sigma" style="--w:46%"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/mindmath-sigma-happy.webp" alt="Sigma, the Mind Math host" data-i18n-alt="c1.alt" width="406" height="520" loading="lazy"><img class="wow" src="assets/mascots/mindmath-sigma-wow.webp" alt="" width="406" height="520" loading="lazy"></div>
             </div>
-            <div class="channel-body"><h3>Mind Math</h3><p class="channel-host">Σ Hosted by Sigma</p><p class="desc">Playful math, from clever puzzles to patterns hiding in every snowflake.</p><span class="channel-go">Watch ▶</span></div>
+            <div class="channel-body"><h3>Mind Math</h3><p class="channel-host" data-i18n="c1.host">Σ Hosted by Sigma</p><p class="desc" data-i18n="c1.desc">Playful math, from clever puzzles to patterns hiding in every snowflake.</p><span class="channel-go" data-i18n="ch.watch">Watch ▶</span></div>
           </a>
           <a class="channel reveal" href="https://youtube.com/@minddevit?si=SLckp-vE-hbdYAwb" target="_blank" rel="noopener noreferrer" style="--c1:#bfeedd;--c2:#eafaf4;--rd:.1s;--dl:.4s">
             <div class="channel-visual"><span class="channel-ep">CH.02 · BUILD</span><span class="sparkle" style="top:26%;right:12%;animation-delay:.6s" aria-hidden="true">✦</span>
-              <div class="toon cmd" style="--w:50%"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/minddev-cmd-happy.webp" alt="Command, the Mind Dev host" width="459" height="520" loading="lazy"><img class="wow" src="assets/mascots/minddev-cmd-wow.webp" alt="" width="459" height="520" loading="lazy"></div>
+              <div class="toon cmd" style="--w:50%"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/minddev-cmd-happy.webp" alt="Command, the Mind Dev host" data-i18n-alt="c2.alt" width="459" height="520" loading="lazy"><img class="wow" src="assets/mascots/minddev-cmd-wow.webp" alt="" width="459" height="520" loading="lazy"></div>
             </div>
-            <div class="channel-body"><h3>Mind Dev</h3><p class="channel-host">⌘ Hosted by Command</p><p class="desc">Code, computers and the clever tech quietly running our digital world.</p><span class="channel-go">Watch ▶</span></div>
+            <div class="channel-body"><h3>Mind Dev</h3><p class="channel-host" data-i18n="c2.host">⌘ Hosted by Command</p><p class="desc" data-i18n="c2.desc">Code, computers and the clever tech quietly running our digital world.</p><span class="channel-go" data-i18n="ch.watch">Watch ▶</span></div>
           </a>
           <a class="channel reveal" href="https://youtube.com/@mindastroq?si=mKxQZIVBd-9OYR23" target="_blank" rel="noopener noreferrer" style="--c1:#dcd2ff;--c2:#f3efff;--rd:.2s;--dl:.8s">
             <div class="channel-visual"><span class="channel-ep">CH.03 · BEYOND</span><span class="sparkle" style="top:20%;left:16%;animation-delay:1s" aria-hidden="true">✦</span>
-              <div class="toon lambda" style="--w:74%"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/mindastro-lambda-happy.webp" alt="Lambda, the Mind Astro host" width="697" height="520" loading="lazy"><img class="wow" src="assets/mascots/mindastro-lambda-wow.webp" alt="" width="697" height="520" loading="lazy"></div>
+              <div class="toon lambda" style="--w:74%"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/mindastro-lambda-happy.webp" alt="Lambda, the Mind Astro host" data-i18n-alt="c3.alt" width="697" height="520" loading="lazy"><img class="wow" src="assets/mascots/mindastro-lambda-wow.webp" alt="" width="697" height="520" loading="lazy"></div>
             </div>
-            <div class="channel-body"><h3>Mind Astro</h3><p class="channel-host">Λ Hosted by Lambda</p><p class="desc">Journey across planets, distant galaxies and the mysteries of the night sky.</p><span class="channel-go">Watch ▶</span></div>
+            <div class="channel-body"><h3>Mind Astro</h3><p class="channel-host" data-i18n="c3.host">Λ Hosted by Lambda</p><p class="desc" data-i18n="c3.desc">Journey across planets, distant galaxies and the mysteries of the night sky.</p><span class="channel-go" data-i18n="ch.watch">Watch ▶</span></div>
           </a>
           <a class="channel reveal" href="https://youtube.com/@mindchemistryp?si=QJSI7uAPXt-sBzj4" target="_blank" rel="noopener noreferrer" style="--c1:#ffdccb;--c2:#fff2ea;--rd:.3s;--dl:1.2s">
             <div class="channel-visual"><span class="channel-ep">CH.04 · MATTER</span><span class="sparkle" style="top:24%;right:16%;animation-delay:1.4s" aria-hidden="true">✦</span>
-              <div class="toon flask" style="--w:44%"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/mindchemistry-flask-happy.webp" alt="Flask, the Mind Chemistry host" width="399" height="520" loading="lazy"><img class="wow" src="assets/mascots/mindchemistry-flask-wow.webp" alt="" width="399" height="520" loading="lazy"></div>
+              <div class="toon flask" style="--w:44%"><svg class="hat" viewBox="0 0 120 92" aria-hidden="true"><use href="#santa-hat"/></svg><img src="assets/mascots/mindchemistry-flask-happy.webp" alt="Flask, the Mind Chemistry host" data-i18n-alt="c4.alt" width="399" height="520" loading="lazy"><img class="wow" src="assets/mascots/mindchemistry-flask-wow.webp" alt="" width="399" height="520" loading="lazy"></div>
             </div>
-            <div class="channel-body"><h3>Mind Chemistry</h3><p class="channel-host">⚗ Hosted by Flask</p><p class="desc">Fizzing reactions, curious materials and the surprising science all around us.</p><span class="channel-go">Watch ▶</span></div>
+            <div class="channel-body"><h3>Mind Chemistry</h3><p class="channel-host" data-i18n="c4.host">⚗ Hosted by Flask</p><p class="desc" data-i18n="c4.desc">Fizzing reactions, curious materials and the surprising science all around us.</p><span class="channel-go" data-i18n="ch.watch">Watch ▶</span></div>
           </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SPECIAL GUEST -->
+    <section class="guest" id="guest" aria-labelledby="guest-title">
+      <div class="wrap">
+        <div class="guest-card reveal">
+          <div class="guest-art" aria-hidden="true">
+            <div class="guest-rays"></div>
+            <div class="guest-ring"></div>
+            <span class="guest-badge" data-i18n="g.badge">Special guest!</span>
+            <i class="ember" style="--x:30%;--c:#ffd98a;--d:2.8s;--dl:0s;--dx:-30px;--s:12px"></i><i class="ember" style="--x:44%;--c:#ff8fa3;--d:3.2s;--dl:0.6s;--dx:20px;--s:10px"></i><i class="ember" style="--x:58%;--c:#ffb37a;--d:2.6s;--dl:1.2s;--dx:-10px;--s:14px"></i><i class="ember" style="--x:66%;--c:#ffd98a;--d:3.4s;--dl:0.3s;--dx:30px;--s:9px"></i><i class="ember" style="--x:38%;--c:#ffb37a;--d:3s;--dl:1.8s;--dx:10px;--s:11px"></i><i class="ember" style="--x:52%;--c:#ff8fa3;--d:2.9s;--dl:2.2s;--dx:-24px;--s:8px"></i>
+            <div class="guest-phoenix"><img src="assets/mascots/mind-phoenix-mascot.png" alt="" width="586" height="689" loading="lazy"></div>
+            <div class="guest-shadow"></div>
+          </div>
+          <div class="guest-copy">
+            <p class="kicker" data-i18n="g.kicker">Special guest</p>
+            <h2 class="title" id="guest-title"><span data-i18n="g.t1">Say hi to</span> <span class="squiggle"><span data-i18n="g.t2">Phoenix!</span><svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M2 12 Q 25 2 50 12 T 100 12 T 150 12 T 198 12" fill="none" stroke="#ffd98a" stroke-width="7" stroke-linecap="round"/></svg></span></h2>
+            <p class="lead" data-i18n="g.lead">The fiery little bird behind the Mind Phoenix name has a YouTube channel of its own. Fly over and say hello!</p>
+            <span class="guest-handle">@phoenixhoang_2202</span>
+            <div class="guest-actions">
+              <a class="btn" href="https://youtube.com/@phoenixhoang_2202?si=-Y6Qac7va1XUV0Ik" target="_blank" rel="noopener noreferrer"><span class="play" aria-hidden="true">▶</span> <span data-i18n="g.btn">Visit Phoenix's channel</span></a>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -569,11 +637,12 @@
     <!-- PARADE -->
     <section class="parade" aria-labelledby="parade-title">
       <div class="garland" id="garland" aria-hidden="true"></div>
-      <p class="kicker reveal" style="justify-content:center">The Mind Phoenix spirit</p>
-      <blockquote class="reveal" id="parade-title">One bright idea can <em>light up</em> a whole world.</blockquote>
-      <p class="lead reveal">Four hosts, one question at a time, marching through math, code, space and chemistry.</p>
+      <p class="kicker reveal" style="justify-content:center" data-i18n="p.kicker">The Mind Phoenix spirit</p>
+      <blockquote class="reveal" id="parade-title" data-i18n="p.quote">One bright idea can <em>light up</em> a whole world.</blockquote>
+      <p class="lead reveal" data-i18n="p.lead">Four hosts, one question at a time, marching through math, code, space and chemistry.</p>
       <div class="road" aria-hidden="true">
         <div class="march">
+          <div class="flyer" style="--w:96px"><img src="assets/mascots/mind-phoenix-mascot.png" alt="" width="586" height="689" loading="lazy"></div>
           <div class="toon sigma" style="--w:110px"><svg class="hat" viewBox="0 0 120 92"><use href="#santa-hat"/></svg><img src="assets/mascots/mindmath-sigma-happy.webp" alt="" width="406" height="520" loading="lazy"></div>
           <div class="gift" style="--c:#bfeedd"></div>
           <div class="toon cmd" style="--w:124px"><svg class="hat" viewBox="0 0 120 92"><use href="#santa-hat"/></svg><img src="assets/mascots/minddev-cmd-happy.webp" alt="" width="459" height="520" loading="lazy"></div>
@@ -590,10 +659,10 @@
         <div class="cta-card reveal">
           <canvas class="snow" data-flakes="50" aria-hidden="true"></canvas>
           <div>
-            <p class="kicker">Grab some cocoa</p>
-            <h2 class="title" id="cta-title">Start with a good question.</h2>
-            <p class="lead">Fresh animated episodes land on YouTube all season long. Pick a host and press play.</p>
-            <a class="btn" href="https://www.youtube.com/results?search_query=Mind+Phoenix" target="_blank" rel="noopener noreferrer"><span class="play" aria-hidden="true">▶</span> Watch on YouTube</a>
+            <p class="kicker" data-i18n="cta.kicker">Grab some cocoa</p>
+            <h2 class="title" id="cta-title" data-i18n="cta.title">Start with a good question.</h2>
+            <p class="lead" data-i18n="cta.lead">Fresh animated episodes land on YouTube all season long. Pick a host and press play.</p>
+            <a class="btn" href="#channels"><span class="play" aria-hidden="true">▶</span> <span data-i18n="cta.btn">Pick a channel to watch</span></a>
           </div>
           <div class="cta-cast" aria-hidden="true">
             <div class="toon lambda" style="--w:52%;--l:30%;--b:44%;--dl:.3s"><svg class="hat" viewBox="0 0 120 92"><use href="#santa-hat"/></svg><img src="assets/mascots/mindastro-lambda-wow.webp" alt="" width="697" height="520" loading="lazy"></div>
@@ -603,9 +672,9 @@
           </div>
         </div>
         <footer class="footer">
-          <a class="brand" href="#home"><span class="brand-mark" aria-hidden="true"><img src="assets/mascots/mind-phoenix-mascot.png" alt=""></span><span>Mind Phoenix</span></a>
-          <span>© <span id="year"></span> Mind Phoenix · 2D animated education</span>
-          <nav aria-label="Footer"><a href="#reel">Showreel</a><a href="#channels">Channels</a><a href="https://www.youtube.com/results?search_query=Mind+Phoenix" target="_blank" rel="noopener noreferrer">YouTube ↗</a></nav>
+          <a class="brand" href="#home"><span class="brand-mark" aria-hidden="true"><img src="assets/mascots/mind-phoenix-logo.png" alt="" width="109" height="128"></span><span>Mind Phoenix</span></a>
+          <span>© <span id="year"></span> Mind Phoenix · <span data-i18n="f.tag">2D animated education</span></span>
+          <nav aria-label="Footer"><a href="#reel" data-i18n="nav.reel">Showreel</a><a href="#channels" data-i18n="nav.channels">Channels</a><a href="#guest" data-i18n="nav.guest">Special guest</a></nav>
         </footer>
       </div>
     </section>
@@ -619,15 +688,86 @@
       if (reduceMotion) root.classList.add('no-motion');
       document.getElementById('year').textContent = new Date().getFullYear();
 
+      // Language (EN / VI)
+      const VI = {
+        'nav.home': 'Trang chủ Mind Phoenix',
+        'nav.reel': 'Showreel', 'nav.how': 'Cách tụi mình làm phim', 'nav.channels': 'Các kênh', 'nav.guest': 'Khách mời', 'nav.watch': '▶ Xem ngay',
+        'hero.tag': 'Kênh giáo dục hoạt hình 2D',
+        'hero.sub': 'Bài học hoạt hình về <b>toán, lập trình, vũ trụ &amp; hoá học</b>, vẽ và diễn hoạt từng khung hình để ý tưởng lớn trở nên dễ hiểu.',
+        'hero.play': 'Xem showreel', 'hero.cast': 'Gặp dàn nhân vật ✨',
+        'rib.0': 'Toán học', 'rib.1': 'Công nghệ', 'rib.2': 'Thiên văn', 'rib.3': 'Hoá học', 'rib.4': 'Vẽ tay 2D', 'rib.5': 'Từng khung hình', 'rib.6': 'Cho những bộ óc tò mò',
+        'reel.kicker': 'Đang chiếu', 'reel.t1': 'Mỗi bài học là một', 'reel.t2': 'phim hoạt hình.',
+        'reel.lead': 'Tụi mình biến những câu hỏi hóc búa thành các câu chuyện hoạt hình 2D ngắn và vui nhộn. Các host co giãn, nhún nhảy và thắc mắc thành tiếng, để kiến thức đọng lại thật lâu sau khi tập phim kết thúc.',
+        'reel.p1': 'Nhân vật &amp; thế giới vẽ tay', 'reel.p2': 'Kịch bản kể chuyện, không slide nhàm chán', 'reel.p3': 'Kiến thức khoa học được kiểm chứng cho mọi lứa tuổi',
+        'reel.tag': '🎄 Tập phim mùa lễ hội',
+        'ep1.q': 'Vì sao bông tuyết nào cũng có sáu cánh?', 'ep2.q': 'Máy tính đếm đến một triệu trong chớp mắt như thế nào?',
+        'ep3.q': 'Sao Bắc Cực thật ra cách chúng ta bao xa?', 'ep4.q': 'Vì sao băng nổi mà không chìm?',
+        'ep1.alt': 'Sigma, host của Mind Math, đang ngạc nhiên', 'ep2.alt': 'Command, host của Mind Dev, đang ngạc nhiên',
+        'ep3.alt': 'Lambda, host của Mind Astro, đang ngạc nhiên', 'ep4.alt': 'Flask, host của Mind Chemistry, đang ngạc nhiên',
+        'how.kicker': 'Một bài học ra đời thế nào', 'how.t1': 'Từ một câu hỏi thành', 'how.t2': 'thước phim sống động.',
+        'how.lead': 'Bốn bước, rất nhiều cốc ca cao và hàng nghìn khung hình được canh nhịp bằng tay.',
+        's1.h': 'Khơi gợi câu hỏi', 's1.p': 'Tụi mình săn lùng khoảnh khắc “ủa, sao vậy?” khiến chủ đề quen thuộc trở nên bất ngờ.',
+        's2.h': 'Viết câu chuyện', 's2.p': 'Nghiên cứu được biến thành kịch bản có nhân vật chính, cú twist và một pha gây cười.',
+        's3.h': 'Vẽ storyboard', 's3.p': 'Từng nhịp truyện được phác thành khung tranh để ý tưởng hiểu ngay chỉ với một cái nhìn.',
+        's4.h': 'Diễn hoạt 2D', 's4.p': 'Co giãn và canh nhịp thổi hồn vào nhân vật, và vào cả ý tưởng.',
+        'ch.kicker': 'Gặp dàn nhân vật', 'ch.t1': 'Bốn host.', 'ch.t2': 'Bốn thế giới.',
+        'ch.lead': 'Mỗi kênh có một host hoạt hình và một góc vũ trụ riêng. Rê chuột vào để chào nhé!',
+        'ch.watch': 'Xem ▶',
+        'c1.host': 'Σ Host: Sigma', 'c1.desc': 'Toán học vui nhộn, từ câu đố thông minh đến những quy luật ẩn trong từng bông tuyết.',
+        'c2.host': '⌘ Host: Command', 'c2.desc': 'Lập trình, máy tính và những công nghệ thông minh đang lặng lẽ vận hành thế giới số.',
+        'c3.host': 'Λ Host: Lambda', 'c3.desc': 'Du hành qua các hành tinh, thiên hà xa xôi và bí ẩn của bầu trời đêm.',
+        'c4.host': '⚗ Host: Flask', 'c4.desc': 'Phản ứng sủi bọt, vật liệu kỳ lạ và khoa học bất ngờ ở quanh ta.',
+        'c1.alt': 'Sigma, host của Mind Math', 'c2.alt': 'Command, host của Mind Dev', 'c3.alt': 'Lambda, host của Mind Astro', 'c4.alt': 'Flask, host của Mind Chemistry',
+        'g.badge': 'Khách mời đặc biệt!', 'g.kicker': 'Khách mời đặc biệt', 'g.t1': 'Xin chào', 'g.t2': 'Phoenix!',
+        'g.lead': 'Chú chim lửa nhỏ đứng sau cái tên Mind Phoenix cũng có kênh YouTube riêng. Bay qua chào bạn ấy một tiếng nhé!',
+        'g.btn': 'Ghé kênh của Phoenix',
+        'p.kicker': 'Tinh thần Mind Phoenix', 'p.quote': 'Một ý tưởng sáng có thể <em>thắp sáng</em> cả thế giới.',
+        'p.lead': 'Bốn host, từng câu hỏi một, cùng diễu hành qua toán học, lập trình, vũ trụ và hoá học.',
+        'cta.kicker': 'Pha một cốc ca cao', 'cta.title': 'Bắt đầu bằng một câu hỏi hay.',
+        'cta.lead': 'Các tập hoạt hình mới lên sóng YouTube suốt mùa lễ hội. Chọn một host và bấm xem thôi.',
+        'cta.btn': 'Chọn kênh để xem', 'f.tag': 'Giáo dục hoạt hình 2D'
+      };
+      const UI = {
+        en: { title: document.title, desc: document.querySelector('meta[name="description"]').content, menuOpen: 'Open menu', menuClose: 'Close menu', pause: 'Pause showreel', play: 'Play showreel',
+          lines: ['Why are snowflakes six‑sided?', 'How do computers think?', 'Can we visit the North Star?', 'What makes ice float?'] },
+        vi: { title: 'Mind Phoenix — Bài học hoạt hình 2D giúp ý tưởng lớn dễ hiểu', desc: 'Mind Phoenix là studio giáo dục hoạt hình 2D. Bài học hoạt hình về toán, lập trình, vũ trụ và hoá học, diễn hoạt từng khung hình.',
+          menuOpen: 'Mở menu', menuClose: 'Đóng menu', pause: 'Tạm dừng showreel', play: 'Phát showreel',
+          lines: ['Vì sao bông tuyết có sáu cánh?', 'Máy tính suy nghĩ thế nào?', 'Mình bay tới Sao Bắc Cực được không?', 'Vì sao băng nổi trên nước?'] }
+      };
+      const i18nEls = [...document.querySelectorAll('[data-i18n]')].map((el) => [el, 'html', el.dataset.i18n, el.innerHTML]);
+      document.querySelectorAll('[data-i18n-alt]').forEach((el) => i18nEls.push([el, 'alt', el.dataset.i18nAlt, el.alt]));
+      document.querySelectorAll('[data-i18n-aria]').forEach((el) => i18nEls.push([el, 'aria-label', el.dataset.i18nAria, el.getAttribute('aria-label')]));
+      const langBtns = [...document.querySelectorAll('.lang-toggle [data-lang]')];
+      const onLang = [];
+      let lang = 'en';
+      const ui = () => UI[lang];
+      const setLang = (next) => {
+        lang = next === 'vi' ? 'vi' : 'en';
+        root.lang = lang;
+        i18nEls.forEach(([el, kind, key, en]) => {
+          const val = lang === 'vi' && VI[key] ? VI[key] : en;
+          if (kind === 'html') el.innerHTML = val; else el.setAttribute(kind, val);
+        });
+        document.title = ui().title;
+        document.querySelector('meta[name="description"]').content = ui().desc;
+        langBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
+        onLang.forEach((fn) => fn());
+        try { localStorage.setItem('mp-lang', lang); } catch (e) { /* storage unavailable */ }
+      };
+      langBtns.forEach((b) => b.addEventListener('click', () => setLang(b.dataset.lang)));
+      let savedLang = null;
+      try { savedLang = localStorage.getItem('mp-lang'); } catch (e) { /* storage unavailable */ }
+
       // Mobile menu
       const toggle = document.querySelector('.menu-toggle');
       const links = document.getElementById('nav-links');
       const setMenu = (open) => {
         links.classList.toggle('is-open', open);
         toggle.setAttribute('aria-expanded', String(open));
-        toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+        toggle.setAttribute('aria-label', open ? ui().menuClose : ui().menuOpen);
         toggle.textContent = open ? '✕' : '☰';
       };
+      onLang.push(() => toggle.setAttribute('aria-label', toggle.getAttribute('aria-expanded') === 'true' ? ui().menuClose : ui().menuOpen));
       toggle.addEventListener('click', () => setMenu(toggle.getAttribute('aria-expanded') !== 'true'));
       links.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
       document.addEventListener('keydown', (e) => {
@@ -709,7 +849,7 @@
       const setPlaying = (p) => {
         playing = p;
         playBtn.textContent = p ? '❚❚' : '▶';
-        playBtn.setAttribute('aria-label', p ? 'Pause showreel' : 'Play showreel');
+        playBtn.setAttribute('aria-label', p ? ui().pause : ui().play);
         schedule();
       };
       screen.style.setProperty('--scene-bg', scenes[0].dataset.bg);
@@ -722,17 +862,20 @@
       });
       playBtn.addEventListener('click', () => setPlaying(!playing));
       setPlaying(playing);
+      onLang.push(() => playBtn.setAttribute('aria-label', playing ? ui().pause : ui().play));
+
+      const bubble = document.getElementById('hero-bubble');
+      let line = 0;
+      onLang.push(() => { bubble.textContent = ui().lines[line]; });
+      setLang(savedLang || ((navigator.language || '').toLowerCase().startsWith('vi') ? 'vi' : 'en'));
 
       if (reduceMotion) return;
 
       // Hero speech bubble
-      const bubble = document.getElementById('hero-bubble');
-      const lines = ['Why are snowflakes six‑sided?', 'How do computers think?', 'Can we visit the North Star?', 'What makes ice float?'];
-      let line = 0;
       setTimeout(() => bubble.classList.add('show'), 1400);
       setInterval(() => {
         bubble.classList.remove('show');
-        setTimeout(() => { line = (line + 1) % lines.length; bubble.textContent = lines[line]; bubble.classList.add('show'); }, 450);
+        setTimeout(() => { line = (line + 1) % ui().lines.length; bubble.textContent = ui().lines[line]; bubble.classList.add('show'); }, 450);
       }, 3600);
 
       // Film frame counter
