@@ -9,6 +9,13 @@ export const START_LIVES = 3;
 export const STAR_POINTS = 10;
 export const QUESTION_POINTS = 50;
 export const DISTANCE_UNIT = 50;
+export const PIXELS_PER_METER = 10;
+export const LEVEL_DISTANCE = 500;
+export const LEVELS = [
+  { id: 'sunny', name: 'Nắng' },
+  { id: 'rainy', name: 'Mưa' },
+  { id: 'snowy', name: 'Tuyết' },
+];
 export const MIN_PLATFORM_Y = 190;
 export const MAX_PLATFORM_Y = 450;
 export const MAX_RISE = 110;
@@ -117,6 +124,18 @@ export function createQuestionDeck(rng = Math.random, bank = QUESTIONS) {
 
 export function questionReward(secondsLeft) {
   return QUESTION_POINTS + 2 * Math.max(0, Math.ceil(secondsLeft));
+}
+
+export function questionScoreChange(correct, secondsLeft, currentScore) {
+  const reward = questionReward(secondsLeft);
+  return correct ? reward : Math.max(0, currentScore - reward / 2) - currentScore;
+}
+
+export function levelProgress(maxX, startX = 0) {
+  const total = LEVEL_DISTANCE * LEVELS.length;
+  const travelled = Math.min(total, Math.max(0, (maxX - startX) / PIXELS_PER_METER));
+  const index = Math.min(LEVELS.length - 1, Math.floor(travelled / LEVEL_DISTANCE));
+  return { index, distance: travelled - index * LEVEL_DISTANCE, totalDistance: travelled, complete: travelled >= total };
 }
 
 export function maxJumpHeight() {

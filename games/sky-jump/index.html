@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#8fd3fb">
-  <meta name="description" content="Nhảy trên những ô mây giữa bầu trời cùng Phượng Hoàng và các bạn mascot. Ô sẽ nứt vỡ sau 5 giây, nhặt sao và trả lời câu hỏi nâng cao lớp 4 để ghi điểm!">
+  <meta name="description" content="Chinh phục 3 màn Nhảy mây: Nắng, Mưa và Tuyết, mỗi màn 500 m. Nhặt sao, trả lời câu hỏi lớp 4 và về đích để chiến thắng!">
   <title>Nhảy mây — Mind Phoenix Games</title>
   <link rel="canonical" href="https://mindphoenix.xyz/games/sky-jump/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Mind Phoenix">
   <meta property="og:title" content="Nhảy mây — Mind Phoenix Games">
-  <meta property="og:description" content="Nhảy qua những ô mây sắp vỡ, nhặt sao và trả lời câu hỏi nâng cao lớp 4. Ai sẽ đứng đầu bảng xếp hạng?">
+  <meta property="og:description" content="Nhảy qua ô mây giữa trời nắng, mưa và tuyết. Hoàn thành 3 màn, mỗi màn 500 m, để chiến thắng!">
   <meta property="og:url" content="https://mindphoenix.xyz/games/sky-jump/">
   <meta property="og:locale" content="vi_VN">
   <meta property="og:image" content="https://mindphoenix.xyz/assets/og/mind-phoenix-social.png">
@@ -53,6 +53,16 @@
       </div>
     </header>
 
+    <div class="level-hud" id="level-hud" data-weather="sunny">
+      <div class="level-head"><strong id="level-label">Màn 1/3 · Nắng</strong><span id="level-distance">0 / 500 m</span></div>
+      <div class="level-progress" id="level-progress" role="progressbar" aria-labelledby="level-label" aria-valuemin="0" aria-valuemax="500" aria-valuenow="0"><span id="level-bar"></span></div>
+      <ol class="level-steps" id="level-steps" aria-label="Ba màn thời tiết">
+        <li class="current" aria-current="step">Nắng</li>
+        <li>Mưa</li>
+        <li>Tuyết</li>
+      </ol>
+    </div>
+
     <main class="stage" id="stage">
       <canvas id="sky" role="img" aria-label="Bầu trời với những ô mây. Nhân vật của bạn nhảy qua các ô, nhặt sao và chạm vào hộp câu hỏi.">Trình duyệt của bạn cần hỗ trợ Canvas để chơi.</canvas>
 
@@ -71,7 +81,7 @@
           <div class="start-main">
             <p class="eyebrow">Phiêu lưu trên bầu trời</p>
             <h1 id="start-title">Nhảy <span>mây</span></h1>
-            <p class="lead">Ô mây sẽ <strong>nứt và vỡ sau 5 giây</strong> kể từ khi bạn đứng lên. Rơi xuống là mất một mạng!</p>
+            <p class="lead">Bay qua <strong>3 màn Nắng → Mưa → Tuyết</strong>, mỗi màn <strong>500 m</strong>, để chiến thắng! Ô mây nứt vỡ sau 5 giây; rơi xuống mới mất mạng.</p>
             <form id="start-form">
               <fieldset class="characters">
                 <legend>Chọn nhân vật</legend>
@@ -85,7 +95,8 @@
             <ul class="rules">
               <li><kbd>←</kbd><kbd>→</kbd> chạy · <kbd>Space</kbd>/<kbd>↑</kbd> nhảy (giữ để nhảy cao hơn) · <kbd>P</kbd> tạm dừng</li>
               <li><span class="rule-star" aria-hidden="true">★</span> Nhặt sao: +10 điểm</li>
-              <li><span class="rule-q" aria-hidden="true">?</span> Chạm hộp câu hỏi: 30 giây trả lời (bấm phím 1–4 hoặc chuột). Đúng được thưởng 50+ điểm, sai thì rơi!</li>
+              <li><span class="rule-q" aria-hidden="true">?</span> Chạm hộp câu hỏi: 30 giây trả lời (phím 1–4 hoặc chuột). Đúng: +50 điểm và +2 điểm mỗi giây còn lại. Sai hoặc hết giờ: chỉ trừ 50% điểm lẽ ra được thưởng, không làm rơi và điểm không xuống dưới 0.</li>
+              <li>Thanh tiến độ tính quãng đường xa nhất trong màn. Đủ 500 m tự chuyển màn; hoàn thành màn Tuyết là chiến thắng. Điểm, sao và mạng được giữ khi qua màn.</li>
               <li><span class="rule-heart" aria-hidden="true">♥</span> Có 3 mạng. Hết mạng là kết thúc. Nhập tên <strong>Phoenix Hoang</strong> hoặc <strong>HHH</strong> để có mạng vô hạn (không phân biệt chữ hoa/thường).</li>
               <li>Nhạc nền nhẹ khi bay và trả lời câu hỏi. Nút loa bật/tắt cả nhạc và hiệu ứng; âm thanh ngừng khi tạm dừng hoặc chuyển tab.</li>
             </ul>
@@ -126,8 +137,9 @@
         <div class="panel over-panel">
           <div class="over-main">
             <img class="over-avatar" id="over-avatar" src="../../assets/mascots/mind-phoenix-mascot.png" alt="">
-            <p class="eyebrow">Hết mạng rồi!</p>
+            <p class="eyebrow" id="over-eyebrow">Hết mạng rồi!</p>
             <h2 id="over-title">Kết thúc</h2>
+            <p class="result-message" id="result-message"></p>
             <p class="final-score"><strong id="final-score">0</strong> điểm</p>
             <dl class="breakdown">
               <div><dt>Quãng đường</dt><dd id="final-distance">0</dd></div>

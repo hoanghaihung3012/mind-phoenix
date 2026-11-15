@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#9ed98a">
+  <meta name="description" content="Cầm rổ hứng táo và trái cây cùng Phượng Hoàng và các bạn mascot. Tránh sâu, hứng câu hỏi lớp 4 để ghi thêm điểm qua 3 màn chơi!">
+  <title>Hứng táo — Mind Phoenix Games</title>
+  <link rel="canonical" href="https://mindphoenix.xyz/games/apple-catch/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Mind Phoenix">
+  <meta property="og:title" content="Hứng táo — Mind Phoenix Games">
+  <meta property="og:description" content="Hứng táo, tránh sâu và trả lời câu hỏi lớp 4 qua 3 màn: vườn táo, nông trại hoàng hôn và rừng trăng đêm.">
+  <meta property="og:url" content="https://mindphoenix.xyz/games/apple-catch/">
+  <meta property="og:locale" content="vi_VN">
+  <meta property="og:image" content="https://mindphoenix.xyz/assets/og/mind-phoenix-social.png">
+  <link rel="icon" type="image/png" href="../../assets/mascots/mind-phoenix-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="game.css">
+  <script type="module" src="game.js"></script>
+</head>
+<body>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-play" viewBox="0 0 24 24"><path d="m9 5 11 7-11 7Z" fill="currentColor"/></symbol>
+    <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zm7 0h4v14h-4z" fill="currentColor"/></symbol>
+    <symbol id="icon-reset" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-sound" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13-1a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-muted" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13 0 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-left" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-right" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l3 2M9 2h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="icon-trophy" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0Zm0 2H3v1a4 4 0 0 0 4 4m10-5h4v1a4 4 0 0 1-4 4m-5 3v4m-4 3h8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="../" aria-label="Về danh sách trò chơi Mind Phoenix">
+        <img src="../../assets/mascots/mind-phoenix-logo.png" width="38" height="38" alt="">
+        <span><small>Mind Phoenix Games</small><strong>Hứng <em>táo</em></strong></span>
+      </a>
+      <div class="hud" aria-label="Thông tin lượt chơi">
+        <div class="hud-pill level"><span>Màn</span><strong id="hud-level">1</strong></div>
+        <div class="hud-pill score"><span>Điểm</span><strong id="hud-score">0</strong></div>
+        <div class="hud-pill goal" title="Điểm màn này / mục tiêu">
+          <div class="goal-text"><strong id="hud-goal">0</strong><small id="hud-target">/250</small></div>
+          <div class="goal-track" aria-hidden="true"><span id="hud-goal-bar"></span></div>
+        </div>
+        <div class="hud-pill time"><svg class="icon" aria-hidden="true"><use href="#icon-clock"/></svg><strong id="hud-time">70</strong><span class="sr-only">giây</span></div>
+      </div>
+      <div class="top-actions">
+        <button class="round-button" id="sound-toggle" type="button" aria-pressed="true" aria-label="Tắt âm thanh" title="Tắt âm thanh"><svg class="icon" aria-hidden="true"><use href="#icon-sound"/></svg></button>
+        <button class="round-button" id="pause-toggle" type="button" aria-label="Tạm dừng" title="Tạm dừng (P)" disabled><svg class="icon" aria-hidden="true"><use href="#icon-pause"/></svg></button>
+      </div>
+    </header>
+
+    <main class="stage" id="stage">
+      <canvas id="orchard" role="img" aria-label="Khu vườn với trái cây rơi xuống. Nhân vật của bạn cầm rổ di chuyển qua lại để hứng.">Trình duyệt của bạn cần hỗ trợ Canvas để chơi.</canvas>
+
+      <div class="touch-pad" id="touch-pad" aria-hidden="true">
+        <button class="touch-button" type="button" data-control="left" tabindex="-1"><svg class="icon"><use href="#icon-left"/></svg></button>
+        <button class="touch-button" type="button" data-control="right" tabindex="-1"><svg class="icon"><use href="#icon-right"/></svg></button>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+      <section class="overlay" id="start-screen" aria-labelledby="start-title">
+        <div class="panel start-panel">
+          <div class="start-main">
+            <p class="eyebrow">Mùa thu hoạch · 3 màn chơi</p>
+            <h1 id="start-title">Hứng <span>táo</span></h1>
+            <p class="lead">Cầm rổ chạy qua lại để <strong>hứng táo và trái cây</strong>. Cẩn thận <strong>sâu</strong> nhé! Đủ điểm mục tiêu trước khi hết giờ để qua màn.</p>
+            <form id="start-form">
+              <fieldset class="characters">
+                <legend>Chọn nhân vật</legend>
+                <div class="character-grid" id="character-grid"></div>
+              </fieldset>
+              <label class="name-field" for="player-name">Tên của bạn <small>(hiện trên bảng xếp hạng)</small>
+                <input id="player-name" name="player-name" type="text" maxlength="16" autocomplete="nickname" placeholder="Bạn nhỏ" spellcheck="false">
+              </label>
+              <button class="primary-button big" type="submit"><svg class="icon" aria-hidden="true"><use href="#icon-play"/></svg>Bắt đầu hứng</button>
+            </form>
+            <ul class="rules">
+              <li><kbd>←</kbd><kbd>→</kbd> hoặc <kbd>A</kbd><kbd>D</kbd> di chuyển · kéo chuột/ngón tay trên màn hình · <kbd>P</kbd> tạm dừng</li>
+              <li><span class="rule-icon" aria-hidden="true">🍎</span> Táo +10 · trái cây khác +15 đến +30 · <span aria-hidden="true">🌟</span> táo vàng hiếm +50</li>
+              <li><span class="rule-icon" aria-hidden="true">🐛</span> Hứng phải sâu: −20 điểm</li>
+              <li><span class="rule-q" aria-hidden="true">?</span> Hứng bong bóng câu hỏi lớp 4: đúng +40 (câu <strong>nâng cao</strong> +80), sai −20. Bấm phím 1–4 hoặc chuột để trả lời.</li>
+              <li>3 màn: Vườn táo buổi sáng → Nông trại hoàng hôn → Rừng trăng đêm. Mỗi màn có nhạc riêng; nút loa bật/tắt cả nhạc và hiệu ứng.</li>
+            </ul>
+          </div>
+          <aside class="board-card" aria-labelledby="board-title">
+            <h2 id="board-title"><svg class="icon" aria-hidden="true"><use href="#icon-trophy"/></svg>Bảng xếp hạng</h2>
+            <ol class="board" id="board-start"></ol>
+            <p class="board-note">Lưu trên thiết bị này.</p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="overlay" id="question-screen" aria-labelledby="question-text" hidden>
+        <div class="panel question-panel" role="dialog" aria-modal="true" aria-labelledby="question-text">
+          <div class="question-head">
+            <div class="question-tags"><span class="topic" id="question-topic">Toán</span><span class="difficulty" id="question-level">Lớp 4</span></div>
+            <div class="question-timer" role="timer" aria-live="off"><strong id="question-seconds">20</strong><span>giây</span></div>
+          </div>
+          <div class="timer-track" aria-hidden="true"><span id="question-bar"></span></div>
+          <h2 id="question-text">Câu hỏi</h2>
+          <p class="question-stakes" id="question-stakes"></p>
+          <div class="answers" id="answers"></div>
+          <p class="question-feedback" id="question-feedback" role="status"></p>
+        </div>
+      </section>
+
+      <section class="overlay" id="pause-screen" aria-labelledby="pause-title" hidden>
+        <div class="panel small-panel">
+          <p class="eyebrow">Nghỉ một chút</p>
+          <h2 id="pause-title">Tạm dừng</h2>
+          <div class="panel-actions">
+            <button class="primary-button" id="resume-button" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-play"/></svg>Chơi tiếp</button>
+            <button class="ghost-button" id="quit-button" type="button">Kết thúc lượt</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="overlay" id="level-screen" aria-labelledby="level-title" hidden>
+        <div class="panel small-panel level-panel">
+          <p class="eyebrow" id="level-eyebrow">Qua màn 1!</p>
+          <h2 id="level-title">Tuyệt vời!</h2>
+          <p class="level-next" id="level-next"></p>
+          <dl class="breakdown">
+            <div><dt>Điểm màn</dt><dd id="level-score">0</dd></div>
+            <div><dt>Trái cây</dt><dd id="level-fruit">0</dd></div>
+            <div><dt>Tổng điểm</dt><dd id="level-total">0</dd></div>
+          </dl>
+          <div class="panel-actions">
+            <button class="primary-button" id="next-button" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-play"/></svg>Màn tiếp theo</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="overlay" id="over-screen" aria-labelledby="over-title" hidden>
+        <div class="panel over-panel">
+          <div class="over-main">
+            <img class="over-avatar" id="over-avatar" src="../../assets/mascots/mind-phoenix-mascot.png" alt="">
+            <p class="eyebrow" id="over-eyebrow">Hết giờ rồi!</p>
+            <h2 id="over-title">Kết thúc</h2>
+            <p class="final-score"><strong id="final-score">0</strong> điểm</p>
+            <dl class="breakdown">
+              <div><dt>Màn đạt tới</dt><dd id="final-level">1</dd></div>
+              <div><dt>Trái cây</dt><dd id="final-fruit">0</dd></div>
+              <div><dt>Câu đúng</dt><dd id="final-correct">0</dd></div>
+            </dl>
+            <p class="rank-note" id="rank-note"></p>
+            <div class="panel-actions">
+              <button class="primary-button" id="again-button" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-reset"/></svg>Chơi lại</button>
+              <button class="ghost-button" id="menu-button" type="button">Đổi nhân vật</button>
+            </div>
+          </div>
+          <aside class="board-card">
+            <h2><svg class="icon" aria-hidden="true"><use href="#icon-trophy"/></svg>Bảng xếp hạng</h2>
+            <ol class="board" id="board-over"></ol>
+          </aside>
+        </div>
+      </section>
+
+      <noscript><p class="toast">Hãy bật JavaScript để chơi Hứng táo.</p></noscript>
+    </main>
+  </div>
+</body>
+</html>

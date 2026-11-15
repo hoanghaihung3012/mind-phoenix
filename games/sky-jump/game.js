@@ -1,6 +1,6 @@
 import {
-  GRAVITY, JUMP_VELOCITY, LevelGenerator, PLATFORM_LIFE, QUESTION_TIME, RUN_SPEED, START_LIVES, STAR_POINTS, VIEW_HEIGHT,
-  addScore, createQuestionDeck, distancePoints, mulberry32, normalizeName, parseLeaderboard, platformState, questionReward, startingLives,
+  GRAVITY, JUMP_VELOCITY, LEVEL_DISTANCE, LEVELS, LevelGenerator, PIXELS_PER_METER, PLATFORM_LIFE, QUESTION_TIME, RUN_SPEED, START_LIVES, STAR_POINTS, VIEW_HEIGHT,
+  addScore, createQuestionDeck, distancePoints, levelProgress, mulberry32, normalizeName, parseLeaderboard, platformState, questionScoreChange, startingLives,
 } from './sky.mjs';
 import { createGameAudio } from '../audio.mjs';
 
@@ -18,6 +18,11 @@ const PLAYER_W = 40;
 const PLAYER_H = 54;
 const START_X = 80;
 const MIN_VIEW_WIDTH = 640;
+const WEATHER = {
+  sunny: { sky: ['#5bb6f2', '#a9defc', '#e9f7ff'], cloud: '255, 255, 255', sea: '255, 255, 255', platform: ['#fff6d6', '#f2c46b'], outline: '#b9822f' },
+  rainy: { sky: ['#4b6385', '#91aec9', '#dbe8f2'], cloud: '203, 217, 230', sea: '227, 237, 245', platform: ['#e7effa', '#90afce'], outline: '#456784' },
+  snowy: { sky: ['#829fc7', '#c6dced', '#f4fbff'], cloud: '244, 250, 255', sea: '242, 250, 255', platform: ['#ffffff', '#b6d9ef'], outline: '#5987ac' },
+};
 
 const $ = (id) => document.getElementById(id);
 const canvas = $('sky');
@@ -28,6 +33,7 @@ const ui = {
   start: $('start-screen'), question: $('question-screen'), pause: $('pause-screen'), over: $('over-screen'),
   pauseToggle: $('pause-toggle'), soundToggle: $('sound-toggle'), name: $('player-name'), grid: $('character-grid'),
   topic: $('question-topic'), seconds: $('question-seconds'), bar: $('question-bar'), prompt: $('question-text'), answers: $('answers'), feedback: $('question-feedback'),
+  level: $('level-hud'), levelLabel: $('level-label'), levelDistance: $('level-distance'), levelProgress: $('level-progress'), levelBar: $('level-bar'), levelSteps: $('level-steps'),
 };
 
 const store = {
@@ -52,7 +58,7 @@ let world;
 let generator;
 let player;
 let camera;
-let run = { lives: START_LIVES, stars: 0, bonus: 0, correct: 0, maxX: START_X, time: 0 };
+let run = { lives: START_LIVES, stars: 0, bonus: 0, correct: 0, maxX: START_X, time: 0, level: 0 };
 let deck = createQuestionDeck();
 let question = null;
 let shake = 0;
@@ -81,6 +87,7 @@ const sfx = {
   fall: () => tone(700, 0.6, { type: 'sine', volume: 0.1, to: 120 }),
   tick: () => tone(1200, 0.04, { type: 'square', volume: 0.03 }),
   over: () => [523, 440, 349, 262].forEach((f, i) => tone(f, 0.22, { type: 'triangle', delay: i * 0.16 })),
+  win: () => [523, 659, 784, 1047, 1319, 1568].forEach((f, i) => tone(f, 0.22, { type: 'triangle', delay: i * 0.12 })),
 };
 
 /* ---------- Scenery ---------- */
@@ -92,6 +99,7 @@ const cloudLayers = [
 ];
 const seaPuffs = Array.from({ length: 26 }, (_, i) => ({ x: i * 70 + sceneryRng() * 30, r: 34 + sceneryRng() * 24, y: sceneryRng() * 12 }));
 const birds = Array.from({ length: 4 }, () => ({ x: sceneryRng() * 2000, y: 70 + sceneryRng() * 140, speed: 20 + sceneryRng() * 25, phase: sceneryRng() * 6 }));
+const weatherParticles = Array.from({ length: 90 }, () => ({ x: sceneryRng(), y: sceneryRng(), speed: 0.7 + sceneryRng() * 0.6, size: 1.5 + sceneryRng() * 2.5, phase: sceneryRng() * Math.PI * 2 }));
 
 function makeClouds(count, span, [minY, maxY], [minS, maxS]) {
   return Array.from({ length: count }, (_, i) => {
@@ -157,10 +165,37 @@ function score() {
 }
 
 let shownScore = -1;
+let shownLevel = -1;
+let shownDistance = -1;
+let shownComplete = false;
 function updateHud() {
   const current = score();
   if (current !== shownScore) { ui.score.textContent = current.toLocaleString('vi-VN'); shownScore = current; }
   if (ui.stars.textContent !== String(run.stars)) ui.stars.textContent = run.stars;
+  updateLevelHud();
+}
+
+function updateLevelHud() {
+  const progress = levelProgress(run.maxX, START_X);
+  const distance = Math.floor(progress.distance);
+  if (shownLevel === progress.index && shownDistance === distance && shownComplete === progress.complete) return;
+  shownLevel = progress.index;
+  shownDistance = distance;
+  shownComplete = progress.complete;
+  const level = LEVELS[progress.index];
+  ui.level.dataset.weather = level.id;
+  ui.levelLabel.textContent = `Màn ${progress.index + 1}/${LEVELS.length} · ${level.name}`;
+  ui.levelDistance.textContent = `${distance} / ${LEVEL_DISTANCE} m`;
+  ui.levelProgress.setAttribute('aria-valuenow', distance);
+  ui.levelProgress.setAttribute('aria-valuetext', `${distance} trên ${LEVEL_DISTANCE} mét${progress.complete ? ', hoàn thành cả 3 màn' : ''}`);
+  ui.levelBar.style.transform = `scaleX(${distance / LEVEL_DISTANCE})`;
+  [...ui.levelSteps.children].forEach((step, index) => {
+    const current = index === progress.index && !progress.complete;
+    step.classList.toggle('current', current);
+    step.classList.toggle('completed', index < progress.index || progress.complete);
+    step.setAttribute('aria-current', current ? 'step' : 'false');
+  });
+  canvas.setAttribute('aria-label', `Màn ${progress.index + 1}: ${level.name}. Nhảy qua ô mây, nhặt sao và trả lời câu hỏi. Đi đủ ${LEVEL_DISTANCE} mét để qua màn.`);
 }
 
 function bump(el) {
@@ -185,12 +220,15 @@ function newGame() {
   generator.start(world, -40, 400, 460);
   player = { x: START_X, y: 400, vx: 0, vy: 0, onGround: true, coyote: 0, buffer: 0, facing: 1, dropping: false, squash: 0, invulnerable: 0, ground: null };
   camera = { x: 0 };
-  run = { lives: startingLives(ui.name.value), stars: 0, bonus: 0, correct: 0, maxX: START_X, time: 0 };
+  run = { lives: startingLives(ui.name.value), stars: 0, bonus: 0, correct: 0, maxX: START_X, time: 0, level: 0 };
   deck = createQuestionDeck();
   question = null;
   shake = 0;
   flash = null;
   shownScore = -1;
+  shownLevel = -1;
+  shownDistance = -1;
+  shownComplete = false;
   generator.generateUntil(world, camera.x + view.w + 800);
   updateLives();
   updateHud();
@@ -203,7 +241,7 @@ function startGame(event) {
   newGame();
   setMode('playing');
   showScreen(null);
-  toast(run.lives === Infinity ? 'Mạng vô hạn đã bật — bay thỏa thích!' : 'Ô mây vỡ sau 5 giây — nhảy nhanh lên!', '', 2400);
+  toast(`Màn 1: Nắng — đi đủ ${LEVEL_DISTANCE} m!${run.lives === Infinity ? ' Mạng vô hạn đã bật.' : ''}`, '', 3000);
   tone(523, 0.1, { type: 'triangle' });
   document.activeElement?.blur();
 }
@@ -258,23 +296,33 @@ function respawn() {
   Object.assign(player, { x: rescue.x + 60, y: rescue.y - 140, vx: 0, vy: 0, dropping: false, onGround: false, invulnerable: 1.4, ground: null });
 }
 
-function gameOver() {
+function gameOver(won = false) {
+  if (mode === 'over') return;
   setMode('over');
-  sfx.over();
+  if (won) {
+    sfx.win();
+    flash = { color: '255, 246, 200', t: 0.8 };
+    for (let i = 0; i < 70; i += 1) world.particles.push(sparkle(player.x + (Math.random() - 0.5) * view.w * 0.7, 100 + Math.random() * 220, i % 2 ? '#ffc94a' : '#b79cff'));
+  } else sfx.over();
+  ui.over.classList.toggle('victory', won);
+  $('over-eyebrow').textContent = won ? 'Hoàn thành cả 3 màn!' : run.lives <= 0 ? 'Hết mạng rồi!' : 'Lượt chơi đã kết thúc';
+  $('over-title').textContent = won ? 'Chiến thắng!' : 'Kết thúc';
+  $('result-message').textContent = won ? 'Bạn đã chinh phục 3/3 màn: Nắng, Mưa và Tuyết!' : `Đã hoàn thành ${run.level}/${LEVELS.length} màn. Chơi lại để chinh phục cả 3 nhé!`;
   const final = score();
   const result = addScore(board, { name: normalizeName(store.get(STORAGE.name)), score: final, character: characterId, date: Date.now() });
   board = result.board;
   store.set(STORAGE.board, JSON.stringify(board));
   const character = CHARACTERS.find((c) => c.id === characterId);
-  $('over-avatar').src = character.air ?? character.src;
+  $('over-avatar').src = won ? character.src : character.air ?? character.src;
   $('final-score').textContent = final.toLocaleString('vi-VN');
-  $('final-distance').textContent = `${Math.max(0, Math.round((run.maxX - START_X) / 10))} m`;
+  $('final-distance').textContent = `${Math.floor(levelProgress(run.maxX, START_X).totalDistance)} m`;
   $('final-stars').textContent = run.stars;
   $('final-correct').textContent = run.correct;
   $('rank-note').textContent = result.rank === 1 ? '🏆 Kỷ lục mới! Bạn đứng hạng 1!' : result.rank ? `🎉 Bạn lọt vào bảng xếp hạng: hạng ${result.rank}` : 'Cố lên! Lần sau sẽ lọt vào top 10.';
   renderBoard($('board-over'), board[result.rank - 1]);
   renderBoard($('board-start'));
-  setTimeout(() => { if (mode === 'over') { showScreen(ui.over); $('again-button').focus(); } }, 700);
+  const finishedRun = run;
+  setTimeout(() => { if (mode === 'over' && run === finishedRun) { showScreen(ui.over); $('again-button').focus(); } }, won ? 350 : 700);
 }
 
 /* ---------- Questions ---------- */
@@ -313,7 +361,7 @@ function updateQuestionTimer() {
 }
 
 function answer(index) {
-  if (!question || question.answered) return;
+  if (mode !== 'question' || !question || question.answered) return;
   question.answered = true;
   const correct = index === question.correctIndex;
   const buttons = [...ui.answers.children];
@@ -324,22 +372,26 @@ function answer(index) {
     else button.classList.add('dim');
   });
   const right = question.choices[question.correctIndex];
+  const change = questionScoreChange(correct, question.left, score());
+  run.bonus += change;
   if (correct) {
-    const reward = questionReward(question.left);
-    run.bonus += reward;
     run.correct += 1;
-    ui.feedback.textContent = `Chính xác! +${reward} điểm`;
+    ui.feedback.textContent = `Chính xác! +${change} điểm`;
     ui.feedback.className = 'question-feedback good';
     sfx.correct();
-    world.floaters.push({ x: player.x, y: player.y - 80, text: `+${reward}`, color: '#7c5ce0', t: 0, size: 30 });
+    world.floaters.push({ x: player.x, y: player.y - 80, text: `+${change}`, color: '#7c5ce0', t: 0, size: 30 });
     for (let i = 0; i < 30; i += 1) world.particles.push(sparkle(player.x, player.y - 30, i % 2 ? '#ffc94a' : '#b79cff'));
   } else {
-    ui.feedback.textContent = index < 0 ? `Hết giờ! Đáp án đúng: ${right}` : `Chưa đúng! Đáp án đúng: ${right}`;
+    const loss = change < 0 ? `${change} điểm` : 'Điểm đã ở 0';
+    ui.feedback.textContent = `${index < 0 ? 'Hết giờ!' : 'Chưa đúng!'} ${loss}. Đáp án đúng: ${right}`;
     ui.feedback.className = 'question-feedback bad';
     sfx.wrong();
+    world.floaters.push({ x: player.x, y: player.y - 80, text: `${change}`, color: '#e2574c', t: 0, size: 28 });
   }
+  if (change) bump(ui.score);
   updateHud();
-  setTimeout(() => closeQuestion(correct), correct ? 900 : 1700);
+  const answeredQuestion = question;
+  setTimeout(() => { if (mode === 'question' && question === answeredQuestion) closeQuestion(correct); }, correct ? 900 : 1700);
 }
 
 function closeQuestion(correct) {
@@ -347,10 +399,7 @@ function closeQuestion(correct) {
   showScreen(null);
   setMode('playing');
   lastFrame = performance.now();
-  if (correct) { toast('Giỏi quá! Bay tiếp nào!', 'good'); return; }
-  if (player.ground) breakPlatform(player.ground);
-  Object.assign(player, { dropping: true, onGround: false, ground: null, vy: -260, vx: 0 });
-  toast('Sai rồi… rơi xuống mây!', 'bad');
+  toast(correct ? 'Giỏi quá! Bay tiếp nào!' : 'Chỉ trừ điểm thôi — bay tiếp nhé!', correct ? 'good' : 'bad');
 }
 
 /* ---------- Simulation ---------- */
@@ -417,7 +466,7 @@ function step(h) {
   player.y = nextY;
   player.squash *= 1 - Math.min(1, h * 10);
   player.invulnerable = Math.max(0, player.invulnerable - h);
-  run.maxX = Math.max(run.maxX, player.x);
+  if (player.y <= VIEW_HEIGHT + 140) run.maxX = Math.max(run.maxX, player.x);
 
   for (const p of world.platforms) {
     if (p.touchedAt == null || p.broken) continue;
@@ -438,6 +487,21 @@ function step(h) {
     for (let i = 0; i < 10; i += 1) world.particles.push(sparkle(star.x, star.y, '#ffd94a'));
   }
 
+  if (player.y > VIEW_HEIGHT + 140) { loseLife(); return; }
+  const progress = levelProgress(run.maxX, START_X);
+  if (progress.complete) {
+    run.maxX = START_X + progress.totalDistance * PIXELS_PER_METER;
+    updateHud();
+    gameOver(true);
+    return;
+  }
+  if (progress.index !== run.level) {
+    run.level = progress.index;
+    sfx.correct();
+    flash = { color: '255, 255, 255', t: 0.5 };
+    toast(`Qua màn ${run.level}! Màn ${run.level + 1}: ${LEVELS[run.level].name} — thêm ${LEVEL_DISTANCE} m nữa!`, 'good', 3000);
+  }
+
   if (!player.dropping) {
     for (const box of world.questions) {
       if (box.used || Math.abs(box.x - cx) > 22 + PLAYER_W / 2 || Math.abs(box.y - cy) > 22 + PLAYER_H / 2) continue;
@@ -448,8 +512,6 @@ function step(h) {
 
   const targetCamera = player.x - view.w * 0.36;
   if (targetCamera > camera.x) camera.x += (targetCamera - camera.x) * Math.min(1, h * 6);
-
-  if (player.y > VIEW_HEIGHT + 140) { loseLife(); return; }
 
   generator.generateUntil(world, camera.x + view.w + 800);
   const left = camera.x - 300;
@@ -501,30 +563,33 @@ function drawCloud(x, y, s, puffs) {
 }
 
 function drawBackground(time) {
+  const weather = WEATHER[LEVELS[run.level].id];
   const top = -view.offsetY;
   const bottom = view.cssH / view.scale - view.offsetY;
   const sky = ctx.createLinearGradient(0, top, 0, bottom);
-  sky.addColorStop(0, '#5bb6f2');
-  sky.addColorStop(0.55, '#a9defc');
-  sky.addColorStop(1, '#e9f7ff');
+  sky.addColorStop(0, weather.sky[0]);
+  sky.addColorStop(0.55, weather.sky[1]);
+  sky.addColorStop(1, weather.sky[2]);
   ctx.fillStyle = sky;
   ctx.fillRect(0, top, view.w, bottom - top);
 
-  const sunX = view.w - 120;
-  const glow = ctx.createRadialGradient(sunX, 90, 10, sunX, 90, 150);
-  glow.addColorStop(0, 'rgba(255, 246, 200, .95)');
-  glow.addColorStop(0.3, 'rgba(255, 236, 160, .45)');
-  glow.addColorStop(1, 'rgba(255, 236, 160, 0)');
-  ctx.fillStyle = glow;
-  ctx.fillRect(sunX - 150, -60, 300, 300);
-  ctx.fillStyle = '#fff3b8';
-  ctx.beginPath();
-  ctx.arc(sunX, 90, 38, 0, Math.PI * 2);
-  ctx.fill();
+  if (run.level === 0) {
+    const sunX = view.w - 120;
+    const glow = ctx.createRadialGradient(sunX, 90, 10, sunX, 90, 150);
+    glow.addColorStop(0, 'rgba(255, 246, 200, .95)');
+    glow.addColorStop(0.3, 'rgba(255, 236, 160, .45)');
+    glow.addColorStop(1, 'rgba(255, 236, 160, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(sunX - 150, -60, 300, 300);
+    ctx.fillStyle = '#fff3b8';
+    ctx.beginPath();
+    ctx.arc(sunX, 90, 38, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   const camX = camera?.x ?? time * 40;
   for (const layer of cloudLayers) {
-    ctx.fillStyle = `rgba(255, 255, 255, ${layer.alpha})`;
+    ctx.fillStyle = `rgba(${weather.cloud}, ${layer.alpha})`;
     for (const cloud of layer.clouds) {
       let x = (cloud.x - camX * layer.factor - time * 6 * layer.factor) % layer.span;
       if (x < -200) x += layer.span;
@@ -549,10 +614,11 @@ function drawBackground(time) {
 }
 
 function drawCloudSea(time) {
+  const weather = WEATHER[LEVELS[run.level].id];
   const camX = camera?.x ?? time * 40;
   const bottom = view.cssH / view.scale - view.offsetY;
   const base = VIEW_HEIGHT + 38;
-  ctx.fillStyle = 'rgba(255, 255, 255, .92)';
+  ctx.fillStyle = `rgba(${weather.sea}, .92)`;
   ctx.fillRect(0, base + 20, view.w, bottom - base);
   const span = seaPuffs.length * 70;
   for (const p of seaPuffs) {
@@ -564,6 +630,34 @@ function drawCloudSea(time) {
       ctx.fill();
     }
   }
+}
+
+function drawWeather(time) {
+  if (run.level === 0) return;
+  const rainy = LEVELS[run.level].id === 'rainy';
+  const top = -view.offsetY;
+  const height = view.cssH / view.scale + 40;
+  const span = view.w + 60;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(218, 237, 255, .65)';
+  ctx.fillStyle = 'rgba(255, 255, 255, .9)';
+  ctx.lineWidth = 1.5;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  for (const particle of weatherParticles) {
+    const drift = time * (rainy ? -90 : 16) * particle.speed;
+    const x = ((particle.x * span + drift) % span + span) % span - 30 + (rainy ? 0 : Math.sin(time + particle.phase) * 18);
+    const y = top + (particle.y * height + time * (rainy ? 460 : 40) * particle.speed) % height - 20;
+    if (rainy) {
+      ctx.moveTo(x, y);
+      ctx.lineTo(x - 6, y + 18);
+    } else {
+      ctx.moveTo(x + particle.size, y);
+      ctx.arc(x, y, particle.size, 0, Math.PI * 2);
+    }
+  }
+  if (rainy) ctx.stroke(); else ctx.fill();
+  ctx.restore();
 }
 
 function crackLines(p) {
@@ -592,11 +686,12 @@ function drawPlatform(p, time) {
   ctx.fill();
 
   const special = p.kind === 'branch';
+  const weather = WEATHER[LEVELS[run.level].id];
   const body = ctx.createLinearGradient(0, 0, 0, p.h);
-  body.addColorStop(0, special ? '#e8f4ff' : '#fff6d6');
-  body.addColorStop(1, special ? '#a8cdf0' : '#f2c46b');
+  body.addColorStop(0, special ? '#e8f4ff' : weather.platform[0]);
+  body.addColorStop(1, special ? '#a8cdf0' : weather.platform[1]);
   ctx.fillStyle = body;
-  ctx.strokeStyle = special ? '#4f86b8' : '#b9822f';
+  ctx.strokeStyle = special ? '#4f86b8' : weather.outline;
   ctx.lineWidth = 2.5;
   roundRect(0, 0, p.w, p.h, 9);
   ctx.fill();
@@ -763,6 +858,7 @@ function render(time) {
     ctx.restore();
   }
   drawCloudSea(time);
+  drawWeather(time);
   if (flash) {
     ctx.fillStyle = `rgba(${flash.color}, ${flash.t * 0.5})`;
     ctx.fillRect(0, -view.offsetY, view.w, view.cssH / view.scale);
@@ -772,7 +868,7 @@ function render(time) {
 function frame(now) {
   const dt = Math.min(0.05, (now - lastFrame) / 1000);
   lastFrame = now;
-  clock += dt;
+  if (mode !== 'paused') clock += dt;
   if (mode === 'playing') {
     accumulator += dt;
     while (accumulator >= STEP && mode === 'playing') { step(STEP); accumulator -= STEP; }
@@ -862,5 +958,6 @@ ui.name.value = store.get(STORAGE.name) ?? '';
 renderCharacters();
 renderBoard($('board-start'));
 updateLives();
+updateHud();
 resize();
 requestAnimationFrame(frame);

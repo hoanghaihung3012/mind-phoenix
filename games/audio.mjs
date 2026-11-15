@@ -16,6 +16,24 @@ const THEMES = {
     melody: [79, 83, null, 86, 83, 81, 79, null, 76, 79, null, 83, 81, 79, 76, null,
       77, 81, null, 84, 81, 79, 77, null, 74, 78, 81, null, 78, 74, 79, null],
     bass: [55, 52, 53, 50]
+  },
+  orchard: {
+    step: .36, type: 'triangle',
+    melody: [72, 74, 76, 79, null, 76, 79, 81, 79, null, 76, 74, 72, null, 74, 76,
+      77, 76, 74, 72, null, 74, 76, 79, 76, 74, 72, null, 67, null, 72, null],
+    bass: [48, 53, 55, 48]
+  },
+  sunset: {
+    step: .44, type: 'sine',
+    melody: [77, null, 81, 84, null, 81, 79, 77, 76, null, 79, 82, null, 79, 77, 76,
+      74, null, 77, 81, null, 79, 77, 74, 72, 74, 76, null, 77, null, null, null],
+    bass: [53, 48, 46, 48]
+  },
+  night: {
+    step: .5, type: 'sine',
+    melody: [69, null, 72, 76, null, 74, 72, null, 71, null, 74, 77, null, 76, 74, null,
+      72, null, 76, 79, null, 77, 76, 74, 72, 71, 69, null, 64, null, 69, null],
+    bass: [45, 50, 52, 45]
   }
 };
 
@@ -88,6 +106,14 @@ export class GameAudio {
     if (this.master) this.master.gain.setTargetAtTime(audible ? .65 : 0, this.context.currentTime, .005);
     if (!audible) this.stopVoices();
     this.syncMusic();
+  }
+
+  setTheme(theme) {
+    if (!THEMES[theme]) throw new RangeError(`Unknown audio theme: ${theme}`);
+    if (this.theme === THEMES[theme]) return;
+    this.theme = THEMES[theme];
+    this.beat = 0;
+    this.stopVoices('music');
   }
 
   setMusicPlaying(playing) {

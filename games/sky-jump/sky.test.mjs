@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   LEADERBOARD_SIZE, LevelGenerator, MAX_PLATFORM_Y, MIN_PLATFORM_Y, PLATFORM_LIFE, QUESTIONS, START_LIVES,
-  addScore, createQuestionDeck, horizontalReach, maxJumpHeight, mulberry32, normalizeName, parseLeaderboard, platformState, questionReward, startingLives,
+  addScore, createQuestionDeck, horizontalReach, levelProgress, maxJumpHeight, mulberry32, normalizeName, parseLeaderboard, platformState, questionReward, questionScoreChange, startingLives,
 } from './sky.mjs';
 
 test('special player names unlock unlimited lives regardless of case or surrounding whitespace', () => {
@@ -68,6 +68,32 @@ test('correct answers reward faster responses', () => {
   assert.equal(questionReward(30), 110);
   assert.equal(questionReward(0.2), 52);
   assert.equal(questionReward(-1), 50);
+});
+
+test('wrong answers deduct half the potential reward, including timeouts, without negative scores', () => {
+  assert.equal(questionScoreChange(true, 30, 0), 110);
+  assert.equal(questionScoreChange(false, 30, 200), -55);
+  assert.equal(questionScoreChange(false, 20.2, 200), -46);
+  assert.equal(questionScoreChange(false, 0, 200), -25);
+  assert.equal(questionScoreChange(false, -1, 200), -25);
+  assert.equal(questionScoreChange(false, 30, 10), -10);
+  assert.equal(questionScoreChange(false, 30, 0), 0);
+});
+
+test('level progress advances at exactly 500 m and only wins after the third level', () => {
+  const start = 80;
+  assert.deepEqual(levelProgress(start - 20, start), { index: 0, distance: 0, totalDistance: 0, complete: false });
+  for (const [pixels, index] of [[4999.999, 0], [9999.999, 1], [14999.999, 2]]) {
+    const progress = levelProgress(start + pixels, start);
+    assert.equal(progress.index, index);
+    assert.ok(progress.distance < 500 && progress.distance > 499);
+    assert.equal(progress.complete, false);
+  }
+  assert.deepEqual(levelProgress(start + 5000, start), { index: 1, distance: 0, totalDistance: 500, complete: false });
+  assert.deepEqual(levelProgress(start + 10000, start), { index: 2, distance: 0, totalDistance: 1000, complete: false });
+  const victory = { index: 2, distance: 500, totalDistance: 1500, complete: true };
+  assert.deepEqual(levelProgress(start + 15000, start), victory);
+  assert.deepEqual(levelProgress(start + 20000, start), victory, 'no fourth level or progress beyond the finish');
 });
 
 test('leaderboard keeps the top scores, ranks ties by earliest and sanitizes stored data', () => {

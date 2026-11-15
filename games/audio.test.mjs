@@ -203,3 +203,19 @@ test('quacks are short filtered bursts and all finished audio nodes are disconne
   assert.ok(context.gains.slice(1).every((gain) => gain.disconnected));
   assert.equal(audio.voices.size, 0);
 });
+
+test('switching theme mid-song swaps the melody without stacking old notes', async (t) => {
+  const { create, contexts, advance } = setup(t);
+  const audio = create('orchard');
+  audio.setMusicPlaying(true);
+  await audio.activate();
+  const context = contexts[0];
+  const before = context.oscillators.length;
+  audio.setTheme('night');
+  assert.ok(context.oscillators.slice(0, before).every((oscillator) => oscillator.stops.at(-1) === .02), 'old music is cut');
+  advance(.2);
+  const fresh = context.oscillators.slice(before).map((oscillator) => oscillator.frequency.events[0][1]);
+  assert.ok(fresh.some((freq) => Math.abs(freq - 440) < .01), 'night theme starts on its own first note (A4)');
+  assert.throws(() => audio.setTheme('nope'), RangeError);
+  audio.setMusicPlaying(false);
+});
