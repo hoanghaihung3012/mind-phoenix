@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#d9d6ff">
+  <title>Channel Dashboard — Mind Phoenix Tools</title>
+  <link rel="icon" type="image/png" href="../../assets/mascots/mind-phoenix-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #2b2550;
+      --ink-soft: #5d5880;
+      --snow: #fffaf5;
+      --berry: #ff8fa3;
+      --berry-deep: #e5607a;
+      --mint: #bfeedd;
+      --gold: #ffd98a;
+      --lilac: #dcd2ff;
+      --sky: #cfe6ff;
+      --peach: #ffdccb;
+      --display: 'Baloo 2', 'Nunito', system-ui, sans-serif;
+      --body: 'Nunito', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, monospace;
+      --pop: cubic-bezier(.34, 1.56, .64, 1);
+      --outline: 3px solid var(--ink);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: var(--snow) radial-gradient(circle at 10% 0%, #ece8ff 0, transparent 40%) no-repeat; color: var(--ink); font-family: var(--body); font-weight: 600; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    img { display: block; max-width: 100%; }
+    h1, h2, h3 { font-family: var(--display); margin: 0; line-height: 1.1; }
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px dashed var(--berry-deep); outline-offset: 3px; }
+    .wrap { width: min(1220px, calc(100% - 40px)); margin-inline: auto; }
+    .hidden { display: none !important; }
+
+    header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 28px 0 8px; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 700 20px var(--display); }
+    .brand img { height: 46px; width: auto; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border: 2.5px solid var(--ink); border-radius: 14px; background: white; font: 600 15px var(--display); box-shadow: 0 3px 0 var(--ink); cursor: pointer; transition: transform .15s var(--pop), box-shadow .15s; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 0 var(--ink); }
+    .btn:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+    .btn.primary { background: var(--berry); }
+    .btn.mint { background: var(--mint); }
+    .btn:disabled { opacity: .55; cursor: wait; }
+    select.btn { appearance: none; }
+
+    .hero { padding: 18px 0 26px; }
+    .kicker { font: 700 13px var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--berry-deep); margin: 0 0 6px; }
+    .hero h1 { font-size: clamp(32px, 4.4vw, 52px); }
+    .meta { color: var(--ink-soft); margin-top: 8px; font-size: 14px; }
+
+    .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; margin-bottom: 30px; }
+    .stat { padding: 20px 22px; border: var(--outline); border-radius: 22px; background: linear-gradient(160deg, var(--c, var(--lilac)), white 85%); box-shadow: 0 5px 0 var(--ink); min-width: 0; }
+    .stat .label { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); }
+    .stat .value { font: 700 34px var(--display); margin-top: 4px; }
+    .stat .sub { font-size: 13px; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; padding-bottom: 48px; }
+    .card { display: flex; flex-direction: column; overflow: hidden; border: var(--outline); border-radius: 26px; background: white; box-shadow: 0 6px 0 var(--ink); }
+    .banner { position: relative; height: 92px; background: linear-gradient(120deg, var(--c1, var(--sky)), var(--c2, var(--lilac))); background-size: cover; background-position: center; border-bottom: var(--outline); }
+    .rank { position: absolute; top: 10px; right: 12px; padding: 4px 10px; border: 2px solid var(--ink); border-radius: 99px; background: var(--gold); font: 700 12px var(--mono); }
+    .head { position: relative; display: flex; gap: 14px; align-items: flex-end; padding: 0 20px; margin-top: -34px; }
+    .avatar { width: 76px; height: 76px; flex: none; border: var(--outline); border-radius: 50%; background: var(--lilac); object-fit: cover; }
+    .head .names { min-width: 0; padding-bottom: 2px; }
+    .head h3 { font-size: 22px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .handle { font: 500 13px var(--mono); color: var(--ink-soft); text-decoration: none; }
+    .handle:hover { color: var(--berry-deep); }
+    .body { display: flex; flex-direction: column; gap: 14px; padding: 16px 20px 20px; flex: 1; }
+    .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .kpi { padding: 10px; border: 2px solid var(--ink); border-radius: 14px; background: var(--snow); text-align: center; }
+    .kpi b { display: block; font: 700 21px var(--display); }
+    .kpi span { font-size: 12px; color: var(--ink-soft); }
+    .facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: 14px; }
+    .facts dt { color: var(--ink-soft); }
+    .facts dd { margin: 0; text-align: right; }
+    .desc { margin: 0; font-size: 14px; color: var(--ink-soft); line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-line; }
+    .videos h4 { margin: 0 0 8px; font: 700 14px var(--display); text-transform: uppercase; letter-spacing: .05em; }
+    .video { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; padding: 6px; border-radius: 12px; text-decoration: none; }
+    .video:hover { background: var(--lilac); }
+    .video img { width: 96px; aspect-ratio: 16 / 9; object-fit: cover; border: 2px solid var(--ink); border-radius: 8px; }
+    .video .vt { font-size: 13px; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .video .vm { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+    .card .error { padding: 20px; color: var(--berry-deep); }
+    .card .error p { margin: 8px 0 0; font-size: 14px; }
+
+    .panel { max-width: 720px; margin: 0 auto 32px; padding: 28px; border: var(--outline); border-radius: 26px; background: white; box-shadow: 0 6px 0 var(--ink); }
+    .panel h2 { font-size: 28px; margin-bottom: 8px; }
+    .panel p, .panel li { color: var(--ink-soft); line-height: 1.6; font-size: 15px; }
+    .panel label { display: block; margin: 18px 0 6px; font: 700 15px var(--display); }
+    .panel input, .panel textarea { width: 100%; padding: 12px 14px; border: 2.5px solid var(--ink); border-radius: 14px; background: var(--snow); font: 500 14px var(--mono); }
+    .panel textarea { min-height: 150px; resize: vertical; }
+    .panel .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .notice { margin: 0 0 24px; padding: 14px 18px; border: 2.5px solid var(--ink); border-radius: 16px; background: var(--peach); }
+    .skeleton { min-height: 420px; background: linear-gradient(90deg, #f4f1ff 25%, #fff 50%, #f4f1ff 75%) 0 0 / 200% 100%; animation: shimmer 1.2s linear infinite; }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+    @media (max-width: 860px) { .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 420px) { .grid, .summary { grid-template-columns: minmax(0, 1fr); } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <a class="brand" href="../../"><img src="../../assets/mascots/mind-phoenix-logo.png" alt="" width="109" height="128">Mind Phoenix Tools</a>
+      <div class="actions">
+        <select id="sort" class="btn" aria-label="Sắp xếp kênh">
+          <option value="subs">↓ Subscribers</option>
+          <option value="views">↓ Lượt xem</option>
+          <option value="videos">↓ Số video</option>
+          <option value="recent">↓ Video mới nhất</option>
+          <option value="custom">Thứ tự mặc định</option>
+        </select>
+        <button id="refresh" class="btn mint" type="button">↻ Làm mới</button>
+        <button id="open-settings" class="btn" type="button" aria-controls="settings">⚙ Cài đặt</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <p class="kicker">YouTube Channel Dashboard</p>
+      <h1>Các kênh mình đang quản lý</h1>
+      <p class="meta" id="updated"></p>
+    </section>
+
+    <div id="notice" class="notice hidden" role="alert"></div>
+
+    <section id="settings" class="panel hidden" aria-labelledby="settings-title">
+      <h2 id="settings-title">Cài đặt</h2>
+      <p>Dashboard dùng <strong>YouTube Data API v3</strong> để lấy số liệu công khai của kênh. API key chỉ được lưu trong trình duyệt này (localStorage).</p>
+      <ol>
+        <li>Vào <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener noreferrer">Google Cloud Console</a> và bật <em>YouTube Data API v3</em>.</li>
+        <li>Tạo <em>API key</em> ở mục Credentials. Nên giới hạn key theo HTTP referrer (vd. <code>mindphoenix.xyz/*</code>) và chỉ cho phép YouTube Data API.</li>
+      </ol>
+      <label for="api-key">API key</label>
+      <input id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="AIza...">
+      <label for="channels">Danh sách kênh (mỗi dòng một @handle, link kênh hoặc channel ID)</label>
+      <textarea id="channels" spellcheck="false"></textarea>
+      <div class="row">
+        <button id="save-settings" class="btn primary" type="button">Lưu &amp; tải dữ liệu</button>
+        <button id="cancel-settings" class="btn" type="button">Đóng</button>
+      </div>
+    </section>
+
+    <section id="summary" class="summary" aria-label="Tổng quan"></section>
+    <section id="grid" class="grid" aria-label="Danh sách kênh" aria-live="polite"></section>
+  </div>
+
+  <script>
+    (() => {
+      const API = 'https://www.googleapis.com/youtube/v3/';
+      const STORE = { key: 'ytdash.apiKey', channels: 'ytdash.channels', cache: 'ytdash.cache', sort: 'ytdash.sort' };
+      const CACHE_TTL = 30 * 60 * 1000;
+      const LATEST_COUNT = 3;
+      const DEFAULT_CHANNELS = ['@mindmathhh', '@minddevit', '@mindastroq', '@mindchemistryp', '@phoenixhoang_2202'];
+      const PALETTE = [['#cfe6ff', '#eef6ff'], ['#bfeedd', '#eafaf4'], ['#dcd2ff', '#f3efff'], ['#ffdccb', '#fff2ea'], ['#ffd98a', '#fff6de']];
+
+      const $ = (id) => document.getElementById(id);
+      const els = {
+        grid: $('grid'), summary: $('summary'), updated: $('updated'), notice: $('notice'), settings: $('settings'),
+        apiKey: $('api-key'), channels: $('channels'), refresh: $('refresh'), sort: $('sort')
+      };
+
+      const nf = new Intl.NumberFormat('vi-VN');
+      const cf = new Intl.NumberFormat('vi-VN', { notation: 'compact', maximumFractionDigits: 1 });
+      const df = new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const regionName = (() => { try { return new Intl.DisplayNames(['vi'], { type: 'region' }); } catch { return null; } })();
+
+      const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const num = (v) => (v == null ? null : Number(v));
+      const compact = (v) => (v == null ? '—' : cf.format(v));
+      const full = (v) => (v == null ? 'Ẩn' : nf.format(v));
+      const safeUrl = (u) => (/^https:\/\//.test(u || '') ? u : '');
+      const cssUrl = (u) => safeUrl(u).replace(/["'()\\\s<>]/g, (ch) => '%' + ch.charCodeAt(0).toString(16).padStart(2, '0'));
+
+      function timeAgo(iso) {
+        if (!iso) return '—';
+        const days = Math.floor((Date.now() - new Date(iso)) / 86400000);
+        if (days < 1) return 'hôm nay';
+        if (days < 30) return `${days} ngày trước`;
+        if (days < 365) return `${Math.floor(days / 30)} tháng trước`;
+        return `${Math.floor(days / 365)} năm trước`;
+      }
+
+      function channelAge(iso) {
+        const months = Math.max(0, Math.floor((Date.now() - new Date(iso)) / (86400000 * 30.44)));
+        const y = Math.floor(months / 12), m = months % 12;
+        return [y && `${y} năm`, m && `${m} tháng`].filter(Boolean).join(' ') || 'mới tạo';
+      }
+
+      function getChannelList() {
+        try { return JSON.parse(localStorage.getItem(STORE.channels)) || DEFAULT_CHANNELS; } catch { return DEFAULT_CHANNELS; }
+      }
+
+      // Accepts "@handle", "UC..." channel IDs, or full youtube.com URLs.
+      function parseChannelRef(input) {
+        const s = input.trim();
+        const id = s.match(/(?:^|\/channel\/)(UC[\w-]{22})/);
+        if (id) return { id: id[1] };
+        const handle = s.match(/@([^/?#\s]+)/);
+        if (handle) return { handle: '@' + handle[1] };
+        return { handle: '@' + s.replace(/^\/+|\/+$/g, '') };
+      }
+
+      async function api(path, params) {
+        const url = new URL(API + path);
+        Object.entries({ ...params, key: localStorage.getItem(STORE.key) }).forEach(([k, v]) => url.searchParams.set(k, v));
+        const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
+        return data;
+      }
+
+      async function fetchChannel(ref) {
+        const part = 'snippet,statistics,brandingSettings,contentDetails';
+        const data = await api('channels', ref.id ? { part, id: ref.id } : { part, forHandle: ref.handle });
+        const ch = data.items?.[0];
+        if (!ch) throw new Error('Không tìm thấy kênh');
+
+        let latest = [];
+        const uploads = ch.contentDetails?.relatedPlaylists?.uploads;
+        if (uploads && Number(ch.statistics.videoCount) > 0) {
+          const pl = await api('playlistItems', { part: 'contentDetails', playlistId: uploads, maxResults: LATEST_COUNT }).catch(() => ({ items: [] }));
+          const ids = (pl.items || []).map((i) => i.contentDetails.videoId).join(',');
+          if (ids) {
+            const vids = await api('videos', { part: 'snippet,statistics', id: ids });
+            latest = vids.items.map((v) => ({
+              id: v.id,
+              title: v.snippet.title,
+              publishedAt: v.snippet.publishedAt,
+              thumb: v.snippet.thumbnails?.medium?.url || v.snippet.thumbnails?.default?.url,
+              views: num(v.statistics.viewCount),
+              likes: num(v.statistics.likeCount)
+            })).sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+          }
+        }
+
+        const s = ch.statistics;
+        return {
+          id: ch.id,
+          title: ch.snippet.title,
+          handle: ch.snippet.customUrl,
+          description: ch.snippet.description,
+          avatar: ch.snippet.thumbnails?.medium?.url || ch.snippet.thumbnails?.default?.url,
+          banner: ch.brandingSettings?.image?.bannerExternalUrl,
+          country: ch.snippet.country,
+          publishedAt: ch.snippet.publishedAt,
+          subs: s.hiddenSubscriberCount ? null : num(s.subscriberCount),
+          views: num(s.viewCount),
+          videos: num(s.videoCount),
+          latest
+        };
+      }
+
+      function showNotice(msg) {
+        els.notice.textContent = msg || '';
+        els.notice.classList.toggle('hidden', !msg);
+      }
+
+      function sortChannels(list) {
+        const val = {
+          subs: (c) => c.subs ?? -1,
+          views: (c) => c.views ?? -1,
+          videos: (c) => c.videos ?? -1,
+          recent: (c) => (c.latest[0] ? new Date(c.latest[0].publishedAt).getTime() : 0)
+        }[els.sort.value];
+        const ok = list.filter((c) => !c.error), bad = list.filter((c) => c.error);
+        if (val) ok.sort((a, b) => val(b) - val(a));
+        return [...ok, ...bad];
+      }
+
+      function renderSummary(list) {
+        const ok = list.filter((c) => !c.error);
+        const sum = (k) => ok.reduce((t, c) => t + (c[k] || 0), 0);
+        const recent = ok.flatMap((c) => c.latest.map((v) => ({ ...v, ch: c.title })))
+          .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))[0];
+        const top = [...ok].sort((a, b) => (b.subs ?? -1) - (a.subs ?? -1))[0];
+        const failed = list.length - ok.length;
+        const cards = [
+          ['Kênh', ok.length, failed ? `${failed} kênh lỗi` : 'đang theo dõi', 'var(--lilac)'],
+          ['Tổng subscribers', compact(sum('subs')), top ? `Dẫn đầu: ${top.title}` : '', 'var(--berry)'],
+          ['Tổng lượt xem', compact(sum('views')), `${nf.format(sum('views'))} views`, 'var(--mint)'],
+          ['Tổng video', nf.format(sum('videos')), recent ? `Mới nhất: ${timeAgo(recent.publishedAt)} · ${recent.ch}` : '', 'var(--gold)']
+        ];
+        els.summary.innerHTML = cards.map(([label, value, sub, c]) => `
+          <div class="stat" style="--c:${c}">
+            <div class="label">${esc(label)}</div>
+            <div class="value">${esc(value)}</div>
+            <div class="sub" title="${esc(sub)}">${esc(sub)}</div>
+          </div>`).join('');
+      }
+
+      function renderCard(c, i, rank) {
+        const [c1, c2] = PALETTE[i % PALETTE.length];
+        if (c.error) {
+          return `<article class="card"><div class="banner" style="--c1:${c1};--c2:${c2}"></div>
+            <div class="error"><h3>${esc(c.ref)}</h3><p>Lỗi: ${esc(c.error)}</p></div></article>`;
+        }
+        const url = `https://www.youtube.com/channel/${encodeURIComponent(c.id)}`;
+        const avg = c.videos ? Math.round(c.views / c.videos) : null;
+        const banner = cssUrl(c.banner) ? `background-image:url(${cssUrl(c.banner)}=w1060)` : '';
+        const country = c.country ? (regionName?.of(c.country) || c.country) : '—';
+        const videos = c.latest.map((v) => `
+          <a class="video" href="https://www.youtube.com/watch?v=${encodeURIComponent(v.id)}" target="_blank" rel="noopener noreferrer">
+            <img src="${esc(safeUrl(v.thumb))}" alt="" loading="lazy">
+            <div><div class="vt">${esc(v.title)}</div>
+            <div class="vm">${compact(v.views)} views · ${compact(v.likes)} likes · ${timeAgo(v.publishedAt)}</div></div>
+          </a>`).join('');
+        return `
+          <article class="card">
+            <div class="banner" style="--c1:${c1};--c2:${c2};${esc(banner)}">${rank ? `<span class="rank">#${rank}</span>` : ''}</div>
+            <div class="head">
+              <img class="avatar" src="${esc(safeUrl(c.avatar))}" alt="" loading="lazy">
+              <div class="names"><h3 title="${esc(c.title)}">${esc(c.title)}</h3>
+                <a class="handle" href="${url}" target="_blank" rel="noopener noreferrer">${esc(c.handle || c.id)} ↗</a></div>
+            </div>
+            <div class="body">
+              <div class="kpis">
+                <div class="kpi" title="${full(c.subs)}"><b>${compact(c.subs)}</b><span>Subscribers</span></div>
+                <div class="kpi" title="${full(c.views)}"><b>${compact(c.views)}</b><span>Lượt xem</span></div>
+                <div class="kpi" title="${full(c.videos)}"><b>${compact(c.videos)}</b><span>Video</span></div>
+              </div>
+              <dl class="facts">
+                <dt>Views TB / video</dt><dd>${avg == null ? '—' : nf.format(avg)}</dd>
+                <dt>Ngày tạo kênh</dt><dd>${df.format(new Date(c.publishedAt))} (${channelAge(c.publishedAt)})</dd>
+                <dt>Video gần nhất</dt><dd>${c.latest[0] ? timeAgo(c.latest[0].publishedAt) : '—'}</dd>
+                <dt>Quốc gia</dt><dd>${esc(country)}</dd>
+              </dl>
+              ${c.description ? `<p class="desc">${esc(c.description)}</p>` : ''}
+              ${videos ? `<div class="videos"><h4>Video mới nhất</h4>${videos}</div>` : ''}
+            </div>
+          </article>`;
+      }
+
+      function render(data) {
+        if (!data) return;
+        const sorted = sortChannels(data.channels);
+        const ranked = els.sort.value !== 'custom';
+        renderSummary(data.channels);
+        els.grid.innerHTML = sorted.map((c, pos) => renderCard(c, data.channels.indexOf(c), ranked && !c.error ? pos + 1 : 0)).join('');
+        els.updated.textContent = `Cập nhật lúc ${new Date(data.at).toLocaleString('vi-VN')} · ${data.channels.length} kênh`;
+      }
+
+      let current = null;
+
+      function readCache() {
+        try { return JSON.parse(localStorage.getItem(STORE.cache)); } catch { return null; }
+      }
+
+      async function load(force = false) {
+        if (!localStorage.getItem(STORE.key)) {
+          openSettings();
+          showNotice('Nhập YouTube Data API key để bắt đầu.');
+          return;
+        }
+        const refs = getChannelList();
+        const cache = readCache();
+        if (!force && cache && JSON.stringify(cache.refs) === JSON.stringify(refs) && Date.now() - cache.at < CACHE_TTL) {
+          render(current = cache);
+          return;
+        }
+
+        els.refresh.disabled = true;
+        showNotice('');
+        els.grid.innerHTML = refs.map(() => '<div class="card skeleton"></div>').join('');
+        const channels = await Promise.all(refs.map(async (r) => {
+          try { return await fetchChannel(parseChannelRef(r)); } catch (e) {
+            return { ref: r, error: e.name === 'TimeoutError' ? 'Hết thời gian chờ phản hồi từ YouTube API' : e.message };
+          }
+        }));
+        current = { at: Date.now(), refs, channels };
+        if (channels.every((c) => c.error)) {
+          showNotice(`Không tải được dữ liệu: ${channels[0]?.error || 'chưa có kênh nào'}`);
+        } else {
+          localStorage.setItem(STORE.cache, JSON.stringify(current));
+        }
+        render(current);
+        els.refresh.disabled = false;
+      }
+
+      function openSettings() {
+        els.apiKey.value = localStorage.getItem(STORE.key) || '';
+        els.channels.value = getChannelList().join('\n');
+        els.settings.classList.remove('hidden');
+        els.apiKey.focus();
+      }
+
+      $('open-settings').addEventListener('click', () => {
+        if (els.settings.classList.contains('hidden')) openSettings();
+        else els.settings.classList.add('hidden');
+      });
+      $('cancel-settings').addEventListener('click', () => els.settings.classList.add('hidden'));
+      $('save-settings').addEventListener('click', () => {
+        const key = els.apiKey.value.trim();
+        const list = els.channels.value.split('\n').map((s) => s.trim()).filter(Boolean);
+        if (key) localStorage.setItem(STORE.key, key); else localStorage.removeItem(STORE.key);
+        localStorage.setItem(STORE.channels, JSON.stringify(list.length ? list : DEFAULT_CHANNELS));
+        els.settings.classList.add('hidden');
+        load(true);
+      });
+      els.refresh.addEventListener('click', () => load(true));
+      els.sort.value = localStorage.getItem(STORE.sort) || 'subs';
+      els.sort.addEventListener('change', () => { localStorage.setItem(STORE.sort, els.sort.value); render(current); });
+
+      load();
+    })();
+  </script>
+</body>
+</html>
