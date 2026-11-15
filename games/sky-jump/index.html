@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#8fd3fb">
+  <meta name="description" content="Nhảy trên những ô mây giữa bầu trời cùng Phượng Hoàng và các bạn mascot. Ô sẽ nứt vỡ sau 5 giây, nhặt sao và trả lời câu hỏi nâng cao lớp 4 để ghi điểm!">
+  <title>Nhảy mây — Mind Phoenix Games</title>
+  <link rel="canonical" href="https://mindphoenix.xyz/games/sky-jump/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Mind Phoenix">
+  <meta property="og:title" content="Nhảy mây — Mind Phoenix Games">
+  <meta property="og:description" content="Nhảy qua những ô mây sắp vỡ, nhặt sao và trả lời câu hỏi nâng cao lớp 4. Ai sẽ đứng đầu bảng xếp hạng?">
+  <meta property="og:url" content="https://mindphoenix.xyz/games/sky-jump/">
+  <meta property="og:locale" content="vi_VN">
+  <meta property="og:image" content="https://mindphoenix.xyz/assets/og/mind-phoenix-social.png">
+  <link rel="icon" type="image/png" href="../../assets/mascots/mind-phoenix-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="game.css">
+  <script type="module" src="game.js"></script>
+</head>
+<body>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-heart" viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.7-8 11-8 11Z" fill="currentColor"/></symbol>
+    <symbol id="icon-star" viewBox="0 0 24 24"><path d="m12 2 3 6.3 7 1-5 4.9 1.2 6.8L12 17.8 5.8 21 7 14.2 2 9.3l7-1Z" fill="currentColor" stroke="currentColor" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24"><path d="m9 5 11 7-11 7Z" fill="currentColor"/></symbol>
+    <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zm7 0h4v14h-4z" fill="currentColor"/></symbol>
+    <symbol id="icon-reset" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-sound" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13-1a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-muted" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13 0 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-left" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-right" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-up" viewBox="0 0 24 24"><path d="m5 15 7-7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-trophy" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0Zm0 2H3v1a4 4 0 0 0 4 4m10-5h4v1a4 4 0 0 1-4 4m-5 3v4m-4 3h8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="../" aria-label="Về danh sách trò chơi Mind Phoenix">
+        <img src="../../assets/mascots/mind-phoenix-logo.png" width="38" height="38" alt="">
+        <span><small>Mind Phoenix Games</small><strong>Nhảy <em>mây</em></strong></span>
+      </a>
+      <div class="hud" aria-label="Thông tin lượt chơi">
+        <div class="hud-pill score"><span>Điểm</span><strong id="hud-score">0</strong></div>
+        <div class="hud-pill stars"><svg class="icon" aria-hidden="true"><use href="#icon-star"/></svg><strong id="hud-stars">0</strong><span class="sr-only">ngôi sao</span></div>
+        <div class="hud-pill lives" id="hud-lives" aria-label="Còn 3 mạng"></div>
+      </div>
+      <div class="top-actions">
+        <button class="round-button" id="sound-toggle" type="button" aria-pressed="true" aria-label="Tắt âm thanh" title="Tắt âm thanh"><svg class="icon" aria-hidden="true"><use href="#icon-sound"/></svg></button>
+        <button class="round-button" id="pause-toggle" type="button" aria-label="Tạm dừng" title="Tạm dừng (P)" disabled><svg class="icon" aria-hidden="true"><use href="#icon-pause"/></svg></button>
+      </div>
+    </header>
+
+    <main class="stage" id="stage">
+      <canvas id="sky" role="img" aria-label="Bầu trời với những ô mây. Nhân vật của bạn nhảy qua các ô, nhặt sao và chạm vào hộp câu hỏi.">Trình duyệt của bạn cần hỗ trợ Canvas để chơi.</canvas>
+
+      <div class="touch-pad" id="touch-pad" aria-hidden="true">
+        <div class="touch-move">
+          <button class="touch-button" type="button" data-control="left" tabindex="-1"><svg class="icon"><use href="#icon-left"/></svg></button>
+          <button class="touch-button" type="button" data-control="right" tabindex="-1"><svg class="icon"><use href="#icon-right"/></svg></button>
+        </div>
+        <button class="touch-button jump" type="button" data-control="jump" tabindex="-1"><svg class="icon"><use href="#icon-up"/></svg><span>Nhảy</span></button>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+      <section class="overlay" id="start-screen" aria-labelledby="start-title">
+        <div class="panel start-panel">
+          <div class="start-main">
+            <p class="eyebrow">Phiêu lưu trên bầu trời</p>
+            <h1 id="start-title">Nhảy <span>mây</span></h1>
+            <p class="lead">Ô mây sẽ <strong>nứt và vỡ sau 5 giây</strong> kể từ khi bạn đứng lên. Rơi xuống là mất một mạng!</p>
+            <form id="start-form">
+              <fieldset class="characters">
+                <legend>Chọn nhân vật</legend>
+                <div class="character-grid" id="character-grid"></div>
+              </fieldset>
+              <label class="name-field" for="player-name">Tên của bạn <small>(hiện trên bảng xếp hạng)</small>
+                <input id="player-name" name="player-name" type="text" maxlength="16" autocomplete="nickname" placeholder="Bạn nhỏ" spellcheck="false">
+              </label>
+              <button class="primary-button big" type="submit"><svg class="icon" aria-hidden="true"><use href="#icon-play"/></svg>Bắt đầu bay</button>
+            </form>
+            <ul class="rules">
+              <li><kbd>←</kbd><kbd>→</kbd> chạy · <kbd>Space</kbd>/<kbd>↑</kbd> nhảy (giữ để nhảy cao hơn) · <kbd>P</kbd> tạm dừng</li>
+              <li><span class="rule-star" aria-hidden="true">★</span> Nhặt sao: +10 điểm</li>
+              <li><span class="rule-q" aria-hidden="true">?</span> Chạm hộp câu hỏi: 30 giây trả lời (bấm phím 1–4 hoặc chuột). Đúng được thưởng 50+ điểm, sai thì rơi!</li>
+              <li><span class="rule-heart" aria-hidden="true">♥</span> Có 3 mạng. Hết mạng là kết thúc.</li>
+            </ul>
+          </div>
+          <aside class="board-card" aria-labelledby="board-title">
+            <h2 id="board-title"><svg class="icon" aria-hidden="true"><use href="#icon-trophy"/></svg>Bảng xếp hạng</h2>
+            <ol class="board" id="board-start"></ol>
+            <p class="board-note">Lưu trên thiết bị này.</p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="overlay" id="question-screen" aria-labelledby="question-text" hidden>
+        <div class="panel question-panel" role="dialog" aria-modal="true" aria-labelledby="question-text">
+          <div class="question-head">
+            <span class="topic" id="question-topic">Toán</span>
+            <div class="question-timer" role="timer" aria-live="off"><strong id="question-seconds">30</strong><span>giây</span></div>
+          </div>
+          <div class="timer-track" aria-hidden="true"><span id="question-bar"></span></div>
+          <h2 id="question-text">Câu hỏi</h2>
+          <div class="answers" id="answers"></div>
+          <p class="question-feedback" id="question-feedback" role="status"></p>
+        </div>
+      </section>
+
+      <section class="overlay" id="pause-screen" aria-labelledby="pause-title" hidden>
+        <div class="panel small-panel">
+          <p class="eyebrow">Nghỉ một chút</p>
+          <h2 id="pause-title">Tạm dừng</h2>
+          <div class="panel-actions">
+            <button class="primary-button" id="resume-button" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-play"/></svg>Chơi tiếp</button>
+            <button class="ghost-button" id="quit-button" type="button">Kết thúc lượt</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="overlay" id="over-screen" aria-labelledby="over-title" hidden>
+        <div class="panel over-panel">
+          <div class="over-main">
+            <img class="over-avatar" id="over-avatar" src="../../assets/mascots/mind-phoenix-mascot.png" alt="">
+            <p class="eyebrow">Hết mạng rồi!</p>
+            <h2 id="over-title">Kết thúc</h2>
+            <p class="final-score"><strong id="final-score">0</strong> điểm</p>
+            <dl class="breakdown">
+              <div><dt>Quãng đường</dt><dd id="final-distance">0</dd></div>
+              <div><dt>Ngôi sao</dt><dd id="final-stars">0</dd></div>
+              <div><dt>Câu đúng</dt><dd id="final-correct">0</dd></div>
+            </dl>
+            <p class="rank-note" id="rank-note"></p>
+            <div class="panel-actions">
+              <button class="primary-button" id="again-button" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-reset"/></svg>Chơi lại</button>
+              <button class="ghost-button" id="menu-button" type="button">Đổi nhân vật</button>
+            </div>
+          </div>
+          <aside class="board-card">
+            <h2><svg class="icon" aria-hidden="true"><use href="#icon-trophy"/></svg>Bảng xếp hạng</h2>
+            <ol class="board" id="board-over"></ol>
+          </aside>
+        </div>
+      </section>
+
+      <noscript><p class="toast">Hãy bật JavaScript để chơi Nhảy mây.</p></noscript>
+    </main>
+  </div>
+</body>
+</html>

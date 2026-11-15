@@ -49,7 +49,7 @@ function overlaps(a, b) {
 
 const at = (piece, position) => piece.points.map(([x, y]) => [x + position.x, y + position.y]);
 
-test('all three silhouettes use a complete, non-overlapping seven-piece tangram set', () => {
+test('every silhouette uses a complete, non-overlapping seven-piece tangram set', () => {
   for (const puzzle of PUZZLES) {
     assert.equal(puzzle.polygons.filter((polygon) => polygon.length === 3).length, 5);
     const areas = puzzle.polygons.map(area).sort((a, b) => a - b);
@@ -74,6 +74,12 @@ test('desktop and phone layouts keep every loose piece visible and clear of the 
           assert.equal(overlaps(at(piece, piece.start), at(other, other.target)), false, `${puzzle.id}: loose piece covers silhouette`);
           if (piece !== other) assert.equal(overlaps(at(piece, piece.start), at(other, other.start)), false, `${puzzle.id}: tray pieces overlap`);
         }
+        const { frame } = board;
+        const outside = piece.start.x + piece.width <= frame.x || piece.start.x >= frame.x + frame.width ||
+          piece.start.y + piece.height <= frame.y || piece.start.y >= frame.y + frame.height;
+        assert.ok(outside, `${puzzle.id}: piece ${piece.number} starts inside the outer frame`);
+        assert.ok(piece.target.x >= frame.x && piece.target.y >= frame.y &&
+          piece.target.x + piece.width <= frame.x + frame.width && piece.target.y + piece.height <= frame.y + frame.height);
         assert.equal(isWithinSnap(piece.target, piece.target, identity), true);
         assert.deepEqual(constrainPosition({ x: -500, y: 5000 }, piece, board), { x: 8, y: board.height - piece.height - 8 });
       }

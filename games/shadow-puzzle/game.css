@@ -51,13 +51,16 @@ h1, h2 { font-family: var(--display); line-height: 1.1; }
 .picker-heading h2 { font-size: 18px; font-weight: 700; }
 .picker-heading > span { color: #9b9f94; font-size: 10px; }
 .puzzle-options { display: grid; gap: 11px; }
-.puzzle-option { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 93px; padding: 12px; border: 1.5px solid #e5e7df; border-radius: 17px; background: #fffefa; text-align: left; transition: border-color .18s, background .18s, transform .18s; }
+.puzzle-option { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 76px; padding: 8px 12px; border: 1.5px solid #e5e7df; border-radius: 17px; background: #fffefa; text-align: left; transition: border-color .18s, background .18s, transform .18s; }
 .puzzle-option:hover { transform: translateY(-2px); border-color: #9cc9b7; }
-.puzzle-option[aria-pressed="true"] { border: 2px solid #7bb7a1; padding: 11.5px; background: #edf5ec; box-shadow: 0 3px 0 #dce8dc; }
-.preview-wrap { display: grid; place-items: center; width: 64px; height: 64px; flex: none; border-radius: 13px; }
+.puzzle-option[aria-pressed="true"] { border: 2px solid #7bb7a1; padding: 7.5px 11.5px; background: #edf5ec; box-shadow: 0 3px 0 #dce8dc; }
+.preview-wrap { display: grid; place-items: center; width: 58px; height: 58px; flex: none; border-radius: 13px; }
 .boat-preview { background: #edf0e6; }
 .cat-preview { background: #f3ebf1; }
 .house-preview { background: #f6efdf; }
+.tree-preview { background: #e8f1e6; }
+.rocket-preview { background: #e8eff5; }
+.mushroom-preview { background: #f7ece6; }
 .preview-wrap > svg { width: 57px; height: 52px; }
 .option-copy { min-width: 0; }
 .option-copy strong { display: block; font: 700 18px/1.2 var(--display); white-space: nowrap; }
@@ -84,18 +87,9 @@ h1, h2 { font-family: var(--display); line-height: 1.1; }
 .progress-counter { display: flex; align-items: center; gap: 7px; min-height: 34px; padding: 5px 12px; border-radius: 10px; background: #f1f3ea; color: #6f927b; font-size: 15px; font-weight: 900; font-variant-numeric: tabular-nums; }
 .progress-counter .icon { width: 15px; height: 15px; }
 .progress-counter small { color: #8b9987; font-size: 10px; font-weight: 700; }
-.difficulty-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 23px; border-bottom: 1px solid #eeede4; }
-.difficulty-options { display: inline-flex; gap: 4px; padding: 3px; border: 1px solid #e1e6d9; border-radius: 12px; background: #f4f5ed; }
-.difficulty-options button { min-width: 66px; min-height: 34px; padding: 5px 14px; border: 0; border-radius: 8px; background: transparent; color: #71846f; font-size: 12px; }
-.difficulty-options button[aria-pressed="true"] { background: var(--teal); color: white; box-shadow: 0 2px 0 var(--teal-deep); }
-.difficulty-options button:hover:not([aria-pressed="true"]) { background: #e6eedf; }
-#difficulty-note { color: #75846f; font-size: 10px; font-weight: 600; }
 .board-wrap { position: relative; background-color: #fffefa; background-image: radial-gradient(#e5e4da 1px, transparent 1px); background-size: 22px 22px; }
 #puzzle-board { display: block; width: 100%; height: auto; overflow: visible; user-select: none; -webkit-user-select: none; touch-action: none; }
-.shadow-backdrop { fill: #f3f3ed; opacity: .75; }
-.board-caption { fill: #a5ada2; font: 900 10px var(--body); letter-spacing: .18em; text-anchor: middle; }
-.board-spark { fill: #d7ccad; opacity: .75; }
-.board-wave { fill: none; stroke: #c1d8d1; stroke-width: 2; stroke-linecap: round; opacity: .6; }
+.outer-frame { fill: #f5f5ef; fill-opacity: .7; stroke: #a9bdb2; stroke-width: 2.5; stroke-dasharray: 9 7; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .target-piece { cursor: default; outline: none; }
 .target-piece > polygon { fill: #dfe3e2; stroke: #f9faf4; stroke-width: 2; stroke-linejoin: round; vector-effect: non-scaling-stroke; transition: fill .18s; }
 .target-piece > text { fill: #365446; opacity: 0; }
@@ -163,11 +157,11 @@ dialog details p { margin-top: 8px; }
 @keyframes award-in { from { transform: rotate(-15deg) scale(.6); opacity: 0; } to { transform: rotate(-7deg) scale(1); opacity: 1; } }
 
 @media (min-width: 861px) {
-  #puzzle-board { height: clamp(340px, calc(100dvh - 490px), 560px); }
+  #puzzle-board { height: clamp(340px, calc(100dvh - 435px), 560px); }
 }
 
 @media (min-width: 701px) and (max-width: 860px) {
-  #puzzle-board { height: clamp(300px, calc(100dvh - 610px), 480px); }
+  #puzzle-board { height: clamp(300px, calc(100dvh - 555px), 480px); }
 }
 
 @media (max-width: 1080px) {
@@ -219,8 +213,6 @@ dialog details p { margin-top: 8px; }
   .game-layout { gap: 17px; }
   .play-panel { border-radius: 19px; padding-bottom: 9px; }
   .panel-heading { padding: 13px 14px; }
-  .difficulty-bar { padding: 9px 14px; }
-  .difficulty-options button { min-width: 56px; }
   .puzzle-name { gap: 9px; }
   .level-badge { width: 33px; height: 36px; font-size: 18px; }
   .puzzle-name h2 { font-size: 20px; }

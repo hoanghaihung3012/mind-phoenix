@@ -9,15 +9,12 @@ const compactQuery = matchMedia('(max-width: 700px)');
 const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
 const completed = new Set();
 let puzzleIndex = 0;
-let difficulty = 'hard';
 let layout;
 let pieces = [];
 let selected = null;
 let drag = null;
 let hints = false;
 let confettiTimer;
-
-const frameVisible = () => difficulty === 'easy' || hints;
 
 function svgElement(tag, attributes = {}) {
   const element = document.createElementNS('http://www.w3.org/2000/svg', tag);
@@ -60,7 +57,7 @@ function updatePiece(piece) {
   piece.element.setAttribute('aria-pressed', String(piece === selected));
   piece.targetElement.classList.toggle('is-selected', piece === selected);
   piece.targetElement.classList.toggle('is-filled', piece.placed);
-  const targetActive = frameVisible() && piece === selected;
+  const targetActive = hints && piece === selected;
   piece.targetElement.setAttribute('tabindex', targetActive ? '0' : '-1');
   piece.targetElement.setAttribute('aria-disabled', String(!targetActive));
 }
@@ -72,8 +69,8 @@ function selectPiece(piece) {
     updatePiece(item);
   });
   if (piece) {
-    const instruction = frameVisible() ? `Kéo hoặc chạm vào bóng có số ${piece.number} nhé!` :
-      'Nhìn hình mẫu rồi tìm vị trí ở giữa bảng nhé!';
+    const instruction = hints ? `Kéo hoặc chạm vào bóng có số ${piece.number} nhé!` :
+      'Nhìn hình mẫu rồi tìm vị trí trong khung nhé!';
     get('game-status').textContent = `Đã chọn mảnh ${piece.number}: ${piece.name.toLowerCase()}. ${instruction}`;
   }
 }
@@ -115,7 +112,7 @@ function updateProgress() {
 
 function celebrate() {
   const puzzle = PUZZLES[puzzleIndex];
-  completed.add(`${difficulty}:${puzzle.id}`);
+  completed.add(puzzle.id);
   const option = document.querySelector(`[data-puzzle="${puzzle.id}"]`);
   option.classList.add('is-finished');
   option.querySelector('.completion-label').textContent = 'Đã hoàn thành';
@@ -166,36 +163,13 @@ function moveDrag(event) {
 }
 
 function renderFrame() {
-  const visible = frameVisible();
-  const hard = difficulty === 'hard';
-  targets.toggleAttribute('hidden', !visible);
-  targets.setAttribute('aria-hidden', String(!visible));
+  targets.toggleAttribute('hidden', !hints);
+  targets.setAttribute('aria-hidden', String(!hints));
   targets.classList.toggle('targets-hinted', hints);
   const hint = get('hint-toggle');
   hint.setAttribute('aria-pressed', String(hints));
   hint.querySelector('span').textContent = hints ? 'Ẩn gợi ý' : 'Gợi ý';
-  get('difficulty-note').textContent = hard ? (hints ? 'Đang xem cách ghép' : 'Không có khung · bấm Gợi ý để xem') : 'Có khung và gợi ý';
-  get('board-instructions').textContent = hard && !hints ?
-    'Nhìn hình mẫu rồi ghép lại ở giữa bảng. Bí quá thì bấm “Gợi ý” để xem cách ghép nhé!' :
-    'Kéo những mảnh màu vào bóng mờ. Điều kỳ diệu đang chờ bé!';
   pieces.forEach(updatePiece);
-  const decoration = [];
-  if (visible && layout) {
-    const puzzle = PUZZLES[puzzleIndex];
-    const { x, y } = layout.center;
-    const compact = compactQuery.matches;
-    decoration.push(
-      svgElement('ellipse', { class: 'shadow-backdrop', cx: x, cy: y, rx: compact ? 143 : 220, ry: compact ? 110 : 178 }),
-      svgElement('text', { class: 'board-caption', x, y: compact ? 127 : 86 }),
-      svgElement('path', { class: 'board-spark', d: `M${x - (compact ? 118 : 181)} ${y - 112}l3 8 8 3-8 3-3 8-3-8-8-3 8-3Z` }),
-      svgElement('path', { class: 'board-spark', d: `M${x + (compact ? 105 : 180)} ${y + 98}l2 6 6 2-6 2-2 6-2-6-6-2 6-2Z` })
-    );
-    decoration[1].textContent = 'GHÉP MẢNH VÀO ĐÂY';
-    if (puzzle.id === 'boat') {
-      decoration.push(svgElement('path', { class: 'board-wave', d: `M${x - 70} ${y + (compact ? 94 : 136)}q18-10 35 0t35 0t35 0t35 0` }));
-    }
-  }
-  get('board-decoration').replaceChildren(...decoration);
 }
 
 function loadPuzzle(index, preserve = false) {
@@ -208,9 +182,6 @@ function loadPuzzle(index, preserve = false) {
   if (completionDialog.open && !preserve) completionDialog.close();
   const puzzle = PUZZLES[index];
   if (!preserve) hints = false;
-  document.querySelectorAll('[data-difficulty]').forEach((button) => {
-    button.setAttribute('aria-pressed', String(button.dataset.difficulty === difficulty));
-  });
   layout = createBoard(puzzle, compactQuery.matches);
   board.setAttribute('viewBox', `0 0 ${layout.width} ${layout.height}`);
   get('board-title').textContent = `Bảng ghép hình ${puzzle.name.toLowerCase()}`;
@@ -218,7 +189,7 @@ function loadPuzzle(index, preserve = false) {
   get('level-number').textContent = String(index + 1).padStart(2, '0');
   document.querySelectorAll('[data-puzzle]').forEach((button) => {
     button.setAttribute('aria-pressed', String(button.dataset.puzzle === puzzle.id));
-    const finished = completed.has(`${difficulty}:${button.dataset.puzzle}`);
+    const finished = completed.has(button.dataset.puzzle);
     button.classList.toggle('is-finished', finished);
     button.querySelector('.completion-label').textContent = finished ? 'Đã hoàn thành' : '';
   });
@@ -252,13 +223,17 @@ function loadPuzzle(index, preserve = false) {
     updatePiece(state);
     return state;
   });
+  const { frame } = layout;
+  get('board-decoration').replaceChildren(svgElement('rect', {
+    class: 'outer-frame', x: frame.x, y: frame.y, width: frame.width, height: frame.height, rx: 18
+  }));
   renderFrame();
   const count = pieces.filter((piece) => piece.placed).length;
   get('piece-count').innerHTML = `${count} <small>/ 7 mảnh</small>`;
   document.querySelector('.progress-counter').setAttribute('aria-valuenow', count);
   get('game-status').textContent = count === 7 ? 'Bé đã ghép đủ 7 mảnh. Tuyệt vời!' :
     count ? `Bé đã ghép ${count} / 7 mảnh. Tiếp tục nào!` :
-    !frameVisible() ? 'Bé thử ghép lại hình mẫu ở giữa bảng nhé!' : 'Bé thử kéo một mảnh màu vào bóng hình nhé!';
+    hints ? 'Bé thử kéo một mảnh màu vào bóng hình nhé!' : 'Bé ghép 7 mảnh vào trong khung để tạo thành hình mẫu nhé!';
 }
 
 board.addEventListener('pointerdown', (event) => {
@@ -291,7 +266,7 @@ board.addEventListener('pointerup', (event) => {
   piece.targetElement.classList.remove('is-near');
   if (board.hasPointerCapture(event.pointerId)) board.releasePointerCapture(event.pointerId);
   if (near) placePiece(piece);
-  else get('game-status').textContent = frameVisible() ?
+  else get('game-status').textContent = hints ?
     `Mảnh ${piece.number} chưa khớp. Thử đưa gần bóng có số ${piece.number}, hoặc chạm vào bóng đó nhé!` :
     `Mảnh ${piece.number} chưa khớp. Nhìn hình mẫu rồi thử sắp xếp lại nhé!`;
 });
@@ -300,7 +275,7 @@ board.addEventListener('pointerup', (event) => {
 });
 
 board.addEventListener('click', (event) => {
-  if (!frameVisible()) return;
+  if (!hints) return;
   const target = event.target.closest('.target-piece');
   if (!target || !selected) return;
   if (target === selected.targetElement) placePiece(selected);
@@ -309,7 +284,7 @@ board.addEventListener('click', (event) => {
 
 board.addEventListener('keydown', (event) => {
   const target = event.target.closest('.target-piece');
-  if (frameVisible() && target && ['Enter', ' '].includes(event.key) && selected?.targetElement === target) {
+  if (hints && target && ['Enter', ' '].includes(event.key) && selected?.targetElement === target) {
     event.preventDefault();
     placePiece(selected, true);
     return;
@@ -359,13 +334,6 @@ document.querySelectorAll('[data-puzzle]').forEach((button) => {
   button.addEventListener('click', () => {
     const index = PUZZLES.findIndex((puzzle) => puzzle.id === button.dataset.puzzle);
     if (index !== puzzleIndex) loadPuzzle(index);
-  });
-  document.querySelectorAll('[data-difficulty]').forEach((button) => {
-    button.addEventListener('click', () => {
-      if (button.dataset.difficulty === difficulty) return;
-      difficulty = button.dataset.difficulty;
-      loadPuzzle(puzzleIndex);
-    });
   });
 });
 get('reset-puzzle').addEventListener('click', () => loadPuzzle(puzzleIndex));

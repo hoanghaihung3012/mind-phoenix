@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#faf8f2">
-  <meta name="description" content="Ghép 7 mảnh tangram đầy màu sắc thành thuyền buồm, chú mèo và ngôi nhà. Game kéo thả cho bé, tự khớp trong khoảng 15px, chơi được trên điện thoại.">
+  <meta name="description" content="Ghép 7 mảnh tangram đầy màu sắc thành thuyền buồm, chú mèo, ngôi nhà, cây thông, tên lửa và cây nấm. Game kéo thả cho bé, tự khớp trong khoảng 15px, chơi được trên điện thoại.">
   <title>Ghép bóng hình — Mind Phoenix Games</title>
   <link rel="canonical" href="https://mindphoenix.xyz/games/shadow-puzzle/">
   <meta property="og:type" content="website">
@@ -51,14 +51,14 @@
         <div>
           <p class="eyebrow"><span aria-hidden="true">✦</span> Xưởng sáng tạo nho nhỏ</p>
           <h1>Ghép <span>bóng hình</span><svg aria-hidden="true" viewBox="0 0 40 40"><path d="m20 3 4 12 12 5-12 4-4 13-4-13-12-4 12-5Z" fill="#efc45d"/></svg></h1>
-          <p id="board-instructions">Kéo những mảnh màu vào bóng mờ. Điều kỳ diệu đang chờ bé!</p>
+          <p id="board-instructions">Nhìn hình mẫu rồi ghép 7 mảnh vào trong khung. Bí quá thì bấm “Gợi ý” nhé!</p>
         </div>
         <span class="learning-tag"><svg class="icon" aria-hidden="true"><use href="#icon-star"/></svg>7 mảnh nhỏ, vô vàn sáng tạo</span>
       </header>
 
       <div class="game-layout">
         <aside class="puzzle-picker" aria-labelledby="picker-title">
-          <div class="picker-heading"><h2 id="picker-title">Bé muốn ghép gì?</h2><span>3 hình</span></div>
+          <div class="picker-heading"><h2 id="picker-title">Bé muốn ghép gì?</h2><span>6 hình</span></div>
           <div class="puzzle-options">
             <button class="puzzle-option" type="button" data-puzzle="boat" aria-pressed="true">
               <span class="preview-wrap boat-preview"><svg data-preview="boat" aria-hidden="true"></svg></span>
@@ -78,6 +78,24 @@
               <span class="option-check" aria-hidden="true"><svg class="icon"><use href="#icon-check"/></svg></span>
               <span class="completion-label sr-only"></span>
             </button>
+            <button class="puzzle-option" type="button" data-puzzle="tree" aria-pressed="false">
+              <span class="preview-wrap tree-preview"><svg data-preview="tree" aria-hidden="true"></svg></span>
+              <span class="option-copy"><strong>Cây thông</strong><small>Xanh mát quanh năm</small></span>
+              <span class="option-check" aria-hidden="true"><svg class="icon"><use href="#icon-check"/></svg></span>
+              <span class="completion-label sr-only"></span>
+            </button>
+            <button class="puzzle-option" type="button" data-puzzle="rocket" aria-pressed="false">
+              <span class="preview-wrap rocket-preview"><svg data-preview="rocket" aria-hidden="true"></svg></span>
+              <span class="option-copy"><strong>Tên lửa</strong><small>Bay lên vũ trụ</small></span>
+              <span class="option-check" aria-hidden="true"><svg class="icon"><use href="#icon-check"/></svg></span>
+              <span class="completion-label sr-only"></span>
+            </button>
+            <button class="puzzle-option" type="button" data-puzzle="mushroom" aria-pressed="false">
+              <span class="preview-wrap mushroom-preview"><svg data-preview="mushroom" aria-hidden="true"></svg></span>
+              <span class="option-copy"><strong>Cây nấm</strong><small>Chiếc ô xinh xinh</small></span>
+              <span class="option-check" aria-hidden="true"><svg class="icon"><use href="#icon-check"/></svg></span>
+              <span class="completion-label sr-only"></span>
+            </button>
           </div>
           <div class="buddy-card">
             <span class="buddy-spark" aria-hidden="true">✦</span>
@@ -93,14 +111,6 @@
             <div class="puzzle-name"><span class="level-badge" id="level-number">01</span><div><p class="eyebrow">Bức tranh của bé</p><h2 id="puzzle-title">Thuyền buồm</h2></div></div>
             <div class="progress-counter" role="progressbar" aria-label="Số mảnh đã ghép" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0"><svg class="icon" aria-hidden="true"><use href="#icon-check"/></svg><span id="piece-count">0 <small>/ 7 mảnh</small></span></div>
           </header>
-
-          <div class="difficulty-bar">
-            <div class="difficulty-options" role="group" aria-label="Mức độ">
-              <button type="button" data-difficulty="easy" aria-pressed="false">Dễ</button>
-              <button type="button" data-difficulty="hard" aria-pressed="true">Khó</button>
-            </div>
-            <p id="difficulty-note">Không có khung · bấm Gợi ý để xem</p>
-          </div>
 
           <div class="board-wrap">
             <svg id="puzzle-board" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="group" aria-labelledby="board-title" aria-describedby="board-instructions keyboard-instructions">
@@ -120,7 +130,7 @@
               <button class="hint-button" id="hint-toggle" type="button" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-bulb"/></svg><span>Gợi ý</span></button>
             </div>
           </footer>
-          <p class="game-status" id="game-status" role="status">Bé thử ghép lại hình mẫu ở giữa bảng nhé!</p>
+          <p class="game-status" id="game-status" role="status">Bé ghép 7 mảnh vào trong khung để tạo thành hình mẫu nhé!</p>
           <p class="game-notice" id="game-notice" role="alert" hidden></p>
           <p class="sr-only" id="keyboard-instructions">Dùng Tab để đến mảnh ghép. Nhấn Enter hoặc dấu cách để chọn, dùng phím mũi tên để di chuyển, giữ Shift để đi chậm, nhấn Enter để ghép. Nhấn Escape để bỏ chọn.</p>
         </section>
@@ -135,12 +145,12 @@
     <p class="eyebrow">Chơi thật dễ, vui thật nhiều</p>
     <h2 id="help-title">Cùng ghép hình nào!</h2>
     <ol class="help-steps">
-      <li><strong>Chọn một bức tranh.</strong> Thuyền buồm, chú mèo hay ngôi nhà?</li>
-      <li><strong>Mặc định là mức Khó.</strong> Không có khung; bé nhìn hình mẫu rồi ghép lại ở giữa bảng. Bí quá thì bấm “Gợi ý” để hiện cách ghép (khung màu có số), bấm lần nữa để ẩn. Mức Dễ luôn có khung bóng mờ. Đổi mức độ hoặc đổi hình sẽ bắt đầu lại và ẩn gợi ý.</li>
-      <li><strong>Ghép đủ 7 mảnh.</strong> Các mảnh đã đúng chiều, không cần xoay. Cả hai mức đều tự hút trong khoảng 15px khi gần đúng vị trí; thả tay để ghép chặt. Khi khung đang hiện, bé cũng có thể chạm một mảnh rồi chạm đúng vị trí trong bóng mờ.</li>
+      <li><strong>Chọn một bức tranh.</strong> Thuyền buồm, chú mèo, ngôi nhà, cây thông, tên lửa hay cây nấm?</li>
+      <li><strong>Nhìn hình mẫu, ghép vào khung.</strong> Trên bảng chỉ có một khung bao bên ngoài; bé tự tìm cách sắp 7 mảnh bên trong. Bí quá thì bấm “Gợi ý” để hiện cách xếp (bóng màu có số), bấm “Ẩn gợi ý” để tắt. Đổi hình hoặc làm lại sẽ tắt gợi ý.</li>
+      <li><strong>Ghép đủ 7 mảnh.</strong> Các mảnh đã đúng chiều, không cần xoay. Mảnh tự hút trong khoảng 15px khi gần đúng vị trí; thả tay để ghép chặt. Khi đang bật gợi ý, bé cũng có thể chạm một mảnh rồi chạm đúng vị trí trong bóng mờ.</li>
     </ol>
     <p class="dialog-note">Không có giới hạn thời gian. Ghép chưa đúng cũng không sao, cứ thử lại nhé!</p>
-    <details><summary>Chơi bằng bàn phím</summary><p>Tab đến mảnh, Enter hoặc dấu cách để chọn. Dùng mũi tên để di chuyển, giữ Shift để đi chậm; Enter để ghép khi gần đúng. Escape bỏ chọn hoặc hủy lần kéo. Khi khung đang hiện (mức Dễ hoặc đang bật Gợi ý), bé có thể Tab đến vị trí được đánh dấu rồi nhấn Enter để ghép.</p></details>
+    <details><summary>Chơi bằng bàn phím</summary><p>Tab đến mảnh, Enter hoặc dấu cách để chọn. Dùng mũi tên để di chuyển, giữ Shift để đi chậm; Enter để ghép khi gần đúng. Escape bỏ chọn hoặc hủy lần kéo. Khi đang bật gợi ý, bé có thể Tab đến vị trí được đánh dấu rồi nhấn Enter để ghép.</p></details>
     <button class="primary-button" type="button" data-close-dialog>Đã hiểu, chơi thôi!<svg class="icon" aria-hidden="true"><use href="#icon-arrow"/></svg></button>
   </dialog>
 

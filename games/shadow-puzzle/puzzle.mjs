@@ -56,6 +56,51 @@ export const PUZZLES = [
       [[0, 2], [1, 3], [0, 3]],
       [[3, 2], [3, 3], [2, 3]]
     ]
+  },
+  {
+    id: 'tree',
+    name: 'Cây thông',
+    caption: 'Xanh mát quanh năm',
+    celebration: 'Cây thông vươn cao rồi! Bé thật khéo tay.',
+    polygons: [
+      [[1, 2], [1, 4], [-1, 4]],
+      [[1, 2], [3, 4], [1, 4]],
+      [[0, 2], [2, 2], [1, 1]],
+      [[.5, 4], [1.5, 4], [1.5, 5], [.5, 5]],
+      [[-.5, 6], [.5, 5], [1.5, 5], [.5, 6]],
+      [[0, 1], [1, 0], [1, 1]],
+      [[1, 0], [2, 1], [1, 1]]
+    ]
+  },
+  {
+    id: 'rocket',
+    name: 'Tên lửa',
+    caption: 'Bay lên vũ trụ',
+    celebration: 'Ba, hai, một… cất cánh! Tên lửa của bé bay vút lên rồi.',
+    polygons: [
+      [[0, 1], [2, 1], [0, 3]],
+      [[2, 1], [2, 3], [0, 3]],
+      [[0, 1], [2, 1], [1, 0]],
+      [[.5, 3], [1.5, 3], [1.5, 4], [.5, 4]],
+      [[.5, 4], [1.5, 4], [2.5, 5], [1.5, 5]],
+      [[0, 2], [0, 3], [-1, 3]],
+      [[2, 2], [2, 3], [3, 3]]
+    ]
+  },
+  {
+    id: 'mushroom',
+    name: 'Cây nấm',
+    caption: 'Chiếc ô xinh xinh',
+    celebration: 'Cây nấm xinh xắn đã mọc lên. Bé giỏi quá!',
+    polygons: [
+      [[0, 2], [2, 0], [2, 2]],
+      [[2, 0], [4, 2], [2, 2]],
+      [[2.5, 4], [4.5, 4], [3.5, 3]],
+      [[1.5, 2], [2.5, 2], [2.5, 3], [1.5, 3]],
+      [[.5, 5], [1.5, 4], [2.5, 4], [1.5, 5]],
+      [[1.5, 3], [2.5, 3], [1.5, 4]],
+      [[2.5, 3], [2.5, 4], [1.5, 4]]
+    ]
   }
 ];
 
@@ -94,7 +139,14 @@ export function createBoard(puzzle, compact = false) {
       start: { x: slots[index][0] - pieceWidth / 2, y: slots[index][1] - pieceHeight / 2 }
     };
   });
-  return { width, height, center, pieces };
+  const padding = compact ? 10 : 14;
+  const frame = {
+    x: origin.x + silhouette.x * scale - padding,
+    y: origin.y + silhouette.y * scale - padding,
+    width: silhouette.width * scale + padding * 2,
+    height: silhouette.height * scale + padding * 2
+  };
+  return { width, height, center, frame, pieces };
 }
 
 export function constrainPosition(position, piece, board) {
