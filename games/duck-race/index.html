@@ -19,6 +19,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="game.css">
+  <link rel="stylesheet" href="../language.css">
   <script type="module" src="game.js"></script>
 </head>
 <body>
@@ -130,6 +131,7 @@ Long</textarea>
       <header class="race-toolbar">
         <div><p class="eyebrow"><span aria-hidden="true"></span>Giờ ra chơi!</p><h2 id="race-title">Đường đua Phú Thọ</h2></div>
         <div class="toolbar-actions">
+          <div class="lang-toggle" role="group" aria-label="Language" hidden><button type="button" data-lang="vi" aria-pressed="true" lang="vi">VI</button><button type="button" data-lang="en" aria-pressed="false" lang="en">EN</button></div>
           <button class="scene-button" id="sound-toggle" type="button" aria-label="Tắt âm thanh" aria-pressed="true" title="Tắt âm thanh"><svg class="icon" aria-hidden="true"><use href="#icon-sound"/></svg></button>
           <button class="scene-button" id="expand-toggle" type="button" aria-label="Phóng to đường đua" aria-pressed="false" title="Phóng to đường đua"><svg class="icon" aria-hidden="true"><use href="#icon-expand"/></svg></button>
         </div>

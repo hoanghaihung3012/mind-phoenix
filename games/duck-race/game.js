@@ -1,7 +1,10 @@
 import { MAX_NAME_LENGTH, MAX_PARTICIPANTS, createRace, parseNames, progressAt, readNamesFile, remainingNames, selectRacers, shuffle, validateSetup } from './race.mjs';
 import { createGameAudio } from '../audio.mjs';
 import { class46Names } from '../class-4-6.mjs';
+import { english, initGameLanguage } from '../i18n.mjs';
 
+const i18n = initGameLanguage();
+const text = i18n.text;
 const get = (id) => document.getElementById(id);
 const namesInput = get('participants');
 const countInput = get('winner-count');
@@ -35,7 +38,7 @@ let trackBottom = 0;
 let importing = false;
 let storageAvailable = true;
 let nextQuackAt = 0;
-const audio = createGameAudio({ theme: 'duck', button: get('sound-toggle'), onError: reportError });
+const audio = createGameAudio({ theme: 'duck', button: get('sound-toggle'), i18n, onError: reportError });
 
 function readSetup() {
   return {
@@ -48,7 +51,7 @@ function readSetup() {
 }
 
 function showNotice(message) {
-  get('game-notice').textContent = message;
+  text(get('game-notice'), message);
   get('game-notice').hidden = false;
 }
 
@@ -59,8 +62,8 @@ function setExpanded(expanded) {
   const button = get('expand-toggle');
   const label = expanded ? 'Thu nhỏ đường đua' : 'Phóng to đường đua';
   button.setAttribute('aria-pressed', String(expanded));
-  button.setAttribute('aria-label', label);
-  button.title = label;
+  i18n.attr(button, 'aria-label', label);
+  i18n.attr(button, 'title', label);
   button.focus();
 }
 
@@ -123,7 +126,7 @@ function updateControls() {
   namesInput.setAttribute('aria-invalid', String(invalidNames));
   countInput.max = Math.max(1, settings.names.length);
   countInput.setAttribute('aria-invalid', String(!Number.isInteger(settings.count) || settings.count < 1 || settings.count > settings.names.length));
-  get('setup-error').textContent = error;
+  text(get('setup-error'), error, validateSetup(settings.names, settings, 'en'));
   get('setup-error').hidden = !error;
   get('shuffle-names').disabled = locked || invalidNames || settings.names.length < 2;
   get('clear-names').disabled = locked || !namesInput.value.trim();
@@ -133,7 +136,7 @@ function updateControls() {
     phase === 'countdown' ? 'Chuẩn bị…' : phase === 'finished' && raceSettings?.remove ? 'Đua lượt tiếp' :
     phase === 'finished' ? 'Đua lại' : 'Bắt đầu đua';
   actionButtons.forEach((button) => {
-    button.querySelector('span').textContent = importing ? 'Đang đọc file…' : label;
+    text(button.querySelector('span'), importing ? 'Đang đọc file…' : label);
     button.querySelector('use').setAttribute('href', phase === 'running' ? '#icon-pause' : '#icon-play');
     button.disabled = !context || !backgroundContext || importing || phase === 'countdown' || (!isActive() && Boolean(error));
   });
@@ -154,12 +157,13 @@ function resetRace({ save = false } = {}) {
   const settings = readSetup();
   const validNames = settings.names.length <= MAX_PARTICIPANTS && settings.names.every((name) => [...name].length <= MAX_NAME_LENGTH);
   preview = validNames ? settings.names.map((name, id) => ({ name, id })) : [];
-  get('leader-caption').textContent = 'Cùng cổ vũ nào';
-  get('leader-name').textContent = settings.mode === 'last' ? 'Ai sẽ về đích cuối cùng?' : 'Ai sẽ về đích đầu tiên?';
-  get('race-status').textContent = !settings.names.length ? 'Thêm tên để những chú vịt vào đường đua.' :
-    !validNames ? 'Chỉnh danh sách để chuẩn bị cuộc đua.' : `${settings.names.length} chú vịt đã sẵn sàng xuất phát!`;
+  text(get('leader-caption'), 'Cùng cổ vũ nào');
+  text(get('leader-name'), settings.mode === 'last' ? 'Ai sẽ về đích cuối cùng?' : 'Ai sẽ về đích đầu tiên?');
+  text(get('race-status'), !settings.names.length ? 'Thêm tên để những chú vịt vào đường đua.' :
+    !validNames ? 'Chỉnh danh sách để chuẩn bị cuộc đua.' : `${settings.names.length} chú vịt đã sẵn sàng xuất phát!`,
+  !settings.names.length ? 'Add names to put ducks on the track.' : !validNames ? 'Edit the list to prepare the race.' : `${settings.names.length} ducks are ready to race!`);
   get('race-timer').textContent = '0.00';
-  get('timer-total').textContent = `/ ${settings.duration} giây`;
+  text(get('timer-total'), `/ ${settings.duration} giây`, `/ ${settings.duration} seconds`);
   updateControls();
   if (save) persistSetup();
 }
@@ -189,11 +193,11 @@ function beginRace() {
   get('game-notice').hidden = true;
   get('countdown').hidden = false;
   get('countdown-number').textContent = '3';
-  get('race-status').textContent = 'Vào vị trí! Cuộc đua sắp bắt đầu.';
-  get('leader-caption').textContent = 'Sẵn sàng xuất phát';
-  get('leader-name').textContent = `${racers.length} chú vịt cùng tranh tài`;
+  text(get('race-status'), 'Vào vị trí! Cuộc đua sắp bắt đầu.', 'On your marks! The race is about to begin.');
+  text(get('leader-caption'), 'Sẵn sàng xuất phát', 'Ready to race');
+  text(get('leader-name'), `${racers.length} chú vịt cùng tranh tài`, `${racers.length} ducks in the race`);
   get('race-timer').textContent = '0.00';
-  get('timer-total').textContent = `/ ${settings.duration} giây`;
+  text(get('timer-total'), `/ ${settings.duration} giây`, `/ ${settings.duration} seconds`);
   updateControls();
   persistSetup();
   if (matchMedia('(max-width: 840px)').matches) {
@@ -212,7 +216,7 @@ function pauseRace() {
   audio.setMusicPlaying(false);
   audio.tone(330, .1, { volume: .06 });
   get('race-timer').textContent = (elapsed / 1000).toFixed(2);
-  get('race-status').textContent = 'Cuộc đua đang tạm dừng.';
+  text(get('race-status'), 'Cuộc đua đang tạm dừng.', 'The race is paused.');
   updateControls();
 }
 
@@ -225,7 +229,7 @@ function actOnRace() {
     audio.setMusicPlaying(true);
     audio.tone(660, .1, { volume: .06 });
     get('game-notice').hidden = true;
-    get('race-status').textContent = `${racers.length} chú vịt đang tăng tốc. Cùng cổ vũ nào!`;
+    text(get('race-status'), `${racers.length} chú vịt đang tăng tốc. Cùng cổ vũ nào!`, `${racers.length} ducks are speeding up. Cheer them on!`);
     updateControls();
   } else if (phase !== 'countdown') beginRace();
 }
@@ -243,9 +247,10 @@ function finishRace(now) {
   }
   lastResult = { racers, selected, settings: raceSettings, remaining };
   get('race-timer').textContent = raceSettings.duration.toFixed(2);
-  get('race-status').textContent = `Đã về đích! Đã chọn ${selected.length} người ${raceSettings.mode === 'first' ? 'về đầu' : 'về cuối'}.`;
-  get('leader-caption').textContent = 'Về đích đầu tiên';
-  get('leader-name').textContent = racers.find((racer) => racer.rank === 1).name;
+  text(get('race-status'), `Đã về đích! Đã chọn ${selected.length} người ${raceSettings.mode === 'first' ? 'về đầu' : 'về cuối'}.`, `Finished! Picked ${selected.length} ${raceSettings.mode === 'first' ? 'first' : 'last'} finisher${selected.length === 1 ? '' : 's'}.`);
+  text(get('leader-caption'), 'Về đích đầu tiên', 'First to finish');
+  const leader = racers.find((racer) => racer.rank === 1).name;
+  text(get('leader-name'), leader, leader);
   updateControls();
   renderResults();
   resultsDialog.showModal();
@@ -253,15 +258,15 @@ function finishRace(now) {
 }
 
 function renderResults() {
-  get('results-title').textContent = raceSettings.mode === 'first' ? 'Chúc mừng!' : 'Đã tìm thấy!';
-  get('results-subtitle').textContent = `${selected.length} người ${raceSettings.mode === 'first' ? 'về đầu' : 'về cuối'} trong cuộc đua ${racers.length} chú vịt`;
+  text(get('results-title'), raceSettings.mode === 'first' ? 'Chúc mừng!' : 'Đã tìm thấy!', raceSettings.mode === 'first' ? 'Congratulations!' : 'Found them!');
+  text(get('results-subtitle'), `${selected.length} người ${raceSettings.mode === 'first' ? 'về đầu' : 'về cuối'} trong cuộc đua ${racers.length} chú vịt`, `${selected.length} ${raceSettings.mode === 'first' ? 'first' : 'last'} finisher${selected.length === 1 ? '' : 's'} in a race of ${racers.length} duck${racers.length === 1 ? '' : 's'}`);
   get('selected-list').replaceChildren();
   selected.forEach((racer, index) => {
     const item = document.createElement('li');
     item.style.setProperty('--duck-color', colors[racer.id % colors.length]);
     item.innerHTML = '<svg class="winner-duck" aria-hidden="true"><use href="#icon-duck"/></svg><div class="winner-info"><strong></strong><span></span></div><span class="winner-index"></span>';
     item.querySelector('strong').textContent = racer.name;
-    item.querySelector('.winner-info span').textContent = `Hạng ${racer.rank} / ${racers.length} · ${(racer.finishAt / 1000).toFixed(2)} giây`;
+    text(item.querySelector('.winner-info span'), `Hạng ${racer.rank} / ${racers.length} · ${(racer.finishAt / 1000).toFixed(2)} giây`, `Rank ${racer.rank} / ${racers.length} · ${(racer.finishAt / 1000).toFixed(2)} seconds`);
     item.querySelector('.winner-index').textContent = index + 1;
     get('selected-list').append(item);
   });
@@ -277,12 +282,17 @@ function renderResults() {
     });
     get('ranking-list').append(item);
   });
-  get('removal-note').textContent = raceSettings.remove ?
+  let note = raceSettings.remove ?
     `Đã loại ${selected.length} người được chọn. Còn ${lastResult.remaining.length} tên trong danh sách.` :
     'Danh sách được giữ nguyên cho lượt đua tiếp theo.';
-  if (get('race-again').disabled) get('removal-note').textContent += ' Đóng kết quả để thêm tên hoặc giảm số người chọn.';
-  get('race-again').querySelector('span').textContent = raceSettings.remove ? 'Đua lượt tiếp' : 'Đua lại';
-  get('result-feedback').textContent = '';
+  let noteEn = raceSettings.remove ? `Removed ${selected.length} picked names. ${lastResult.remaining.length} names remain.` : 'The list is kept for the next race.';
+  if (get('race-again').disabled) {
+    note += ' Đóng kết quả để thêm tên hoặc giảm số người chọn.';
+    noteEn += ' Close the results to add names or pick fewer finishers.';
+  }
+  text(get('removal-note'), note, noteEn);
+  text(get('race-again').querySelector('span'), raceSettings.remove ? 'Đua lượt tiếp' : 'Đua lại');
+  text(get('result-feedback'), '');
   get('copy-fallback').hidden = true;
   resultsDialog.querySelector('details').open = false;
 }
@@ -293,9 +303,9 @@ async function importNames() {
   const feedback = get('import-feedback');
   feedback.hidden = false;
   feedback.classList.remove('error');
-  feedback.textContent = 'Đang đọc file trên thiết bị…';
+  text(feedback, 'Đang đọc file trên thiết bị…', 'Reading the file on your device…');
   importing = true;
-  get('import-names').querySelector('span').textContent = 'Đang đọc file…';
+  text(get('import-names').querySelector('span'), 'Đang đọc file…');
   updateControls();
   let importedNames;
   try {
@@ -303,16 +313,16 @@ async function importNames() {
   } catch (error) {
     console.error('Không thể nhập danh sách đua vịt.', error);
     feedback.classList.add('error');
-    feedback.textContent = `${error.message} Danh sách hiện tại được giữ nguyên.`;
+    text(feedback, `${error.message} Danh sách hiện tại được giữ nguyên.`, `${error.englishMessage ?? error.message} The current list is unchanged.`);
   } finally {
     importing = false;
     fileInput.value = '';
-    get('import-names').querySelector('span').textContent = 'Nhập file .txt';
+    text(get('import-names').querySelector('span'), 'Nhập file .txt');
   }
   if (importedNames) {
     namesInput.value = importedNames.join('\n');
     resetRace({ save: true });
-    feedback.textContent = `Đã nhập ${importedNames.length} tên từ ${file.name}.`;
+    text(feedback, `Đã nhập ${importedNames.length} tên từ ${file.name}.`, `Imported ${importedNames.length} names from ${file.name}.`);
   }
   updateControls();
 }
@@ -435,7 +445,7 @@ function drawSchool(ctx, w, h) {
   const signHeight = Math.max(19, Math.min(35, schoolHeight * .25));
   const signY = base - schoolHeight * .36;
   rounded(ctx, w / 2 - signWidth / 2, signY, signWidth, signHeight, 4, '#fdf6d8', '#c28b60', 1.5);
-  fittedText(ctx, 'TRƯỜNG TIỂU HỌC PHÚ THỌ', w / 2, signY + signHeight / 2 + 1, signWidth - 16, Math.min(21, signHeight * .52), '#9e5146', 900);
+  fittedText(ctx, i18n.t('TRƯỜNG TIỂU HỌC PHÚ THỌ', 'PHÚ THỌ PRIMARY SCHOOL'), w / 2, signY + signHeight / 2 + 1, signWidth - 16, Math.min(21, signHeight * .52), '#9e5146', 900);
   const flagX = x + schoolWidth * .91;
   const flagTop = y - schoolHeight * .43;
   ctx.strokeStyle = '#5b7374';
@@ -535,7 +545,7 @@ function drawScenery(ctx, w, h) {
   ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(startingLine(w), waterTop + 3); ctx.lineTo(startingLine(w), waterBottom - 5); ctx.stroke();
   ctx.setLineDash([]);
-  fittedText(ctx, 'ĐÍCH', finishX, waterBottom + 16, 60, 12, '#244c4b', 900);
+  fittedText(ctx, i18n.t('ĐÍCH', 'FINISH'), finishX, waterBottom + 16, 60, 12, '#244c4b', 900);
   for (let index = 0; index < 13; index++) {
     const x = w * (index + .4) / 13;
     ctx.strokeStyle = '#5c9a78';
@@ -652,8 +662,8 @@ function drawFrame(now) {
   const leaders = [...positions].sort((a, b) => b.progress - a.progress || (a.racer.rank ?? a.racer.id) - (b.racer.rank ?? b.racer.id));
   if (phase === 'running' && now - lastHudUpdate > 90) {
     get('race-timer').textContent = (elapsed / 1000).toFixed(2);
-    get('leader-caption').textContent = 'Đang dẫn đầu';
-    get('leader-name').textContent = leaders[0].racer.name;
+    text(get('leader-caption'), 'Đang dẫn đầu', 'In the lead');
+    text(get('leader-name'), leaders[0].racer.name, leaders[0].racer.name);
     lastHudUpdate = now;
   }
   positions.forEach(({ racer, x, y }) => {
@@ -697,7 +707,7 @@ function animate(now) {
       phase = 'running';
       startedAt = countdownEndsAt;
       get('countdown').hidden = true;
-      get('race-status').textContent = `${racers.length} chú vịt đang tăng tốc. Cùng cổ vũ nào!`;
+      text(get('race-status'), `${racers.length} chú vịt đang tăng tốc. Cùng cổ vũ nào!`, `${racers.length} ducks are speeding up. Cheer them on!`);
       updateControls();
       audio.tone(880, .22);
     } else {
@@ -750,7 +760,7 @@ get('add-class-4-6').addEventListener('click', () => {
   const feedback = get('import-feedback');
   feedback.hidden = false;
   feedback.classList.remove('error');
-  feedback.textContent = `Đã thêm ${class46Names.length} học sinh lớp 4/6.`;
+  text(feedback, `Đã thêm ${class46Names.length} học sinh lớp 4/6.`, `Added ${class46Names.length} students from class 4/6.`);
   resetRace({ save: true });
   namesInput.focus();
 });
@@ -764,10 +774,12 @@ get('numbers-form').addEventListener('submit', (event) => {
   event.preventDefault();
   const from = Number(get('number-from').value);
   const to = Number(get('number-to').value);
-  const error = !Number.isSafeInteger(from) || !Number.isSafeInteger(to) || from < 1 || to > 99999 || to < from ?
+  const invalidRange = !Number.isSafeInteger(from) || !Number.isSafeInteger(to) || from < 1 || to > 99999 || to < from;
+  const tooMany = to - from + 1 > MAX_PARTICIPANTS;
+  const error = invalidRange ?
     'Nhập hai số nguyên từ 1 đến 99999, số cuối không nhỏ hơn số đầu.' :
-    to - from + 1 > MAX_PARTICIPANTS ? 'Dãy số chỉ được có tối đa 200 người chơi.' : '';
-  get('numbers-error').textContent = error;
+    tooMany ? 'Dãy số chỉ được có tối đa 200 người chơi.' : '';
+  text(get('numbers-error'), error, invalidRange ? 'Enter two integers from 1 to 99999, with the last not smaller than the first.' : tooMany ? 'The number list can have at most 200 participants.' : '');
   get('numbers-error').hidden = !error;
   if (error) return;
   namesInput.value = Array.from({ length: to - from + 1 }, (_, index) => String(from + index)).join('\n');
@@ -786,19 +798,19 @@ document.querySelectorAll('[data-close-dialog]').forEach((button) => {
 get('race-again').addEventListener('click', () => { resultsDialog.close(); beginRace(); });
 get('copy-results').addEventListener('click', async () => {
   if (!lastResult) return;
-  const text = `Đua vịt — Trường Tiểu học Phú Thọ\n${lastResult.settings.mode === 'first' ? 'Người về đầu' : 'Người về cuối'}:\n` +
-    lastResult.selected.map((racer, index) => `${index + 1}. ${racer.name} (hạng ${racer.rank}/${lastResult.racers.length})`).join('\n');
+  const content = i18n.t(`Đua vịt — Trường Tiểu học Phú Thọ\n${lastResult.settings.mode === 'first' ? 'Người về đầu' : 'Người về cuối'}:\n`, `Duck Race — Phú Thọ Primary School\n${lastResult.settings.mode === 'first' ? 'First finishers' : 'Last finishers'}:\n`) +
+    lastResult.selected.map((racer, index) => `${index + 1}. ${racer.name} (${i18n.t('hạng', 'rank')} ${racer.rank}/${lastResult.racers.length})`).join('\n');
   try {
     if (!navigator.clipboard) throw new Error('Clipboard API không khả dụng.');
-    await navigator.clipboard.writeText(text);
-    get('result-feedback').textContent = 'Đã sao chép kết quả!';
+    await navigator.clipboard.writeText(content);
+    text(get('result-feedback'), 'Đã sao chép kết quả!', 'Results copied!');
   } catch (error) {
     console.error('Không thể sao chép kết quả tự động.', error);
-    get('copy-fallback').value = text;
+    get('copy-fallback').value = content;
     get('copy-fallback').hidden = false;
     get('copy-fallback').focus();
     get('copy-fallback').select();
-    get('result-feedback').textContent = 'Không thể sao chép tự động. Nội dung đã được chọn; nhấn Ctrl+C hoặc Cmd+C để sao chép.';
+    text(get('result-feedback'), 'Không thể sao chép tự động. Nội dung đã được chọn; nhấn Ctrl+C hoặc Cmd+C để sao chép.', 'Could not copy automatically. The text is selected; press Ctrl+C or Cmd+C to copy.');
   }
 });
 get('expand-toggle').addEventListener('click', () => setExpanded(!panel.classList.contains('is-expanded')));
@@ -821,6 +833,7 @@ document.addEventListener('visibilitychange', () => {
 
 restoreSetup();
 resetRace();
+i18n.onChange(resizeScene);
 if (!context || !backgroundContext) {
   showNotice('Trình duyệt không hỗ trợ Canvas. Hãy mở game bằng trình duyệt hiện đại để hiển thị đường đua.');
 } else {

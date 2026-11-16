@@ -1,6 +1,9 @@
 import { PUZZLES, constrainPosition, createBoard, isWithinSnap } from './puzzle.mjs';
 import { createGameAudio } from '../audio.mjs';
+import { english, initGameLanguage } from '../i18n.mjs';
 
+const i18n = initGameLanguage();
+const text = i18n.text;
 const get = (id) => document.getElementById(id);
 const board = get('puzzle-board');
 const targets = get('targets');
@@ -17,10 +20,10 @@ let drag = null;
 let hints = false;
 let confettiTimer;
 const audio = createGameAudio({
-  theme: 'puzzle', button: get('sound-toggle'),
+  theme: 'puzzle', button: get('sound-toggle'), i18n,
   onError: (message, error) => {
     console.error(message, error);
-    get('game-notice').textContent = message;
+    text(get('game-notice'), message);
     get('game-notice').hidden = false;
   }
 });
@@ -81,7 +84,7 @@ function selectPiece(piece) {
   if (piece) {
     const instruction = hints ? `Kéo hoặc chạm vào bóng có số ${piece.number} nhé!` :
       'Nhìn hình mẫu rồi tìm vị trí trong khung nhé!';
-    get('game-status').textContent = `Đã chọn mảnh ${piece.number}: ${piece.name.toLowerCase()}. ${instruction}`;
+    text(get('game-status'), `Đã chọn mảnh ${piece.number}: ${piece.name.toLowerCase()}. ${instruction}`, `Selected piece ${piece.number}: ${english(piece.name).toLowerCase()}. ${hints ? `Drag or tap target ${piece.number}!` : 'Look at the model and find its place in the frame!'}`);
   }
 }
 
@@ -90,7 +93,7 @@ function screenMatrix() {
   if (matrix && matrix.a * matrix.d - matrix.b * matrix.c !== 0) return matrix;
   const message = 'Chưa thể xác định vị trí bảng ghép. Hãy tải lại trang rồi thử lại nhé.';
   console.error(message);
-  get('game-notice').textContent = message;
+  text(get('game-notice'), message, 'Could not locate the puzzle board. Reload the page and try again.');
   get('game-notice').hidden = false;
   return null;
 }
@@ -116,8 +119,9 @@ function cancelDrag() {
 function updateProgress() {
   const count = pieces.filter((piece) => piece.placed).length;
   get('piece-count').innerHTML = `${count} <small>/ 7 mảnh</small>`;
+  text(get('piece-count').querySelector('small'), '/ 7 mảnh');
   document.querySelector('.progress-counter').setAttribute('aria-valuenow', count);
-  get('game-status').textContent = count === 7 ? 'Bé đã ghép đủ 7 mảnh. Tuyệt vời!' : `Khớp rồi! Bé đã ghép ${count} / 7 mảnh. Tiếp tục nào!`;
+  text(get('game-status'), count === 7 ? 'Bé đã ghép đủ 7 mảnh. Tuyệt vời!' : `Khớp rồi! Bé đã ghép ${count} / 7 mảnh. Tiếp tục nào!`, count === 7 ? 'All 7 pieces placed. Wonderful!' : `It fits! ${count} / 7 pieces placed. Keep going!`);
 }
 
 function celebrate() {
@@ -127,8 +131,8 @@ function celebrate() {
   completed.add(puzzle.id);
   const option = document.querySelector(`[data-puzzle="${puzzle.id}"]`);
   option.classList.add('is-finished');
-  option.querySelector('.completion-label').textContent = 'Đã hoàn thành';
-  get('completion-message').textContent = puzzle.celebration;
+  text(option.querySelector('.completion-label'), 'Đã hoàn thành');
+  text(get('completion-message'), puzzle.celebration);
   renderPreview(puzzle, get('finished-preview'));
   completionDialog.showModal();
   if (motionQuery.matches) return;
@@ -181,7 +185,7 @@ function renderFrame() {
   targets.classList.toggle('targets-hinted', hints);
   const hint = get('hint-toggle');
   hint.setAttribute('aria-pressed', String(hints));
-  hint.querySelector('span').textContent = hints ? 'Ẩn gợi ý' : 'Gợi ý';
+  text(hint.querySelector('span'), hints ? 'Ẩn gợi ý' : 'Gợi ý');
   pieces.forEach(updatePiece);
 }
 
@@ -198,14 +202,14 @@ function loadPuzzle(index, preserve = false) {
   if (!preserve) hints = false;
   layout = createBoard(puzzle, compactQuery.matches);
   board.setAttribute('viewBox', `0 0 ${layout.width} ${layout.height}`);
-  get('board-title').textContent = `Bảng ghép hình ${puzzle.name.toLowerCase()}`;
-  get('puzzle-title').textContent = puzzle.name;
+  text(get('board-title'), `Bảng ghép hình ${puzzle.name.toLowerCase()}`, `${english(puzzle.name)} puzzle board`);
+  text(get('puzzle-title'), puzzle.name);
   get('level-number').textContent = String(index + 1).padStart(2, '0');
   document.querySelectorAll('[data-puzzle]').forEach((button) => {
     button.setAttribute('aria-pressed', String(button.dataset.puzzle === puzzle.id));
     const finished = completed.has(button.dataset.puzzle);
     button.classList.toggle('is-finished', finished);
-    button.querySelector('.completion-label').textContent = finished ? 'Đã hoàn thành' : '';
+    text(button.querySelector('.completion-label'), finished ? 'Đã hoàn thành' : '');
   });
   targets.replaceChildren();
   piecesLayer.replaceChildren();
@@ -217,6 +221,7 @@ function loadPuzzle(index, preserve = false) {
       class: 'target-piece', 'data-id': state.id, role: 'button', tabindex: '-1',
       'aria-label': `Vị trí mảnh ${state.number}: ${state.name.toLowerCase()}`
     });
+    i18n.attr(target, 'aria-label', `Vị trí mảnh ${state.number}: ${state.name.toLowerCase()}`, `Target for piece ${state.number}: ${english(state.name).toLowerCase()}`);
     target.style.setProperty('--piece-color', state.color);
     target.setAttribute('transform', `translate(${state.target.x} ${state.target.y})`);
     target.append(svgElement('polygon', { points: polygonPoints(state.points) }), numberLabel(state));
@@ -225,6 +230,7 @@ function loadPuzzle(index, preserve = false) {
       class: 'puzzle-piece', 'data-id': state.id, role: 'button', tabindex: '0',
       'aria-label': `Mảnh ${state.number}: ${state.name.toLowerCase()}`
     });
+    i18n.attr(element, 'aria-label', `Mảnh ${state.number}: ${state.name.toLowerCase()}`, `Piece ${state.number}: ${english(state.name).toLowerCase()}`);
     element.style.setProperty('--piece-color', state.color);
     element.append(
       svgElement('polygon', { class: 'piece-hit', points: polygonPoints(state.points) }),
@@ -244,10 +250,12 @@ function loadPuzzle(index, preserve = false) {
   renderFrame();
   const count = pieces.filter((piece) => piece.placed).length;
   get('piece-count').innerHTML = `${count} <small>/ 7 mảnh</small>`;
+  text(get('piece-count').querySelector('small'), '/ 7 mảnh');
   document.querySelector('.progress-counter').setAttribute('aria-valuenow', count);
-  get('game-status').textContent = count === 7 ? 'Bé đã ghép đủ 7 mảnh. Tuyệt vời!' :
+  text(get('game-status'), count === 7 ? 'Bé đã ghép đủ 7 mảnh. Tuyệt vời!' :
     count ? `Bé đã ghép ${count} / 7 mảnh. Tiếp tục nào!` :
-    hints ? 'Bé thử kéo một mảnh màu vào bóng hình nhé!' : 'Bé ghép 7 mảnh vào trong khung để tạo thành hình mẫu nhé!';
+    hints ? 'Bé thử kéo một mảnh màu vào bóng hình nhé!' : 'Bé ghép 7 mảnh vào trong khung để tạo thành hình mẫu nhé!',
+  count === 7 ? 'All 7 pieces placed. Wonderful!' : count ? `${count} / 7 pieces placed. Keep going!` : hints ? 'Try dragging a colored piece onto its target!' : 'Fit all 7 pieces inside the frame to match the model!');
 }
 
 board.addEventListener('pointerdown', (event) => {
@@ -282,9 +290,9 @@ board.addEventListener('pointerup', (event) => {
   if (near) placePiece(piece);
   else {
     audio.tone(330, .12, { volume: .055, to: 280 });
-    get('game-status').textContent = hints ?
+    text(get('game-status'), hints ?
       `Mảnh ${piece.number} chưa khớp. Thử đưa gần bóng có số ${piece.number}, hoặc chạm vào bóng đó nhé!` :
-      `Mảnh ${piece.number} chưa khớp. Nhìn hình mẫu rồi thử sắp xếp lại nhé!`;
+      `Mảnh ${piece.number} chưa khớp. Nhìn hình mẫu rồi thử sắp xếp lại nhé!`, hints ? `Piece ${piece.number} does not fit yet. Move it near target ${piece.number}, or tap that target!` : `Piece ${piece.number} does not fit yet. Look at the model and try again!`);
   }
 });
 ['pointercancel', 'lostpointercapture'].forEach((type) => {
@@ -296,7 +304,7 @@ board.addEventListener('click', (event) => {
   const target = event.target.closest('.target-piece');
   if (!target || !selected) return;
   if (target === selected.targetElement) placePiece(selected);
-  else get('game-status').textContent = `Bé tìm bóng có số ${selected.number} để ghép mảnh này nhé!`;
+  else text(get('game-status'), `Bé tìm bóng có số ${selected.number} để ghép mảnh này nhé!`, `Find target ${selected.number} to place this piece!`);
 });
 
 board.addEventListener('keydown', (event) => {
@@ -342,7 +350,7 @@ document.addEventListener('keydown', (event) => {
   cancelDrag();
   pieces.forEach((piece) => piece.targetElement.classList.remove('is-near'));
   selectPiece(null);
-  get('game-status').textContent = 'Đã bỏ chọn. Bé có thể chọn một mảnh khác nhé!';
+  text(get('game-status'), 'Đã bỏ chọn. Bé có thể chọn một mảnh khác nhé!', 'Deselected. Choose another piece!');
 });
 document.addEventListener('visibilitychange', () => { if (document.hidden) cancelDrag(); });
 window.addEventListener('blur', cancelDrag);
@@ -363,7 +371,7 @@ get('hint-toggle').addEventListener('click', () => {
   hints = !hints;
   audio.tone(hints ? 880 : 660, .12, { volume: .07 });
   renderFrame();
-  get('game-status').textContent = hints ? 'Đây là cách ghép: đưa mảnh màu vào bóng có cùng màu và số nhé!' : 'Đã ẩn gợi ý. Bé tiếp tục khám phá nhé!';
+  text(get('game-status'), hints ? 'Đây là cách ghép: đưa mảnh màu vào bóng có cùng màu và số nhé!' : 'Đã ẩn gợi ý. Bé tiếp tục khám phá nhé!', hints ? 'Match each piece to the target with the same color and number!' : 'Hints hidden. Keep exploring!');
 });
 get('open-help').addEventListener('click', () => {
   cancelDrag();

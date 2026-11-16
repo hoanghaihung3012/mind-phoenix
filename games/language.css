@@ -1,0 +1,15 @@
+@import url('../tools/language.css');
+
+.game-language { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.topbar:has(.hud) { flex-wrap: wrap; }
+.topbar:has(.hud) > .lang-toggle { margin-left: auto; }
+.topbar:has(.hud) .hud { margin-left: auto; }
+.race-toolbar .lang-toggle button { min-width: 32px; }
+.topbar nav { flex-wrap: wrap; }
+@media (max-width: 760px) {
+  .topbar:has(.hud) { gap: 8px; }
+  .topbar:has(.hud) .hud { order: 2; justify-content: center; width: 100%; }
+  .topbar .lang-toggle button { min-width: 30px; min-height: 30px; font-size: 12px; }
+  .topbar:has(.back-link) { flex-wrap: wrap; padding: 10px 0; }
+  .topbar:has(.back-link) nav { justify-content: flex-end; gap: 10px; }
+}

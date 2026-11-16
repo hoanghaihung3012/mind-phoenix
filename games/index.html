@@ -8,6 +8,8 @@
   <link rel="canonical" href="https://mindphoenix.xyz/games/">
   <title>Trò chơi — Mind Phoenix Games</title>
   <link rel="icon" type="image/png" href="../assets/mascots/mind-phoenix-logo.png">
+  <link rel="stylesheet" href="language.css">
+  <script type="module">import { initGameLanguage } from './i18n.mjs'; initGameLanguage();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -49,7 +51,7 @@
 </head>
 <body>
   <div class="wrap">
-    <header><a class="brand" href="../"><img src="../assets/mascots/mind-phoenix-logo.png" width="42" height="42" alt="">Mind Phoenix Games</a><a class="home-link" href="../">← Trang chủ</a></header>
+    <header><a class="brand" href="../"><img src="../assets/mascots/mind-phoenix-logo.png" width="42" height="42" alt="">Mind Phoenix Games</a><div class="game-language"><a class="home-link" href="../">← Trang chủ</a><div class="lang-toggle" role="group" aria-label="Language" hidden><button type="button" data-lang="vi" aria-pressed="true" lang="vi">VI</button><button type="button" data-lang="en" aria-pressed="false" lang="en">EN</button></div></div></header>
     <main>
       <p class="eyebrow">Chơi mà học · Mind Phoenix</p>
       <h1>Một chút chơi,<br><span>cả trời khám phá.</span></h1>

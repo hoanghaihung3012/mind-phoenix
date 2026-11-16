@@ -5,29 +5,34 @@ export function parseNames(text) {
   return text.split(/\r\n?|\n/).map((name) => name.trim()).filter(Boolean);
 }
 
-export function validateSetup(names, { duration, count, mode }) {
-  if (!names.length) return 'Thêm ít nhất một tên để bắt đầu cuộc đua.';
-  if (names.length > MAX_PARTICIPANTS) return `Danh sách có ${names.length} tên. Vui lòng giảm xuống tối đa ${MAX_PARTICIPANTS}.`;
-  if (names.some((name) => [...name].length > MAX_NAME_LENGTH)) return `Mỗi tên chỉ được dài tối đa ${MAX_NAME_LENGTH} ký tự.`;
-  if (![15, 30, 60].includes(duration)) return 'Chọn thời lượng 15, 30 hoặc 60 giây.';
-  if (!Number.isInteger(count) || count < 1 || count > names.length) return `Số người chọn phải là số nguyên từ 1 đến ${names.length}.`;
-  if (!['first', 'last'].includes(mode)) return 'Chọn người về đầu hoặc về cuối.';
+export function validateSetup(names, { duration, count, mode }, language = 'vi') {
+  const t = (vi, en) => language === 'en' ? en : vi;
+  if (!names.length) return t('Thêm ít nhất một tên để bắt đầu cuộc đua.', 'Add at least one name to start the race.');
+  if (names.length > MAX_PARTICIPANTS) return t(`Danh sách có ${names.length} tên. Vui lòng giảm xuống tối đa ${MAX_PARTICIPANTS}.`, `The list has ${names.length} names. Please reduce it to ${MAX_PARTICIPANTS} or fewer.`);
+  if (names.some((name) => [...name].length > MAX_NAME_LENGTH)) return t(`Mỗi tên chỉ được dài tối đa ${MAX_NAME_LENGTH} ký tự.`, `Each name must be ${MAX_NAME_LENGTH} characters or fewer.`);
+  if (![15, 30, 60].includes(duration)) return t('Chọn thời lượng 15, 30 hoặc 60 giây.', 'Choose 15, 30 or 60 seconds.');
+  if (!Number.isInteger(count) || count < 1 || count > names.length) return t(`Số người chọn phải là số nguyên từ 1 đến ${names.length}.`, `The number to pick must be an integer from 1 to ${names.length}.`);
+  if (!['first', 'last'].includes(mode)) return t('Chọn người về đầu hoặc về cuối.', 'Choose first or last finishers.');
   return '';
 }
 
+function fileError(message, englishMessage, options) {
+  return Object.assign(new Error(message, options), { englishMessage });
+}
+
 export async function readNamesFile(file) {
-  if (!file.name.toLowerCase().endsWith('.txt')) throw new Error('Vui lòng chọn file có đuôi .txt.');
-  if (file.size > 1024 * 1024) throw new Error('File quá lớn. Vui lòng chọn file .txt tối đa 1 MB.');
+  if (!file.name.toLowerCase().endsWith('.txt')) throw fileError('Vui lòng chọn file có đuôi .txt.', 'Please choose a .txt file.');
+  if (file.size > 1024 * 1024) throw fileError('File quá lớn. Vui lòng chọn file .txt tối đa 1 MB.', 'The file is too large. Choose a .txt file up to 1 MB.');
   let text;
   try {
     text = new TextDecoder('utf-8', { fatal: true }).decode(await file.arrayBuffer());
   } catch (error) {
-    throw new Error('Không thể đọc file UTF-8. Hãy lưu lại file .txt với mã hóa UTF-8 rồi nhập lại.', { cause: error });
+    throw fileError('Không thể đọc file UTF-8. Hãy lưu lại file .txt với mã hóa UTF-8 rồi nhập lại.', 'Could not read the UTF-8 file. Save it as UTF-8 text and import it again.', { cause: error });
   }
-  if (text.includes('\0')) throw new Error('File chứa dữ liệu không phải văn bản. Vui lòng chọn danh sách .txt UTF-8.');
+  if (text.includes('\0')) throw fileError('File chứa dữ liệu không phải văn bản. Vui lòng chọn danh sách .txt UTF-8.', 'The file contains non-text data. Choose a UTF-8 .txt list.');
   const names = parseNames(text);
   const error = validateSetup(names, { duration: 30, count: 1, mode: 'first' });
-  if (error) throw new RangeError(error);
+  if (error) throw Object.assign(new RangeError(error), { englishMessage: validateSetup(names, { duration: 30, count: 1, mode: 'first' }, 'en') });
   return names;
 }
 

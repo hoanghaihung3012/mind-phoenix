@@ -19,6 +19,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="game.css">
+  <link rel="stylesheet" href="../language.css">
   <script type="module" src="game.js"></script>
 </head>
 <body>
@@ -40,8 +41,9 @@
     <header class="topbar">
       <a class="brand" href="../" aria-label="Về danh sách trò chơi Mind Phoenix">
         <img src="../../assets/mascots/mind-phoenix-logo.png" width="38" height="38" alt="">
-        <span><small>Mind Phoenix Games</small><strong>Nhảy <em>mây</em></strong></span>
+        <span><small>Mind Phoenix Games</small><strong data-en="Sky <em>Jump</em>">Nhảy <em>mây</em></strong></span>
       </a>
+      <div class="lang-toggle" role="group" aria-label="Language" hidden><button type="button" data-lang="vi" aria-pressed="true" lang="vi">VI</button><button type="button" data-lang="en" aria-pressed="false" lang="en">EN</button></div>
       <div class="hud" aria-label="Thông tin lượt chơi">
         <div class="hud-pill score"><span>Điểm</span><strong id="hud-score">0</strong></div>
         <div class="hud-pill stars"><svg class="icon" aria-hidden="true"><use href="#icon-star"/></svg><strong id="hud-stars">0</strong><span class="sr-only">ngôi sao</span></div>
@@ -80,7 +82,7 @@
         <div class="panel start-panel">
           <div class="start-main">
             <p class="eyebrow">Phiêu lưu trên bầu trời</p>
-            <h1 id="start-title">Nhảy <span>mây</span></h1>
+            <h1 id="start-title" data-en="Sky <span>Jump</span>">Nhảy <span>mây</span></h1>
             <p class="lead">Bay qua <strong>3 màn Nắng → Mưa → Tuyết</strong>, mỗi màn <strong>500 m</strong>, để chiến thắng! Ô mây nứt vỡ sau 5 giây; rơi xuống mới mất mạng.</p>
             <form id="start-form">
               <fieldset class="characters">

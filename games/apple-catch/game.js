@@ -3,7 +3,10 @@ import {
   addScore, applyPoints, createQuestionDeck, isCaught, levelResult, mulberry32, normalizeName, parseLeaderboard, spawnItem,
 } from './apple.mjs';
 import { createGameAudio } from '../audio.mjs';
+import { english, initGameLanguage } from '../i18n.mjs';
 
+const i18n = initGameLanguage();
+const text = i18n.text;
 const ASSET = '../../assets/mascots/';
 const CHARACTERS = [
   { id: 'phoenix', name: 'Phượng Hoàng', src: `${ASSET}mind-phoenix-mascot.png` },
@@ -72,7 +75,7 @@ const input = { left: false, right: false, pointerX: null };
 
 /* ---------- Sound ---------- */
 const audio = createGameAudio({
-  theme: LEVELS[0].music, button: ui.soundToggle, enabled: store.get(STORAGE.sound) !== 'off',
+  theme: LEVELS[0].music, button: ui.soundToggle, i18n, enabled: store.get(STORAGE.sound) !== 'off',
   onEnabledChange: (enabled) => store.set(STORAGE.sound, enabled ? 'on' : 'off'),
   onError: (message, error) => { console.error(message, error); toast(message, 'bad', 6000); },
 });
@@ -113,9 +116,11 @@ function renderCharacters() {
     const label = document.createElement('label');
     label.className = 'character';
     const radio = Object.assign(document.createElement('input'), { type: 'radio', name: 'character', value: character.id, checked: character.id === characterId });
+    i18n.attr(radio, 'aria-label', character.name);
     radio.addEventListener('change', () => { characterId = character.id; store.set(STORAGE.character, characterId); });
     const img = Object.assign(document.createElement('img'), { src: character.src, alt: '', width: 80, height: 80 });
     const name = Object.assign(document.createElement('span'), { textContent: character.name });
+    text(name, character.name);
     label.append(radio, img, name);
     return label;
   }));
@@ -123,7 +128,9 @@ function renderCharacters() {
 
 function renderBoard(list, highlight) {
   if (!board.length) {
-    list.replaceChildren(Object.assign(document.createElement('li'), { className: 'empty', textContent: 'Chưa có ai. Hãy là người đầu tiên!' }));
+    const empty = Object.assign(document.createElement('li'), { className: 'empty' });
+    text(empty, 'Chưa có ai. Hãy là người đầu tiên!');
+    list.replaceChildren(empty);
     return;
   }
   list.replaceChildren(...board.map((entry) => {
@@ -131,8 +138,11 @@ function renderBoard(list, highlight) {
     if (entry === highlight) item.className = 'mine';
     const character = CHARACTERS.find((c) => c.id === entry.character) ?? CHARACTERS[0];
     const img = Object.assign(document.createElement('img'), { src: character.src, alt: character.name, title: character.name });
+    i18n.attr(img, 'alt', character.name);
+    i18n.attr(img, 'title', character.name);
     const who = Object.assign(document.createElement('span'), { className: 'who', textContent: entry.name });
     const score = Object.assign(document.createElement('strong'), { textContent: entry.score.toLocaleString('vi-VN') });
+    text(score, entry.score.toLocaleString('vi-VN'), entry.score.toLocaleString('en-US'));
     item.append(img, who, score);
     return item;
   }));
@@ -148,13 +158,17 @@ const shown = {};
 function setText(el, key, value) {
   if (shown[key] === value) return;
   shown[key] = value;
-  el.textContent = value;
+  text(el, value);
 }
 
 function updateHud() {
   const level = LEVELS[levelIndex];
   setText(ui.level, 'level', `${level.id}/${LEVELS.length}`);
-  setText(ui.score, 'score', score().toLocaleString('vi-VN'));
+  const points = score();
+  if (shown.score !== points) {
+    shown.score = points;
+    text(ui.score, points.toLocaleString('vi-VN'), points.toLocaleString('en-US'));
+  }
   setText(ui.goal, 'goal', String(run.levelScore));
   setText(ui.target, 'target', `/${level.target}`);
   ui.goalBar.style.transform = `scaleX(${Math.min(1, run.levelScore / level.target)})`;
@@ -171,8 +185,8 @@ function bump(el) {
   pill.classList.add('bump');
 }
 
-function toast(text, tone = '', ms = 1800) {
-  ui.toast.textContent = text;
+function toast(message, tone = '', ms = 1800, en = english(message)) {
+  text(ui.toast, message, en);
   ui.toast.className = `toast ${tone}`;
   ui.toast.hidden = false;
   clearTimeout(toastTimer);
@@ -208,7 +222,7 @@ function startLevel(index) {
   flash = { color: '255, 255, 255', t: 0.45 };
   sfx.whoosh();
   for (let i = 0; i < 60; i += 1) effects.particles.push(sparkle(view.w / 2, 210, ['#ffd23f', '#ff7aa8', '#ffffff', '#7bd389'][i % 4], 1.6));
-  toast(`Cần ${level.target} điểm trong ${level.time} giây!`, '', 2600);
+  toast(`Cần ${level.target} điểm trong ${level.time} giây!`, '', 2600, `Score ${level.target} points in ${level.time} seconds!`);
   updateHud();
   lastFrame = performance.now();
 }
@@ -220,7 +234,8 @@ function setMode(next) {
   document.body.classList.toggle('playing', next === 'playing' || next === 'question');
   ui.pauseToggle.disabled = !(next === 'playing' || next === 'paused');
   const paused = next === 'paused';
-  ui.pauseToggle.setAttribute('aria-label', paused ? 'Chơi tiếp' : 'Tạm dừng');
+  i18n.attr(ui.pauseToggle, 'aria-label', paused ? 'Chơi tiếp' : 'Tạm dừng');
+  i18n.attr(ui.pauseToggle, 'title', paused ? 'Chơi tiếp (P)' : 'Tạm dừng (P)', paused ? 'Resume (P)' : 'Pause (P)');
   ui.pauseToggle.querySelector('use').setAttribute('href', paused ? '#icon-play' : '#icon-pause');
   if (next !== 'playing') { input.left = input.right = false; dragging = false; }
 }
@@ -252,12 +267,12 @@ function levelCleared() {
   setMode('level');
   sfx.levelUp();
   const next = LEVELS[levelIndex + 1];
-  $('level-eyebrow').textContent = `Qua màn ${level.id}!`;
-  $('level-title').textContent = ['Tuyệt vời!', 'Xuất sắc!'][levelIndex] ?? 'Giỏi quá!';
-  $('level-next').textContent = `Tiếp theo: Màn ${next.id} · ${next.name} — cần ${next.target} điểm, trái rơi nhanh hơn và nhiều sâu hơn!`;
-  $('level-score').textContent = run.levelScore.toLocaleString('vi-VN');
+  text($('level-eyebrow'), `Qua màn ${level.id}!`, `Level ${level.id} cleared!`);
+  text($('level-title'), ['Tuyệt vời!', 'Xuất sắc!'][levelIndex] ?? 'Giỏi quá!', ['Wonderful!', 'Excellent!'][levelIndex] ?? 'Great job!');
+  text($('level-next'), `Tiếp theo: Màn ${next.id} · ${next.name} — cần ${next.target} điểm, trái rơi nhanh hơn và nhiều sâu hơn!`, `Up next: Level ${next.id} · ${english(next.name)} — score ${next.target} points with faster fruit and more worms!`);
+  text($('level-score'), run.levelScore.toLocaleString('vi-VN'), run.levelScore.toLocaleString('en-US'));
   $('level-fruit').textContent = run.levelFruit;
-  $('level-total').textContent = run.banked.toLocaleString('vi-VN');
+  text($('level-total'), run.banked.toLocaleString('vi-VN'), run.banked.toLocaleString('en-US'));
   setTimeout(() => { if (mode === 'level') { showScreen(ui.levelUp); $('next-button').focus(); } }, 900);
 }
 
@@ -265,18 +280,18 @@ function gameOver(reason) {
   setMode('over');
   if (reason === 'won') sfx.win(); else sfx.over();
   const final = score();
-  const result = addScore(board, { name: normalizeName(store.get(STORAGE.name)), score: final, character: characterId, date: Date.now() });
+  const result = addScore(board, { name: normalizeName(store.get(STORAGE.name) || i18n.t('Bạn nhỏ', 'Little explorer')), score: final, character: characterId, date: Date.now() });
   board = result.board;
   store.set(STORAGE.board, JSON.stringify(board));
   const character = CHARACTERS.find((c) => c.id === characterId);
   $('over-avatar').src = character.wow ?? character.src;
-  $('over-eyebrow').textContent = { won: 'Hoàn thành cả 3 màn!', timeout: `Hết giờ ở màn ${LEVELS[levelIndex].id}!`, quit: 'Bạn đã dừng lượt chơi' }[reason];
-  $('over-title').textContent = reason === 'won' ? 'Chiến thắng!' : 'Kết thúc';
-  $('final-score').textContent = final.toLocaleString('vi-VN');
+  text($('over-eyebrow'), { won: 'Hoàn thành cả 3 màn!', timeout: `Hết giờ ở màn ${LEVELS[levelIndex].id}!`, quit: 'Bạn đã dừng lượt chơi' }[reason], { won: 'All 3 levels complete!', timeout: `Time is up on level ${LEVELS[levelIndex].id}!`, quit: 'You ended the game' }[reason]);
+  text($('over-title'), reason === 'won' ? 'Chiến thắng!' : 'Kết thúc');
+  text($('final-score'), final.toLocaleString('vi-VN'), final.toLocaleString('en-US'));
   $('final-level').textContent = reason === 'won' ? `${LEVELS.length} ✓` : LEVELS[levelIndex].id;
   $('final-fruit').textContent = run.fruit;
   $('final-correct').textContent = run.correct;
-  $('rank-note').textContent = result.rank === 1 ? '🏆 Kỷ lục mới! Bạn đứng hạng 1!' : result.rank ? `🎉 Bạn lọt vào bảng xếp hạng: hạng ${result.rank}` : 'Cố lên! Lần sau sẽ lọt vào top 10.';
+  text($('rank-note'), result.rank === 1 ? '🏆 Kỷ lục mới! Bạn đứng hạng 1!' : result.rank ? `🎉 Bạn lọt vào bảng xếp hạng: hạng ${result.rank}` : 'Cố lên! Lần sau sẽ lọt vào top 10.', result.rank === 1 ? '🏆 New record! You are number 1!' : result.rank ? `🎉 You made the leaderboard: rank ${result.rank}` : 'Keep going! Aim for the top 10 next time.');
   renderBoard($('board-over'), board[result.rank - 1]);
   renderBoard($('board-start'));
   setTimeout(() => { if (mode === 'over') { showScreen(ui.over); $('again-button').focus(); } }, reason === 'won' ? 1400 : 700);
@@ -289,19 +304,21 @@ function openQuestion() {
   question.lastTick = question.time;
   setMode('question');
   sfx.bubble();
-  ui.topic.textContent = question.topic;
-  ui.difficulty.textContent = question.label;
+  text(ui.topic, question.topic);
+  text(ui.difficulty, question.label);
   ui.difficulty.className = `difficulty${question.level === 'hard' ? ' hard' : ''}`;
-  ui.stakes.textContent = `Đúng +${question.reward} điểm · Sai −${question.penalty} điểm`;
-  ui.prompt.textContent = question.prompt;
-  ui.feedback.textContent = '';
+  text(ui.stakes, `Đúng +${question.reward} điểm · Sai −${question.penalty} điểm`, `Correct +${question.reward} points · Wrong −${question.penalty} points`);
+  text(ui.prompt, question.prompt);
+  text(ui.feedback, '');
   ui.feedback.className = 'question-feedback';
   ui.answers.replaceChildren(...question.choices.map((text, index) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'answer';
     const key = Object.assign(document.createElement('kbd'), { textContent: index + 1 });
-    button.append(key, document.createTextNode(text));
+    const label = document.createTextNode('');
+    i18n.text(label, text);
+    button.append(key, label);
     button.addEventListener('click', () => answer(index));
     return button;
   }));
@@ -334,13 +351,13 @@ function answer(index) {
     addPoints(question.reward, player.x, '#7c5ce0', RIM_Y - 90);
     run.correct += 1;
     player.mood = 1;
-    ui.feedback.textContent = `Chính xác! +${question.reward} điểm`;
+    text(ui.feedback, `Chính xác! +${question.reward} điểm`, `Correct! +${question.reward} points`);
     ui.feedback.className = 'question-feedback good';
     sfx.correct();
     for (let i = 0; i < 36; i += 1) effects.particles.push(sparkle(player.x, RIM_Y - 40, i % 2 ? '#ffc94a' : '#b79cff'));
   } else {
     addPoints(-question.penalty, player.x, '#d9413a', RIM_Y - 90);
-    ui.feedback.textContent = `${index < 0 ? 'Hết giờ!' : 'Chưa đúng!'} Đáp án đúng: ${right} (−${question.penalty} điểm)`;
+    text(ui.feedback, `${index < 0 ? 'Hết giờ!' : 'Chưa đúng!'} Đáp án đúng: ${right} (−${question.penalty} điểm)`, `${index < 0 ? "Time's up!" : 'Not quite!'} Correct answer: ${english(right)} (−${question.penalty} points)`);
     ui.feedback.className = 'question-feedback bad';
     sfx.wrong();
   }
@@ -1194,17 +1211,19 @@ function drawBanner(time) {
   ctx.font = '800 76px "Baloo 2", sans-serif';
   ctx.lineWidth = 12;
   ctx.strokeStyle = '#3d2614';
-  ctx.strokeText(banner.title, 0, 10);
+  const title = i18n.t(banner.title, `LEVEL ${LEVELS[levelIndex].id}`);
+  const subtitle = i18n.t(banner.sub, english(banner.sub));
+  ctx.strokeText(title, 0, 10);
   const g = ctx.createLinearGradient(0, -40, 0, 20);
   g.addColorStop(0, '#fff3a8');
   g.addColorStop(1, '#ff8a3d');
   ctx.fillStyle = g;
-  ctx.fillText(banner.title, 0, 10);
+  ctx.fillText(title, 0, 10);
   ctx.font = '800 26px "Baloo 2", sans-serif';
   ctx.lineWidth = 7;
-  ctx.strokeText(banner.sub, 0, 52);
+  ctx.strokeText(subtitle, 0, 52);
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(banner.sub, 0, 52);
+  ctx.fillText(subtitle, 0, 52);
   ctx.restore();
 }
 

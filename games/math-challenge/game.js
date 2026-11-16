@@ -1,6 +1,9 @@
 import { DIFFICULTIES, PASS_COUNT, QUESTIONS_PER_ROUND, ROUNDS, advanceRound, createQuestion, createRun, recordAnswer, retryRound } from './challenge.mjs';
 import { createGameAudio } from '../audio.mjs';
+import { english, initGameLanguage } from '../i18n.mjs';
 
+const i18n = initGameLanguage();
+const text = i18n.text;
 const $ = (id) => document.getElementById(id);
 const screens = ['menu', 'play', 'round-end', 'complete'];
 let run;
@@ -13,10 +16,10 @@ let frame = null;
 let lastPrompt = '';
 
 const audio = createGameAudio({
-  theme: 'sky', button: $('sound-toggle'),
+  theme: 'sky', button: $('sound-toggle'), i18n,
   onError: (message, error) => {
     console.error(message, error);
-    $('audio-error').textContent = message;
+    text($('audio-error'), message);
     $('audio-error').hidden = false;
   },
 });
@@ -24,7 +27,7 @@ const audio = createGameAudio({
 function element(tag, className, text) {
   const node = document.createElement(tag);
   if (className) node.className = className;
-  if (text !== undefined) node.textContent = text;
+  if (text !== undefined) i18n.text(node, text);
   return node;
 }
 
@@ -52,9 +55,10 @@ function tick() {
 }
 
 function updateStats() {
-  $('question-count').textContent = `Câu ${Math.min(run.answered + 1, QUESTIONS_PER_ROUND)}/${QUESTIONS_PER_ROUND}`;
+  const count = `${Math.min(run.answered + 1, QUESTIONS_PER_ROUND)}/${QUESTIONS_PER_ROUND}`;
+  text($('question-count'), `Câu ${count}`, `Question ${count}`);
   $('correct-count').textContent = `${run.correct}/${QUESTIONS_PER_ROUND}`;
-  $('score').textContent = (run.score + run.roundScore).toLocaleString('vi-VN');
+  text($('score'), (run.score + run.roundScore).toLocaleString('vi-VN'), (run.score + run.roundScore).toLocaleString('en-US'));
 }
 
 function start() {
@@ -69,12 +73,13 @@ function startRound() {
   const round = ROUNDS[run.round];
   $('route').replaceChildren(...ROUNDS.map((item, index) => {
     const node = element('span', index < run.round ? 'done' : index === run.round ? 'active' : '', `${index < run.round ? '✓' : index + 1} · ${item.name}`);
+    text(node, `${index < run.round ? '✓' : index + 1} · ${item.name}`, `${index < run.round ? '✓' : index + 1} · ${english(item.name)}`);
     if (index === run.round) node.setAttribute('aria-current', 'step');
     return node;
   }));
-  $('round-label').textContent = `VÒNG ${run.round + 1} / ${ROUNDS.length} · CHẾ ĐỘ ${DIFFICULTIES[run.difficulty].name.toLocaleUpperCase('vi-VN')}`;
-  $('round-title').textContent = round.name;
-  $('instruction').textContent = round.hint;
+  text($('round-label'), `VÒNG ${run.round + 1} / ${ROUNDS.length} · CHẾ ĐỘ ${DIFFICULTIES[run.difficulty].name.toLocaleUpperCase('vi-VN')}`, `ROUND ${run.round + 1} / ${ROUNDS.length} · ${english(DIFFICULTIES[run.difficulty].name).toUpperCase()} MODE`);
+  text($('round-title'), round.name);
+  text($('instruction'), round.hint);
   audio.setTheme(round.theme);
   nextQuestion();
 }
@@ -88,8 +93,8 @@ function nextQuestion() {
   }
   lastPrompt = question.prompt;
   selectedStars = [];
-  $('prompt').textContent = question.prompt;
-  $('feedback').textContent = '';
+  text($('prompt'), question.prompt);
+  text($('feedback'), '');
   $('feedback').className = '';
   $('next-question').hidden = true;
   $('pause').disabled = false;
@@ -109,7 +114,7 @@ function nextQuestion() {
 function answerButton(value, index, className, handler) {
   const button = element('button', className, String(value));
   button.type = 'button';
-  button.setAttribute('aria-label', `${value}, phím ${index + 1}`);
+  i18n.attr(button, 'aria-label', `${value}, phím ${index + 1}`, `${english(value)}, key ${index + 1}`);
   button.dataset.choice = index;
   button.addEventListener('click', () => handler(button));
   return button;
@@ -137,7 +142,7 @@ function renderGame(id) {
     const cannon = element('div', 'cannon');
     cannon.setAttribute('aria-hidden', 'true');
     arena.append(cannon);
-    $('keyboard-note').textContent = 'Chạm / nhấp bong bóng hoặc bấm phím 1–4 để bắn · P để tạm dừng';
+    text($('keyboard-note'), 'Chạm / nhấp bong bóng hoặc bấm phím 1–4 để bắn · P để tạm dừng', 'Tap / click a bubble or press 1–4 to shoot · P to pause');
   } else if (id === 'bridge') {
     const scene = element('div', 'bridge-scene');
     scene.setAttribute('aria-hidden', 'true');
@@ -148,11 +153,13 @@ function renderGame(id) {
     scene.style.setProperty('--crossed', `${run.correct * 16}%`);
     scene.append(mascot);
     const form = element('form', 'bridge-form');
-    const label = element('label', '', 'Tấm ván còn thiếu mang số mấy?');
+    const label = element('label');
+    text(label, 'Tấm ván còn thiếu mang số mấy?', 'What number goes on the missing plank?');
     label.htmlFor = 'bridge-answer';
     const input = element('input');
     Object.assign(input, { id: 'bridge-answer', type: 'text', inputMode: 'numeric', pattern: '[0-9]{1,3}', maxLength: 3, required: true, autocomplete: 'off' });
-    const button = element('button', 'primary', 'Xây cầu →');
+    const button = element('button', 'primary');
+    text(button, 'Xây cầu →', 'Build bridge →');
     button.type = 'submit';
     form.append(label, input, button);
     form.addEventListener('submit', (event) => {
@@ -167,7 +174,7 @@ function renderGame(id) {
       finishAnswer(correct);
     });
     arena.append(scene, form);
-    $('keyboard-note').textContent = 'Nhập đáp án rồi bấm Enter hoặc nút Xây cầu · P để tạm dừng';
+    text($('keyboard-note'), 'Nhập đáp án rồi bấm Enter hoặc nút Xây cầu · P để tạm dừng', 'Enter your answer, then press Enter or Build bridge · P to pause');
   } else if (id === 'stars') {
     question.choices.forEach((value, index) => {
       arena.append(answerButton(value, index, 'star', (button) => {
@@ -177,23 +184,26 @@ function renderGame(id) {
         selectedStars.push(value);
         button.disabled = true;
         button.classList.add('picked');
-        $('star-order').textContent = selectedStars.join(' < ');
+        text($('star-order'), selectedStars.join(' < '));
         if (selectedStars.length === question.answer.length) finishAnswer(true);
         else audio.tone(550 + selectedStars.length * 120, .12);
       }));
     });
-    const order = element('p', 'star-order', 'Bắt đầu từ số bé nhất…');
+    const order = element('p', 'star-order');
+    text(order, 'Bắt đầu từ số bé nhất…', 'Start with the smallest number…');
     order.id = 'star-order';
     order.setAttribute('aria-live', 'polite');
     arena.append(order);
-    $('keyboard-note').textContent = 'Chọn đủ 4 sao theo thứ tự tăng dần để được 1 câu đúng · Phím 1–4 theo vị trí từ trái sang phải, trên xuống dưới';
+    text($('keyboard-note'), 'Chọn đủ 4 sao theo thứ tự tăng dần để được 1 câu đúng · Phím 1–4 theo vị trí từ trái sang phải, trên xuống dưới', 'Pick all 4 stars in ascending order for one correct answer · Keys 1–4 go left to right, top to bottom');
   } else {
     [true, false].forEach((value, index) => {
       const button = answerButton(value ? '✓ Đúng' : '✕ Sai', index, 'verdict', () => finishAnswer(value === question.answer));
-      button.append(element('small', '', `Phím ${index + 1}`));
+      const key = element('small');
+      text(key, `Phím ${index + 1}`, `Key ${index + 1}`);
+      button.append(key);
       arena.append(button);
     });
-    $('keyboard-note').textContent = 'Phím 1: Đúng · Phím 2: Sai · Hoặc chạm / nhấp đáp án · P để tạm dừng';
+    text($('keyboard-note'), 'Phím 1: Đúng · Phím 2: Sai · Hoặc chạm / nhấp đáp án · P để tạm dừng', 'Key 1: True · Key 2: False · Or tap / click an answer · P to pause');
   }
 }
 
@@ -209,19 +219,21 @@ function finishAnswer(correct, timedOut = false) {
   $('pause').disabled = true;
   drawClock();
   updateStats();
-  $('question-count').textContent = `Đã trả lời ${run.answered}/${QUESTIONS_PER_ROUND}`;
+  text($('question-count'), `Đã trả lời ${run.answered}/${QUESTIONS_PER_ROUND}`, `Answered ${run.answered}/${QUESTIONS_PER_ROUND}`);
   $('feedback').className = correct ? 'good' : 'bad';
-  $('feedback').textContent = `${correct ? 'Chính xác! ' : timedOut ? 'Hết giờ! ' : 'Chưa đúng rồi. '}${question.solution}`;
+  text($('feedback'), `${correct ? 'Chính xác! ' : timedOut ? 'Hết giờ! ' : 'Chưa đúng rồi. '}${question.solution}`, `${correct ? 'Correct! ' : timedOut ? "Time's up! " : 'Not quite. '}${question.solution}`);
   if (correct) audio.chime([659, 784, 1047], .07);
   else audio.tone(220, .2, { to: 110, volume: .06 });
-  $('next-question').textContent = run.status === 'playing' ? 'Câu tiếp theo →' : 'Xem kết quả →';
+  text($('next-question'), run.status === 'playing' ? 'Câu tiếp theo →' : 'Xem kết quả →', run.status === 'playing' ? 'Next question →' : 'View results →');
   $('next-question').hidden = false;
   $('next-question').focus({ preventScroll: true });
 }
 
 function stat(value, label) {
   const node = element('div');
-  node.append(element('strong', '', value), element('span', '', label));
+  const count = element('strong');
+  text(count, typeof value === 'number' ? value.toLocaleString('vi-VN') : value, typeof value === 'number' ? value.toLocaleString('en-US') : value);
+  node.append(count, element('span', '', label));
   return node;
 }
 
@@ -231,13 +243,15 @@ function showRoundResult() {
   const passed = run.status === 'passed';
   show('round-end');
   $('result-icon').textContent = passed ? '✦' : '↻';
-  $('result-label').textContent = `VÒNG ${run.round + 1} · ${ROUNDS[run.round].name}`;
-  $('result-title').textContent = passed ? 'Vượt thử thách rồi!' : 'Thử lại, bạn làm được!';
-  $('result-copy').textContent = passed
+  text($('result-label'), `VÒNG ${run.round + 1} · ${ROUNDS[run.round].name}`, `ROUND ${run.round + 1} · ${english(ROUNDS[run.round].name)}`);
+  text($('result-title'), passed ? 'Vượt thử thách rồi!' : 'Thử lại, bạn làm được!', passed ? 'Challenge cleared!' : 'Try again, you can do it!');
+  text($('result-copy'), passed
     ? run.round === ROUNDS.length - 1 ? 'Cả bốn thử thách đã hoàn thành. Cùng xem thành tích nào!' : `Tiếp theo: ${ROUNDS[run.round + 1].name}. Một cách chơi hoàn toàn mới đang chờ bạn!`
-    : `Cần đúng ${PASS_COUNT}/${QUESTIONS_PER_ROUND} câu để qua vòng. Chơi lại vòng này với câu hỏi mới; điểm các vòng đã qua vẫn được giữ.`;
-  $('result-stats').replaceChildren(stat(`${run.correct}/${QUESTIONS_PER_ROUND}`, 'Câu đúng'), stat(run.roundScore.toLocaleString('vi-VN'), passed ? 'Điểm vòng này' : 'Điểm chưa được cộng'), stat(run.score.toLocaleString('vi-VN'), 'Điểm đã tích lũy'));
-  $('continue').textContent = passed ? run.round === ROUNDS.length - 1 ? 'Nhận thành tích ✦' : 'Vòng tiếp theo →' : 'Thử lại vòng này ↻';
+    : `Cần đúng ${PASS_COUNT}/${QUESTIONS_PER_ROUND} câu để qua vòng. Chơi lại vòng này với câu hỏi mới; điểm các vòng đã qua vẫn được giữ.`,
+  passed ? run.round === ROUNDS.length - 1 ? 'All four challenges complete. See how you did!' : `Up next: ${english(ROUNDS[run.round + 1].name)}. A whole new way to play awaits!`
+    : `Get ${PASS_COUNT}/${QUESTIONS_PER_ROUND} right to pass. Retry with new questions; points from passed rounds are kept.`);
+  $('result-stats').replaceChildren(stat(`${run.correct}/${QUESTIONS_PER_ROUND}`, 'Câu đúng'), stat(run.roundScore, passed ? 'Điểm vòng này' : 'Điểm chưa được cộng'), stat(run.score, 'Điểm đã tích lũy'));
+  text($('continue'), passed ? run.round === ROUNDS.length - 1 ? 'Nhận thành tích ✦' : 'Vòng tiếp theo →' : 'Thử lại vòng này ↻', passed ? run.round === ROUNDS.length - 1 ? 'See achievements ✦' : 'Next round →' : 'Retry this round ↻');
   $('result-title').focus({ preventScroll: true });
 }
 
@@ -245,11 +259,15 @@ function complete() {
   mode = 'complete';
   show('complete');
   const totalCorrect = run.results.reduce((sum, result) => sum + result.correct, 0);
-  $('final-copy').textContent = `Bạn đã chinh phục 4 mini game ở chế độ ${DIFFICULTIES[run.difficulty].name.toLocaleLowerCase('vi-VN')}. Sigma tự hào về bạn!`;
-  $('final-stats').replaceChildren(stat(run.score.toLocaleString('vi-VN'), 'Tổng điểm'), stat(`${totalCorrect}/${ROUNDS.length * QUESTIONS_PER_ROUND}`, 'Câu đúng các vòng đã qua'));
+  text($('final-copy'), `Bạn đã chinh phục 4 mini game ở chế độ ${DIFFICULTIES[run.difficulty].name.toLocaleLowerCase('vi-VN')}. Sigma tự hào về bạn!`, `You conquered 4 mini games in ${english(DIFFICULTIES[run.difficulty].name).toLowerCase()} mode. Sigma is proud of you!`);
+  $('final-stats').replaceChildren(stat(run.score, 'Tổng điểm'), stat(`${totalCorrect}/${ROUNDS.length * QUESTIONS_PER_ROUND}`, 'Câu đúng các vòng đã qua'));
   $('recap').replaceChildren(...run.results.map((result, index) => {
     const item = element('li');
-    item.append(element('span', '', `${index + 1}. ${ROUNDS[index].name}`), element('strong', '', `${result.correct}/5 · ${result.score} điểm`));
+    const name = element('span');
+    const points = element('strong');
+    text(name, `${index + 1}. ${ROUNDS[index].name}`, `${index + 1}. ${english(ROUNDS[index].name)}`);
+    text(points, `${result.correct}/5 · ${result.score} điểm`, `${result.correct}/5 · ${result.score} points`);
+    item.append(name, points);
     return item;
   }));
   audio.chime([523, 659, 784, 1047, 1319], .12);
@@ -280,7 +298,9 @@ function resume() {
 $('round-list').replaceChildren(...ROUNDS.map((round, index) => {
   const item = element('li');
   const copy = element('div');
-  copy.append(element('h3', '', `${index + 1}. ${round.name}`), element('p', '', round.hint));
+  const name = element('h3');
+  text(name, `${index + 1}. ${round.name}`, `${index + 1}. ${english(round.name)}`);
+  copy.append(name, element('p', '', round.hint));
   item.append(element('span', 'round-icon', round.icon), copy);
   return item;
 }));

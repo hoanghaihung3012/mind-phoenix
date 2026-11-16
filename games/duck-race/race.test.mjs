@@ -25,6 +25,25 @@ test('invalid lists and selection counts cannot silently start a different race'
   assert.throws(() => createRace([], 30), RangeError);
 });
 
+test('English validation and import errors retain the exact limits without changing Vietnamese defaults', async () => {
+  const settings = { duration: 30, count: 1, mode: 'first' };
+  assert.equal(validateSetup([], settings, 'en'), 'Add at least one name to start the race.');
+  assert.match(validateSetup(Array(201).fill('An'), settings, 'en'), /201 names.*200 or fewer/);
+  assert.match(validateSetup(['An'], { ...settings, count: 2 }, 'en'), /integer from 1 to 1/);
+  assert.match(validateSetup([], settings), /ít nhất một tên/);
+  await assert.rejects(readNamesFile(new File(['An\n'.repeat(201)], 'names.txt')), (error) => {
+    assert.ok(error instanceof RangeError);
+    assert.match(error.message, /tối đa 200/);
+    assert.match(error.englishMessage, /201 names.*200 or fewer/);
+    return true;
+  });
+  await assert.rejects(readNamesFile(new File([new Uint8Array([0xff])], 'invalid.txt')), (error) => {
+    assert.match(error.englishMessage, /UTF-8/);
+    assert.ok(error.cause instanceof TypeError);
+    return true;
+  });
+});
+
 test('TXT imports decode UTF-8 and BOMs, retain duplicate names and reject invalid complete files', async () => {
   const file = new File(['\uFEFF An \r\n\r\nNguyễn Bình\rHà\nHà\n'], 'lop-4a.TXT');
   assert.deepEqual(await readNamesFile(file), ['An', 'Nguyễn Bình', 'Hà', 'Hà']);

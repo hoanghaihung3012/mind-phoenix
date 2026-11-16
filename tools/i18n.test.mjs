@@ -15,6 +15,10 @@ function setup({ saved = null, browserLanguage = 'en-US', blocked = false } = {}
   const title = element('Tiêu đề <span>gốc</span>');
   title.dataset.en = 'English <span>title</span>';
   const label = element('', { 'aria-label': 'Nhãn', 'data-en-aria-label': 'Label' });
+  const placeholder = element('', { placeholder: 'Tên của bạn' });
+  const inlineText = { nodeType: 3, textContent: '  Chơi ngay ', parentElement: { closest: () => false } };
+  const input = { value: 'Keep my name' };
+  const wrapper = { children: [inlineText, input] };
   const vi = element(), en = element(), toggle = { hidden: true };
   vi.dataset.lang = 'vi';
   en.dataset.lang = 'en';
@@ -22,9 +26,14 @@ function setup({ saved = null, browserLanguage = 'en-US', blocked = false } = {}
   const warnings = [];
   const document = {
     documentElement: { lang: 'vi' },
+    createTreeWalker() {
+      let visited = false;
+      return { currentNode: inlineText, nextNode() { if (visited) return false; visited = true; return true; } };
+    },
     querySelector: () => toggle,
     querySelectorAll: (selector) => ({
-      '[data-lang]': [vi, en], '[data-en]': [title], '[data-en-aria-label]': [label]
+      '[data-lang]': [vi, en], '[data-en]': [title], '[data-en-aria-label]': [label],
+      '[placeholder]:not([data-en-placeholder])': [placeholder]
     })[selector] || []
   };
   const context = vm.createContext({
@@ -36,7 +45,7 @@ function setup({ saved = null, browserLanguage = 'en-US', blocked = false } = {}
     }
   });
   vm.runInContext(source, context);
-  return { document, title, label, vi, en, toggle, values, warnings, i18n: context.initLanguage() };
+  return { document, title, label, placeholder, inlineText, wrapper, input, vi, en, toggle, values, warnings, i18n: context.initLanguage({ translations: { 'Chơi ngay': 'Play now', 'Tên của bạn': 'Your name' } }) };
 }
 
 test('switching restores original markup and accessible labels, persists choice, and notifies dynamic renderers', () => {
@@ -72,4 +81,16 @@ test('blocked storage reports the failure but does not prevent language switchin
   env.vi.listeners.click();
   assert.equal(env.document.documentElement.lang, 'vi');
   assert.equal(env.warnings.length, 2);
+});
+
+test('dictionary translations preserve inline nodes, whitespace and entered form values in both languages', () => {
+  const env = setup({ saved: 'en' });
+  assert.equal(env.inlineText.textContent, '  Play now ');
+  assert.equal(env.placeholder.getAttribute('placeholder'), 'Your name');
+  env.vi.listeners.click();
+  assert.equal(env.inlineText.textContent, '  Chơi ngay ');
+  assert.equal(env.placeholder.getAttribute('placeholder'), 'Tên của bạn');
+  assert.equal(env.wrapper.children[0], env.inlineText);
+  assert.equal(env.wrapper.children[1], env.input);
+  assert.equal(env.input.value, 'Keep my name');
 });

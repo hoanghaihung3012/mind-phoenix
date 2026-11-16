@@ -3,7 +3,10 @@ import {
   addScore, createQuestionDeck, distancePoints, levelProgress, mulberry32, normalizeName, parseLeaderboard, platformState, questionScoreChange, startingLives,
 } from './sky.mjs';
 import { createGameAudio } from '../audio.mjs';
+import { english, initGameLanguage } from '../i18n.mjs';
 
+const i18n = initGameLanguage();
+const text = i18n.text;
 const ASSET = '../../assets/mascots/';
 const CHARACTERS = [
   { id: 'phoenix', name: 'Phượng Hoàng', src: `${ASSET}mind-phoenix-mascot.png` },
@@ -71,7 +74,7 @@ const input = { left: false, right: false, jumpHeld: false, jumpQueued: false };
 
 /* ---------- Sound ---------- */
 const audio = createGameAudio({
-  theme: 'sky', button: ui.soundToggle, enabled: store.get(STORAGE.sound) !== 'off',
+  theme: 'sky', button: ui.soundToggle, i18n, enabled: store.get(STORAGE.sound) !== 'off',
   onEnabledChange: (enabled) => store.set(STORAGE.sound, enabled ? 'on' : 'off'),
   onError: (message, error) => { console.error(message, error); toast(message, 'bad', 6000); }
 });
@@ -116,9 +119,11 @@ function renderCharacters() {
     const label = document.createElement('label');
     label.className = 'character';
     const radio = Object.assign(document.createElement('input'), { type: 'radio', name: 'character', value: character.id, checked: character.id === characterId });
+    i18n.attr(radio, 'aria-label', character.name);
     radio.addEventListener('change', () => { characterId = character.id; store.set(STORAGE.character, characterId); });
     const img = Object.assign(document.createElement('img'), { src: character.src, alt: '', width: 80, height: 80 });
     const name = Object.assign(document.createElement('span'), { textContent: character.name });
+    text(name, character.name);
     label.append(radio, img, name);
     return label;
   }));
@@ -126,7 +131,9 @@ function renderCharacters() {
 
 function renderBoard(list, highlight) {
   if (!board.length) {
-    list.replaceChildren(Object.assign(document.createElement('li'), { className: 'empty', textContent: 'Chưa có ai. Hãy là người đầu tiên!' }));
+    const empty = Object.assign(document.createElement('li'), { className: 'empty' });
+    text(empty, 'Chưa có ai. Hãy là người đầu tiên!');
+    list.replaceChildren(empty);
     return;
   }
   list.replaceChildren(...board.map((entry) => {
@@ -134,8 +141,11 @@ function renderBoard(list, highlight) {
     if (entry === highlight) item.className = 'mine';
     const character = CHARACTERS.find((c) => c.id === entry.character) ?? CHARACTERS[0];
     const img = Object.assign(document.createElement('img'), { src: character.src, alt: character.name, title: character.name });
+    i18n.attr(img, 'alt', character.name);
+    i18n.attr(img, 'title', character.name);
     const who = Object.assign(document.createElement('span'), { className: 'who', textContent: entry.name });
     const score = Object.assign(document.createElement('strong'), { textContent: entry.score.toLocaleString('vi-VN') });
+    text(score, entry.score.toLocaleString('vi-VN'), entry.score.toLocaleString('en-US'));
     item.append(img, who, score);
     return item;
   }));
@@ -157,7 +167,7 @@ function updateLives() {
     return svg;
   }));
   if (unlimited) ui.lives.append(Object.assign(document.createElement('strong'), { textContent: '∞', ariaHidden: 'true' }));
-  ui.lives.setAttribute('aria-label', unlimited ? 'Mạng vô hạn' : `Còn ${run.lives} mạng`);
+  i18n.attr(ui.lives, 'aria-label', unlimited ? 'Mạng vô hạn' : `Còn ${run.lives} mạng`, unlimited ? 'Unlimited lives' : `${run.lives} lives left`);
 }
 
 function score() {
@@ -170,7 +180,7 @@ let shownDistance = -1;
 let shownComplete = false;
 function updateHud() {
   const current = score();
-  if (current !== shownScore) { ui.score.textContent = current.toLocaleString('vi-VN'); shownScore = current; }
+  if (current !== shownScore) { text(ui.score, current.toLocaleString('vi-VN'), current.toLocaleString('en-US')); shownScore = current; }
   if (ui.stars.textContent !== String(run.stars)) ui.stars.textContent = run.stars;
   updateLevelHud();
 }
@@ -184,10 +194,10 @@ function updateLevelHud() {
   shownComplete = progress.complete;
   const level = LEVELS[progress.index];
   ui.level.dataset.weather = level.id;
-  ui.levelLabel.textContent = `Màn ${progress.index + 1}/${LEVELS.length} · ${level.name}`;
+  text(ui.levelLabel, `Màn ${progress.index + 1}/${LEVELS.length} · ${level.name}`, `Level ${progress.index + 1}/${LEVELS.length} · ${english(level.name)}`);
   ui.levelDistance.textContent = `${distance} / ${LEVEL_DISTANCE} m`;
   ui.levelProgress.setAttribute('aria-valuenow', distance);
-  ui.levelProgress.setAttribute('aria-valuetext', `${distance} trên ${LEVEL_DISTANCE} mét${progress.complete ? ', hoàn thành cả 3 màn' : ''}`);
+  i18n.attr(ui.levelProgress, 'aria-valuetext', `${distance} trên ${LEVEL_DISTANCE} mét${progress.complete ? ', hoàn thành cả 3 màn' : ''}`, `${distance} of ${LEVEL_DISTANCE} meters${progress.complete ? ', all 3 levels complete' : ''}`);
   ui.levelBar.style.transform = `scaleX(${distance / LEVEL_DISTANCE})`;
   [...ui.levelSteps.children].forEach((step, index) => {
     const current = index === progress.index && !progress.complete;
@@ -195,7 +205,7 @@ function updateLevelHud() {
     step.classList.toggle('completed', index < progress.index || progress.complete);
     step.setAttribute('aria-current', current ? 'step' : 'false');
   });
-  canvas.setAttribute('aria-label', `Màn ${progress.index + 1}: ${level.name}. Nhảy qua ô mây, nhặt sao và trả lời câu hỏi. Đi đủ ${LEVEL_DISTANCE} mét để qua màn.`);
+  i18n.attr(canvas, 'aria-label', `Màn ${progress.index + 1}: ${level.name}. Nhảy qua ô mây, nhặt sao và trả lời câu hỏi. Đi đủ ${LEVEL_DISTANCE} mét để qua màn.`, `Level ${progress.index + 1}: ${english(level.name)}. Jump across clouds, collect stars and answer questions. Travel ${LEVEL_DISTANCE} meters to clear the level.`);
 }
 
 function bump(el) {
@@ -205,8 +215,8 @@ function bump(el) {
   pill.classList.add('bump');
 }
 
-function toast(text, tone = '', ms = 1800) {
-  ui.toast.textContent = text;
+function toast(message, tone = '', ms = 1800, en = english(message)) {
+  text(ui.toast, message, en);
   ui.toast.className = `toast ${tone}`;
   ui.toast.hidden = false;
   clearTimeout(toastTimer);
@@ -241,7 +251,7 @@ function startGame(event) {
   newGame();
   setMode('playing');
   showScreen(null);
-  toast(`Màn 1: Nắng — đi đủ ${LEVEL_DISTANCE} m!${run.lives === Infinity ? ' Mạng vô hạn đã bật.' : ''}`, '', 3000);
+  toast(`Màn 1: Nắng — đi đủ ${LEVEL_DISTANCE} m!${run.lives === Infinity ? ' Mạng vô hạn đã bật.' : ''}`, '', 3000, `Level 1: Sunny — travel ${LEVEL_DISTANCE} m!${run.lives === Infinity ? ' Unlimited lives enabled.' : ''}`);
   tone(523, 0.1, { type: 'triangle' });
   document.activeElement?.blur();
 }
@@ -253,7 +263,8 @@ function setMode(next) {
   document.body.classList.toggle('playing', next === 'playing' || next === 'question');
   ui.pauseToggle.disabled = !(next === 'playing' || next === 'paused');
   const paused = next === 'paused';
-  ui.pauseToggle.setAttribute('aria-label', paused ? 'Chơi tiếp' : 'Tạm dừng');
+  i18n.attr(ui.pauseToggle, 'aria-label', paused ? 'Chơi tiếp' : 'Tạm dừng');
+  i18n.attr(ui.pauseToggle, 'title', paused ? 'Chơi tiếp (P)' : 'Tạm dừng (P)', paused ? 'Resume (P)' : 'Pause (P)');
   ui.pauseToggle.querySelector('use').setAttribute('href', paused ? '#icon-play' : '#icon-pause');
   if (next !== 'playing') { input.left = input.right = input.jumpHeld = input.jumpQueued = false; }
 }
@@ -281,7 +292,7 @@ function loseLife() {
   flash = { color: '226, 87, 76', t: 0.5 };
   sfx.fall();
   if (run.lives <= 0) { gameOver(); return; }
-  toast(run.lives === Infinity ? 'Ối, rơi mất rồi! Mạng vô hạn — bay tiếp nào!' : `Ối, rơi mất rồi! Còn ${run.lives} mạng`, 'bad');
+  toast(run.lives === Infinity ? 'Ối, rơi mất rồi! Mạng vô hạn — bay tiếp nào!' : `Ối, rơi mất rồi! Còn ${run.lives} mạng`, 'bad', 1800, run.lives === Infinity ? 'Oops, you fell! Unlimited lives — keep flying!' : `Oops, you fell! ${run.lives} lives left`);
   respawn();
 }
 
@@ -305,20 +316,20 @@ function gameOver(won = false) {
     for (let i = 0; i < 70; i += 1) world.particles.push(sparkle(player.x + (Math.random() - 0.5) * view.w * 0.7, 100 + Math.random() * 220, i % 2 ? '#ffc94a' : '#b79cff'));
   } else sfx.over();
   ui.over.classList.toggle('victory', won);
-  $('over-eyebrow').textContent = won ? 'Hoàn thành cả 3 màn!' : run.lives <= 0 ? 'Hết mạng rồi!' : 'Lượt chơi đã kết thúc';
-  $('over-title').textContent = won ? 'Chiến thắng!' : 'Kết thúc';
-  $('result-message').textContent = won ? 'Bạn đã chinh phục 3/3 màn: Nắng, Mưa và Tuyết!' : `Đã hoàn thành ${run.level}/${LEVELS.length} màn. Chơi lại để chinh phục cả 3 nhé!`;
+  text($('over-eyebrow'), won ? 'Hoàn thành cả 3 màn!' : run.lives <= 0 ? 'Hết mạng rồi!' : 'Lượt chơi đã kết thúc');
+  text($('over-title'), won ? 'Chiến thắng!' : 'Kết thúc');
+  text($('result-message'), won ? 'Bạn đã chinh phục 3/3 màn: Nắng, Mưa và Tuyết!' : `Đã hoàn thành ${run.level}/${LEVELS.length} màn. Chơi lại để chinh phục cả 3 nhé!`, won ? 'You conquered 3/3 levels: Sunny, Rainy and Snowy!' : `${run.level}/${LEVELS.length} levels complete. Play again to conquer all 3!`);
   const final = score();
-  const result = addScore(board, { name: normalizeName(store.get(STORAGE.name)), score: final, character: characterId, date: Date.now() });
+  const result = addScore(board, { name: normalizeName(store.get(STORAGE.name) || i18n.t('Bạn nhỏ', 'Little explorer')), score: final, character: characterId, date: Date.now() });
   board = result.board;
   store.set(STORAGE.board, JSON.stringify(board));
   const character = CHARACTERS.find((c) => c.id === characterId);
   $('over-avatar').src = won ? character.src : character.air ?? character.src;
-  $('final-score').textContent = final.toLocaleString('vi-VN');
+  text($('final-score'), final.toLocaleString('vi-VN'), final.toLocaleString('en-US'));
   $('final-distance').textContent = `${Math.floor(levelProgress(run.maxX, START_X).totalDistance)} m`;
   $('final-stars').textContent = run.stars;
   $('final-correct').textContent = run.correct;
-  $('rank-note').textContent = result.rank === 1 ? '🏆 Kỷ lục mới! Bạn đứng hạng 1!' : result.rank ? `🎉 Bạn lọt vào bảng xếp hạng: hạng ${result.rank}` : 'Cố lên! Lần sau sẽ lọt vào top 10.';
+  text($('rank-note'), result.rank === 1 ? '🏆 Kỷ lục mới! Bạn đứng hạng 1!' : result.rank ? `🎉 Bạn lọt vào bảng xếp hạng: hạng ${result.rank}` : 'Cố lên! Lần sau sẽ lọt vào top 10.', result.rank === 1 ? '🏆 New record! You are number 1!' : result.rank ? `🎉 You made the leaderboard: rank ${result.rank}` : 'Keep going! Aim for the top 10 next time.');
   renderBoard($('board-over'), board[result.rank - 1]);
   renderBoard($('board-start'));
   const finishedRun = run;
@@ -332,16 +343,18 @@ function openQuestion(box) {
   player.vx = 0;
   setMode('question');
   sfx.question();
-  ui.topic.textContent = question.topic;
-  ui.prompt.textContent = question.prompt;
-  ui.feedback.textContent = '';
+  text(ui.topic, question.topic);
+  text(ui.prompt, question.prompt);
+  text(ui.feedback, '');
   ui.feedback.className = 'question-feedback';
   ui.answers.replaceChildren(...question.choices.map((text, index) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'answer';
     const key = Object.assign(document.createElement('kbd'), { textContent: index + 1 });
-    button.append(key, document.createTextNode(text));
+    const label = document.createTextNode('');
+    i18n.text(label, text);
+    button.append(key, label);
     button.addEventListener('click', () => answer(index));
     return button;
   }));
@@ -376,14 +389,14 @@ function answer(index) {
   run.bonus += change;
   if (correct) {
     run.correct += 1;
-    ui.feedback.textContent = `Chính xác! +${change} điểm`;
+    text(ui.feedback, `Chính xác! +${change} điểm`, `Correct! +${change} points`);
     ui.feedback.className = 'question-feedback good';
     sfx.correct();
     world.floaters.push({ x: player.x, y: player.y - 80, text: `+${change}`, color: '#7c5ce0', t: 0, size: 30 });
     for (let i = 0; i < 30; i += 1) world.particles.push(sparkle(player.x, player.y - 30, i % 2 ? '#ffc94a' : '#b79cff'));
   } else {
     const loss = change < 0 ? `${change} điểm` : 'Điểm đã ở 0';
-    ui.feedback.textContent = `${index < 0 ? 'Hết giờ!' : 'Chưa đúng!'} ${loss}. Đáp án đúng: ${right}`;
+    text(ui.feedback, `${index < 0 ? 'Hết giờ!' : 'Chưa đúng!'} ${loss}. Đáp án đúng: ${right}`, `${index < 0 ? "Time's up!" : 'Not quite!'} ${change < 0 ? `${change} points` : 'Score is already 0'}. Correct answer: ${english(right)}`);
     ui.feedback.className = 'question-feedback bad';
     sfx.wrong();
     world.floaters.push({ x: player.x, y: player.y - 80, text: `${change}`, color: '#e2574c', t: 0, size: 28 });
@@ -499,7 +512,7 @@ function step(h) {
     run.level = progress.index;
     sfx.correct();
     flash = { color: '255, 255, 255', t: 0.5 };
-    toast(`Qua màn ${run.level}! Màn ${run.level + 1}: ${LEVELS[run.level].name} — thêm ${LEVEL_DISTANCE} m nữa!`, 'good', 3000);
+    toast(`Qua màn ${run.level}! Màn ${run.level + 1}: ${LEVELS[run.level].name} — thêm ${LEVEL_DISTANCE} m nữa!`, 'good', 3000, `Level ${run.level} cleared! Level ${run.level + 1}: ${english(LEVELS[run.level].name)} — ${LEVEL_DISTANCE} m to go!`);
   }
 
   if (!player.dropping) {

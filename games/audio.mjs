@@ -212,12 +212,17 @@ export class GameAudio {
   }
 }
 
-export function createGameAudio({ button, onEnabledChange = () => {}, ...options }) {
+export function createGameAudio({ button, i18n, onEnabledChange = () => {}, ...options }) {
   const syncButton = (enabled) => {
     const label = enabled ? 'Tắt âm thanh' : 'Bật âm thanh';
     button.setAttribute('aria-pressed', String(enabled));
-    button.setAttribute('aria-label', label);
-    button.title = label;
+    if (i18n) {
+      i18n.attr(button, 'aria-label', label);
+      i18n.attr(button, 'title', label);
+    } else {
+      button.setAttribute('aria-label', label);
+      button.title = label;
+    }
     button.querySelector('use').setAttribute('href', enabled ? '#icon-sound' : '#icon-muted');
   };
   const audio = new GameAudio({
