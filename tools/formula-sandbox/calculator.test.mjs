@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateFormula, compileExpression, convertUnit, FORMULAS, formatNumber, readNumber, UNIT_GROUPS } from './calculator.mjs';
+import { calculateFormula, compileExpression, convertUnit, FORMULAS, formatNumber, getFormulas, getUnitGroups, readNumber, UNIT_GROUPS } from './calculator.mjs';
 
 const close = (actual, expected) => assert.ok(Math.abs(actual - expected) <= Math.max(1, Math.abs(expected)) * 1e-11, `${actual} != ${expected}`);
 
@@ -90,4 +90,23 @@ test('converter refuses negative measures, incompatible units, blanks and overfl
   assert.throws(() => convertUnit('missing', 1, 'm', 'm'), /cùng một/);
   assert.throws(() => convertUnit('length', '', 'm', 'm'), /nhập một số/);
   assert.throws(() => convertUnit('length', '1e308', 'km', 'm'), /vượt giới hạn/);
+});
+
+test('English formulas and units keep the same math while localizing decimals and validation', () => {
+  for (const formula of getFormulas('en')) {
+    const values = Object.fromEntries(formula.fields.map((input) => [input.id, input.value]));
+    assert.equal(calculateFormula(formula.id, values, 'en').value, calculateFormula(formula.id, values).value);
+    for (const input of formula.fields) {
+      assert.throws(() => calculateFormula(formula.id, { ...values, [input.id]: '' }, 'en'), /enter a valid number/);
+    }
+  }
+  assert.equal(getFormulas('en').find((formula) => formula.id === 'speed').unit, 'km/h');
+  assert.match(getFormulas('en').find((formula) => formula.id === 'circle').display, /3\.14/);
+  assert.equal(getUnitGroups('en').find((group) => group.id === 'time').units[0].label, 'Hour');
+  assert.equal(formatNumber(1.25, 'en'), '1.25');
+  assert.throws(() => compileExpression('1/(2-2)', 'en').evaluate(), /Cannot divide by zero/);
+  assert.throws(() => compileExpression('a+', 'en'), /missing/);
+  assert.throws(() => compileExpression('a', 'en').evaluate({}), /Missing a value for variable a/);
+  assert.throws(() => convertUnit('length', -1, 'm', 'cm', 'en'), /greater than or equal to 0/);
+  assert.throws(() => convertUnit('length', '1e308', 'km', 'm', 'en'), /exceeds the calculation limit/);
 });

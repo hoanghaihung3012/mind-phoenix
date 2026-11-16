@@ -25,6 +25,12 @@ test('invalid or zero durations report errors rather than changing the timer', (
   }
 });
 
+test('English duration validation retains parsing behavior and reports localized field and range errors', () => {
+  assert.equal(readDuration({ hours: '', minutes: '2', seconds: '3' }, 'en'), 123);
+  assert.throws(() => readDuration({ hours: '0', minutes: '60', seconds: '0' }, 'en'), /Minutes must be a whole number from 0 to 59/);
+  assert.throws(() => readDuration({ hours: '', minutes: '', seconds: '' }, 'en'), /between 1 second and 99 hours/);
+});
+
 test('clock rounds remaining fractions up and shows hours when needed', () => {
   for (const [milliseconds, expected] of [
     [0, '00:00'], [1, '00:01'], [1000, '00:01'], [1001, '00:02'],

@@ -53,8 +53,8 @@
         </section>
         <section>
           <h2>3. Google and YouTube access</h2>
-          <p>Connecting the Dashboard uses Google sign-in and requests read-only YouTube and YouTube Analytics permissions. It retrieves channel names, IDs, images, subscriber counts, views, video details, likes, average view duration and private scheduled publication times where your account has access. It does not request permission to upload, edit or delete videos.</p>
-          <p>The Dashboard uses this information to display and sort your channel reports and show videos scheduled for today and tomorrow in Vietnam time (UTC+7). API requests go directly from your browser to Google. Access tokens are kept separately for connected channels in session storage with their expiry times; reports and publication schedules are cached in local storage. There is no Dashboard backend receiving these tokens or reports.</p>
+          <p>Connecting the Dashboard uses Google sign-in and requests read-only YouTube permission. It retrieves public channel names, IDs, images, subscriber counts, views and public video counts. It does not request YouTube Analytics permission or permission to upload, edit or delete videos.</p>
+          <p>The Dashboard uses this information to display and sort channel reports and show subscriber counts together in one overview. API requests go directly from your browser to Google. Access tokens are kept in session storage with their expiry times; public channel reports are cached in local storage. There is no Dashboard backend receiving these tokens or reports.</p>
           <p>We do not sell Google user data, use it for advertising, or use it to train AI models. Mind Phoenix's use of information received from Google APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including its Limited Use requirements.</p>
         </section>
         <section>
@@ -66,7 +66,7 @@
           <h2>5. Retention, deletion and your choices</h2>
           <ul>
             <li>Local storage stays on your device until it is cleared or replaced. The Dashboard normally reuses a matching report cache for 30 minutes before requesting fresh data; this is a refresh interval, not automatic deletion.</li>
-            <li>Signing out of the Dashboard removes all its stored channel access tokens and cached reports and schedules, and requests token revocation. Dashboard settings are retained. You can also revoke access in your <a href="https://myaccount.google.com/connections">Google Account connections</a>.</li>
+            <li>Signing out of the Dashboard removes its stored access tokens and cached reports, and requests token revocation. Dashboard settings are retained. You can also revoke access in your <a href="https://myaccount.google.com/connections">Google Account connections</a>.</li>
             <li>To remove saved preferences, game data, Dashboard settings and reports, clear site data for mindphoenix.xyz in your browser. This resets saved features. Session storage is separate and normally ends when its browser tab or session closes.</li>
             <li>Contact emails are retained as needed to handle your inquiry and any applicable legal obligations. You can request access, correction or deletion of information you sent us by email. We cannot remotely clear data stored only in your browser or delete data held by Google.</li>
           </ul>
@@ -98,8 +98,8 @@
         </section>
         <section>
           <h2>3. Quyền truy cập Google và YouTube</h2>
-          <p>Khi kết nối Dashboard, bạn đăng nhập qua Google và cấp quyền chỉ đọc YouTube, YouTube Analytics. Dashboard lấy tên kênh, ID, hình ảnh, số người đăng ký, lượt xem, thông tin video, lượt thích, thời lượng xem trung bình và giờ công khai của video hẹn giờ riêng tư khi tài khoản có quyền truy cập. Dashboard không yêu cầu quyền tải lên, sửa hoặc xóa video.</p>
-          <p>Dữ liệu này được dùng để hiển thị, sắp xếp báo cáo kênh và xem video hẹn đăng hôm nay, ngày mai theo giờ Việt Nam (UTC+7). Yêu cầu API đi trực tiếp từ trình duyệt đến Google. Access token được giữ riêng cho từng kênh đã kết nối trong bộ nhớ phiên (session storage) cùng thời điểm hết hạn; báo cáo và lịch đăng được lưu đệm trong local storage. Dashboard không có backend nhận các token hay báo cáo này.</p>
+          <p>Khi kết nối Dashboard, bạn đăng nhập qua Google và cấp quyền chỉ đọc YouTube. Dashboard lấy tên kênh, ID, hình ảnh, số người đăng ký, lượt xem và số video công khai của kênh. Dashboard không yêu cầu quyền YouTube Analytics hay quyền tải lên, sửa hoặc xóa video.</p>
+          <p>Dữ liệu này được dùng để hiển thị, sắp xếp báo cáo kênh và tổng hợp số subscribers của các kênh vào một khu vực. Yêu cầu API đi trực tiếp từ trình duyệt đến Google. Access token được giữ trong bộ nhớ phiên (session storage) cùng thời điểm hết hạn; báo cáo kênh công khai được lưu đệm trong local storage. Dashboard không có backend nhận các token hay báo cáo này.</p>
           <p>Tụi mình không bán dữ liệu người dùng Google, không dùng cho quảng cáo hoặc huấn luyện mô hình AI. Việc Mind Phoenix sử dụng thông tin nhận từ Google API sẽ tuân thủ <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, bao gồm các yêu cầu Limited Use.</p>
         </section>
         <section>
@@ -111,7 +111,7 @@
           <h2>5. Lưu giữ, xóa dữ liệu và lựa chọn của bạn</h2>
           <ul>
             <li>Local storage nằm trên thiết bị đến khi được xóa hoặc ghi đè. Dashboard thường dùng lại báo cáo tương ứng trong 30 phút trước khi yêu cầu dữ liệu mới; đây là chu kỳ làm mới, không phải thời hạn tự động xóa.</li>
-            <li>Đăng xuất Dashboard sẽ xóa toàn bộ access token của các kênh, báo cáo và lịch đăng đã lưu đệm, đồng thời gửi yêu cầu thu hồi token. Cài đặt Dashboard vẫn được giữ lại. Bạn cũng có thể thu hồi quyền trong <a href="https://myaccount.google.com/connections">các kết nối của Tài khoản Google</a>.</li>
+            <li>Đăng xuất Dashboard sẽ xóa access token và báo cáo đã lưu đệm, đồng thời gửi yêu cầu thu hồi token. Cài đặt Dashboard vẫn được giữ lại. Bạn cũng có thể thu hồi quyền trong <a href="https://myaccount.google.com/connections">các kết nối của Tài khoản Google</a>.</li>
             <li>Để xóa tùy chọn, dữ liệu trò chơi, cài đặt và báo cáo Dashboard, hãy xóa dữ liệu trang web mindphoenix.xyz trong trình duyệt. Việc này sẽ đặt lại các tính năng đã lưu. Session storage là bộ nhớ riêng và thường kết thúc khi đóng thẻ hoặc phiên trình duyệt tương ứng.</li>
             <li>Email liên hệ được lưu khi cần để xử lý yêu cầu và thực hiện nghĩa vụ pháp lý áp dụng. Bạn có thể gửi email yêu cầu truy cập, sửa hoặc xóa thông tin đã gửi. Tụi mình không thể xóa từ xa dữ liệu chỉ nằm trong trình duyệt của bạn hoặc xóa dữ liệu do Google nắm giữ.</li>
           </ul>

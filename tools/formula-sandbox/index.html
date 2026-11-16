@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#d9d6ff">
-  <meta name="description" content="Công cụ Toán tiểu học miễn phí: tính chu vi, diện tích, thể tích, trung bình cộng, tỉ số phần trăm và đổi đơn vị. Có phép tính mẫu và lời giải để học sinh, giáo viên sao chép hoặc in.">
+  <meta name="description" content="Công cụ Toán tiểu học miễn phí: tính chu vi, diện tích, thể tích, trung bình cộng, tỉ số phần trăm và đổi đơn vị. Có phép tính mẫu và lời giải để học sinh, giáo viên sao chép hoặc in." data-en-content="Free primary-school math tools: calculate perimeter, area, volume, averages and percentages, and convert units. Students and teachers can copy or print worked solutions.">
   <link rel="canonical" href="https://mindphoenix.xyz/tools/formula-sandbox/">
   <title>Mini Formula &amp; Unit Sandbox — Mind Phoenix Tools</title>
   <link rel="icon" type="image/png" href="../../assets/mascots/mind-phoenix-logo.png">
@@ -12,121 +12,122 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="sandbox.css">
+  <link rel="stylesheet" href="../language.css">
   <script type="module" src="sandbox.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#main">Đến nội dung chính</a>
+  <a class="skip-link" href="#main" data-en="Skip to main content">Đến nội dung chính</a>
   <div class="wrap">
     <header class="topbar">
       <a class="brand" href="../../"><img src="../../assets/mascots/mind-phoenix-logo.png" width="42" height="50" alt="">Mind Phoenix <span>Tools</span></a>
-      <a class="back-link" href="../">← Tất cả công cụ</a>
+      <div class="header-links"><a class="back-link" href="../" data-en="← All tools">← Tất cả công cụ</a><div class="lang-toggle" role="group" aria-label="Ngôn ngữ" data-en-aria-label="Language" hidden><button type="button" data-lang="vi" aria-pressed="true" aria-label="Tiếng Việt">VI</button><button type="button" data-lang="en" aria-pressed="false" aria-label="English">EN</button></div></div>
     </header>
     <main id="main">
       <section class="hero" aria-labelledby="page-title">
         <div>
-          <p class="kicker">Góc Toán vui · Dành cho tiểu học</p>
+          <p class="kicker" data-en="Math playground · For primary school">Góc Toán vui · Dành cho tiểu học</p>
           <h1 id="page-title">Mini Formula<br>&amp; <span>Unit Sandbox.</span></h1>
-          <p class="lead">Học Toán bằng cách tự tay thử!<br>Cùng tính chu vi, diện tích, đổi đơn vị và khám phá những phép tính nhỏ.</p>
-          <div class="badges"><span>Học sinh tiểu học &amp; thầy cô</span><span>Miễn phí · Không cần tài khoản</span></div>
+          <p class="lead" data-en="Learn math by trying it yourself!<br>Calculate perimeter and area, convert units and explore simple calculations.">Học Toán bằng cách tự tay thử!<br>Cùng tính chu vi, diện tích, đổi đơn vị và khám phá những phép tính nhỏ.</p>
+          <div class="badges"><span data-en="Primary-school students &amp; teachers">Học sinh tiểu học &amp; thầy cô</span><span data-en="Free · No account needed">Miễn phí · Không cần tài khoản</span></div>
         </div>
         <div class="hero-art" aria-hidden="true">
-          <div class="float-label top-label">Một chút tò mò…</div>
+          <div class="float-label top-label" data-en="A little curiosity…">Một chút tò mò…</div>
           <img src="../../assets/mascots/mindmath-sigma-happy.webp" alt="" width="210" height="210">
-          <div class="float-label bottom-label">…thật nhiều “à, ra thế!”</div>
+          <div class="float-label bottom-label" data-en="…a whole lot of “aha!”">…thật nhiều “à, ra thế!”</div>
           <span class="doodle d1">π</span><span class="doodle d2">cm → m</span>
         </div>
       </section>
 
       <noscript><p class="notice">Hãy bật JavaScript để sử dụng công cụ tính toán. Dữ liệu nhập chỉ được xử lý trong trình duyệt.</p></noscript>
-      <div class="tabbar" role="tablist" aria-label="Chọn công cụ">
-        <button id="tab-formulas" type="button" role="tab" aria-selected="true" aria-controls="panel-formulas" tabindex="0"><span aria-hidden="true">ƒ</span> Công thức mẫu</button>
-        <button id="tab-units" type="button" role="tab" aria-selected="false" aria-controls="panel-units" tabindex="-1"><span aria-hidden="true">⇄</span> Đổi đơn vị</button>
-        <button id="tab-expression" type="button" role="tab" aria-selected="false" aria-controls="panel-expression" tabindex="-1"><span aria-hidden="true">+ −</span> Thử phép tính</button>
+      <div class="tabbar" role="tablist" aria-label="Chọn công cụ" data-en-aria-label="Choose a tool">
+        <button id="tab-formulas" type="button" role="tab" aria-selected="true" aria-controls="panel-formulas" tabindex="0"><span aria-hidden="true">ƒ</span> <b data-en="Formula presets">Công thức mẫu</b></button>
+        <button id="tab-units" type="button" role="tab" aria-selected="false" aria-controls="panel-units" tabindex="-1"><span aria-hidden="true">⇄</span> <b data-en="Unit converter">Đổi đơn vị</b></button>
+        <button id="tab-expression" type="button" role="tab" aria-selected="false" aria-controls="panel-expression" tabindex="-1"><span aria-hidden="true">+ −</span> <b data-en="Try a calculation">Thử phép tính</b></button>
       </div>
 
       <div class="workspace">
         <div class="input-panels">
           <section id="panel-formulas" class="panel" role="tabpanel" aria-labelledby="tab-formulas" tabindex="0">
-            <div class="section-heading"><span class="step-tag">01 / KHÁM PHÁ</span><span class="pill">15 công thức Toán</span></div>
-            <h2>Công thức quen, góc nhìn mới.</h2>
-            <p class="muted">Chọn một công thức rồi thay dữ liệu để xem từng bước tính.</p>
+            <div class="section-heading"><span class="step-tag" data-en="01 / EXPLORE">01 / KHÁM PHÁ</span><span class="pill" data-en="15 math formulas">15 công thức Toán</span></div>
+            <h2 data-en="Familiar formulas. Fresh perspectives.">Công thức quen, góc nhìn mới.</h2>
+            <p class="muted" data-en="Choose a formula and change the values to see each step.">Chọn một công thức rồi thay dữ liệu để xem từng bước tính.</p>
             <form id="formula-form" novalidate>
               <div class="two-col">
-                <div class="field"><label for="subject">Chủ đề</label><select id="subject"><option value="geometry">Hình học</option><option value="numbers">Số học</option><option value="movement">Chuyển động · Lớp 5</option></select></div>
-                <div class="field"><label for="formula-select">Công thức</label><select id="formula-select"></select></div>
+                <div class="field"><label for="subject" data-en="Subject">Chủ đề</label><select id="subject"><option value="geometry" data-en="Geometry">Hình học</option><option value="numbers" data-en="Arithmetic">Số học</option><option value="movement" data-en="Motion · Grade 5">Chuyển động · Lớp 5</option></select></div>
+                <div class="field"><label for="formula-select" data-en="Formula">Công thức</label><select id="formula-select"></select></div>
               </div>
               <p id="formula-display" class="formula-display"></p>
               <div id="formula-fields" class="two-col"></div>
               <p id="formula-note" class="hint"></p>
-              <div class="form-actions"><button class="btn primary" type="submit">Tính kết quả <span aria-hidden="true">→</span></button><button id="formula-example" class="text-btn" type="button">Điền ví dụ mẫu</button></div>
+              <div class="form-actions"><button class="btn primary" type="submit"><span data-en="Calculate">Tính kết quả</span> <span aria-hidden="true">→</span></button><button id="formula-example" class="text-btn" type="button" data-en="Fill in an example">Điền ví dụ mẫu</button></div>
             </form>
           </section>
 
           <section id="panel-units" class="panel" role="tabpanel" aria-labelledby="tab-units" tabindex="0" hidden>
-            <div class="section-heading"><span class="step-tag">01 / QUY ĐỔI</span><span class="pill mint">6 nhóm đơn vị</span></div>
-            <h2>Khác đơn vị, cùng giá trị.</h2>
-            <p class="muted">Đổi mét ra xentimét, kilôgam ra gam, giờ ra phút…</p>
+            <div class="section-heading"><span class="step-tag" data-en="01 / CONVERT">01 / QUY ĐỔI</span><span class="pill mint" data-en="6 unit groups">6 nhóm đơn vị</span></div>
+            <h2 data-en="Different units. Same value.">Khác đơn vị, cùng giá trị.</h2>
+            <p class="muted" data-en="Convert meters to centimeters, kilograms to grams, hours to minutes…">Đổi mét ra xentimét, kilôgam ra gam, giờ ra phút…</p>
             <form id="unit-form" novalidate>
-              <div class="field"><label for="unit-group">Em muốn đổi gì?</label><select id="unit-group"></select></div>
-              <div class="field"><label for="unit-value">Giá trị cần đổi</label><input id="unit-value" type="text" inputmode="decimal" value="1" autocomplete="off" spellcheck="false" maxlength="100" aria-describedby="unit-help"></div>
+              <div class="field"><label for="unit-group" data-en="What would you like to convert?">Em muốn đổi gì?</label><select id="unit-group"></select></div>
+              <div class="field"><label for="unit-value" data-en="Value to convert">Giá trị cần đổi</label><input id="unit-value" type="text" inputmode="decimal" value="1" autocomplete="off" spellcheck="false" maxlength="100" aria-describedby="unit-help"></div>
               <div class="unit-pair">
-                <div class="field"><label for="unit-from">Từ đơn vị</label><select id="unit-from"></select></div>
-                <button id="swap-units" class="swap-btn" type="button" aria-label="Đảo đơn vị nguồn và đích" title="Đảo đơn vị nguồn và đích">⇄</button>
-                <div class="field"><label for="unit-to">Sang đơn vị</label><select id="unit-to"></select></div>
+                <div class="field"><label for="unit-from" data-en="From unit">Từ đơn vị</label><select id="unit-from"></select></div>
+                <button id="swap-units" class="swap-btn" type="button" aria-label="Đảo đơn vị nguồn và đích" title="Đảo đơn vị nguồn và đích" data-en-aria-label="Swap source and target units" data-en-title="Swap source and target units">⇄</button>
+                <div class="field"><label for="unit-to" data-en="To unit">Sang đơn vị</label><select id="unit-to"></select></div>
               </div>
-              <p id="unit-help" class="hint">Ví dụ: nhập 1,5 hoặc 1.5 để viết một phẩy năm. Không thêm dấu phân cách hàng nghìn. Chỉ đổi các đơn vị cùng nhóm nhé!</p>
-              <div class="form-actions"><button class="btn primary" type="submit">Đổi đơn vị <span aria-hidden="true">→</span></button></div>
+              <p id="unit-help" class="hint" data-en="For example, enter 1.5 or 1,5 for one and a half. Do not use thousands separators. Only convert units within the same group!">Ví dụ: nhập 1,5 hoặc 1.5 để viết một phẩy năm. Không thêm dấu phân cách hàng nghìn. Chỉ đổi các đơn vị cùng nhóm nhé!</p>
+              <div class="form-actions"><button class="btn primary" type="submit"><span data-en="Convert units">Đổi đơn vị</span> <span aria-hidden="true">→</span></button></div>
             </form>
           </section>
 
           <section id="panel-expression" class="panel" role="tabpanel" aria-labelledby="tab-expression" tabindex="0" hidden>
-            <div class="section-heading"><span class="step-tag">01 / THỬ NGHIỆM</span><span class="pill peach">Cộng · Trừ · Nhân · Chia</span></div>
-            <h2>Em thử tính nhé!</h2>
-            <p class="muted">Nhập một phép tính hoặc dùng chữ a, b thay cho các số. Sau đó điền số vào ô bên dưới.</p>
+            <div class="section-heading"><span class="step-tag" data-en="01 / EXPERIMENT">01 / THỬ NGHIỆM</span><span class="pill peach" data-en="Add · Subtract · Multiply · Divide">Cộng · Trừ · Nhân · Chia</span></div>
+            <h2 data-en="Give it a try!">Em thử tính nhé!</h2>
+            <p class="muted" data-en="Enter a calculation, or use letters like a and b for numbers. Then fill in their values below.">Nhập một phép tính hoặc dùng chữ a, b thay cho các số. Sau đó điền số vào ô bên dưới.</p>
             <form id="expression-form" novalidate>
-              <div class="field"><label for="expression">Phép tính của em</label><textarea id="expression" rows="2" maxlength="500" spellcheck="false" autocomplete="off" aria-describedby="expression-help">(a+b)*2</textarea></div>
-              <div class="examples" aria-label="Phép tính ví dụ"><span>Thử nhanh:</span><button type="button" data-example="perimeter">Chu vi</button><button type="button" data-example="average">Trung bình cộng</button><button type="button" data-example="sharing">Chia đều</button></div>
+              <div class="field"><label for="expression" data-en="Your calculation">Phép tính của em</label><textarea id="expression" rows="2" maxlength="500" spellcheck="false" autocomplete="off" aria-describedby="expression-help">(a+b)*2</textarea></div>
+              <div class="examples" aria-label="Phép tính ví dụ" data-en-aria-label="Example calculations"><span data-en="Quick try:">Thử nhanh:</span><button type="button" data-example="perimeter" data-en="Perimeter">Chu vi</button><button type="button" data-example="average" data-en="Average">Trung bình cộng</button><button type="button" data-example="sharing" data-en="Share equally">Chia đều</button></div>
               <div id="variable-fields" class="two-col"></div>
-              <p id="no-variables" class="hint" hidden>Em đã nhập đủ các số, có thể tính ngay!</p>
-              <p id="expression-help" class="hint">Gõ <code>*</code> để nhân, <code>/</code> để chia. Ví dụ: <code>12/3+2*4</code>. Dùng ngoặc để tính trước: <code>(a+b)*2</code>. Trong phép tính dùng dấu chấm thập phân, như <code>1.5+2</code>; ô điền số bên dưới dùng được cả dấu phẩy.</p>
-              <div class="form-actions"><button class="btn primary" type="submit">Thử tính nào <span aria-hidden="true">→</span></button></div>
+              <p id="no-variables" class="hint" data-en="All numbers are filled in. You can calculate now!" hidden>Em đã nhập đủ các số, có thể tính ngay!</p>
+              <p id="expression-help" class="hint" data-en="Type <code>*</code> to multiply and <code>/</code> to divide. Example: <code>12/3+2*4</code>. Use parentheses to calculate first: <code>(a+b)*2</code>. Use decimal points in expressions, such as <code>1.5+2</code>; the number fields below also accept decimal commas.">Gõ <code>*</code> để nhân, <code>/</code> để chia. Ví dụ: <code>12/3+2*4</code>. Dùng ngoặc để tính trước: <code>(a+b)*2</code>. Trong phép tính dùng dấu chấm thập phân, như <code>1.5+2</code>; ô điền số bên dưới dùng được cả dấu phẩy.</p>
+              <div class="form-actions"><button class="btn primary" type="submit"><span data-en="Try calculating">Thử tính nào</span> <span aria-hidden="true">→</span></button></div>
             </form>
             <details class="syntax-help">
-              <summary>Nhớ thứ tự thực hiện phép tính</summary>
+              <summary data-en="Remember the order of operations">Nhớ thứ tự thực hiện phép tính</summary>
               <ul>
-                <li>Có ngoặc thì tính trong ngoặc trước.</li>
-                <li>Không có ngoặc: nhân, chia trước; cộng, trừ sau.</li>
-                <li>Các phép tính cùng mức ưu tiên thì làm từ trái sang phải. Ví dụ: <code>12/3*2</code> cho kết quả 8.</li>
-                <li>Chữ a, b, c là chỗ để em điền số. Ví dụ <code>a+b</code> với a = 3, b = 4 thì được 7. Dùng chữ không dấu; a khác A.</li>
-                <li>Không chia cho 0. Công cụ chỉ dùng bốn phép tính, không giải bài tìm x. Giới hạn 500 ký tự và 20 ô điền số.</li>
+                <li data-en="Calculate inside parentheses first.">Có ngoặc thì tính trong ngoặc trước.</li>
+                <li data-en="Without parentheses: multiply and divide first, then add and subtract.">Không có ngoặc: nhân, chia trước; cộng, trừ sau.</li>
+                <li data-en="Operations with equal priority go from left to right. For example, <code>12/3*2</code> gives 8.">Các phép tính cùng mức ưu tiên thì làm từ trái sang phải. Ví dụ: <code>12/3*2</code> cho kết quả 8.</li>
+                <li data-en="Letters a, b and c stand for numbers. For example, <code>a+b</code> with a = 3 and b = 4 gives 7. Use unaccented letters; a and A are different.">Chữ a, b, c là chỗ để em điền số. Ví dụ <code>a+b</code> với a = 3, b = 4 thì được 7. Dùng chữ không dấu; a khác A.</li>
+                <li data-en="Do not divide by 0. This tool uses only four operations and does not solve equations for x. Limit: 500 characters and 20 number fields.">Không chia cho 0. Công cụ chỉ dùng bốn phép tính, không giải bài tìm x. Giới hạn 500 ký tự và 20 ô điền số.</li>
               </ul>
             </details>
           </section>
-          <p class="local-note"><span aria-hidden="true">✦</span> Dữ liệu tính toán chỉ ở trong trình duyệt, không gửi lên máy chủ.</p>
+          <p class="local-note"><span aria-hidden="true">✦</span> <b data-en="Calculations stay in your browser and are never sent to a server.">Dữ liệu tính toán chỉ ở trong trình duyệt, không gửi lên máy chủ.</b></p>
         </div>
 
         <aside class="result-panel" aria-labelledby="result-heading">
-          <div class="section-heading"><span class="step-tag">02 / HIỂU KẾT QUẢ</span><span class="live-dot" aria-hidden="true"></span></div>
-          <h2 id="result-heading">Không chỉ là đáp án.</h2>
+          <div class="section-heading"><span class="step-tag" data-en="02 / UNDERSTAND">02 / HIỂU KẾT QUẢ</span><span class="live-dot" aria-hidden="true"></span></div>
+          <h2 id="result-heading" data-en="More than an answer.">Không chỉ là đáp án.</h2>
           <div id="result-error" class="notice error" role="alert" hidden></div>
           <div id="result-content" aria-live="polite" aria-atomic="true">
             <p id="result-label" class="muted"></p>
             <p class="result-number"><span id="result-value"></span> <span id="result-unit"></span></p>
-            <p class="rounding-note">Kết quả quá dài sẽ được làm tròn khi hiển thị.</p>
-            <h3>Cùng xem cách tính</h3>
+            <p class="rounding-note" data-en="Long results are rounded for display.">Kết quả quá dài sẽ được làm tròn khi hiển thị.</p>
+            <h3 data-en="Let's see the steps">Cùng xem cách tính</h3>
             <ol id="result-steps" class="result-steps"></ol>
             <p id="result-note" class="result-note"></p>
           </div>
-          <div class="result-actions"><button id="copy-result" class="btn" type="button" disabled>Sao chép lời giải</button><button id="print-result" class="btn" type="button" disabled>In lời giải</button></div>
+          <div class="result-actions"><button id="copy-result" class="btn" type="button" data-en="Copy solution" disabled>Sao chép lời giải</button><button id="print-result" class="btn" type="button" data-en="Print solution" disabled>In lời giải</button></div>
           <p id="action-status" class="action-status" role="status"></p>
         </aside>
       </div>
       <section class="teacher-note">
         <span class="note-icon" aria-hidden="true">!</span>
-        <div><h2>Mẹo nhỏ cho giờ học</h2><p>Em hãy đoán kết quả trước khi bấm tính. Sau đó chỉ thay một số và xem kết quả thay đổi thế nào. Nhớ đổi về cùng đơn vị trước khi dùng công thức. Phần “Thử phép tính” không tự đổi đơn vị hay giải bài tìm x. Thầy cô có thể sao chép hoặc in lời giải để cùng học sinh thảo luận.</p></div>
+        <div><h2 data-en="A little tip for learning">Mẹo nhỏ cho giờ học</h2><p data-en="Guess the answer before calculating. Then change just one number and see what happens. Convert measurements to the same unit before using a formula. “Try a calculation” does not convert units or solve equations for x. Teachers can copy or print solutions to discuss with students.">Em hãy đoán kết quả trước khi bấm tính. Sau đó chỉ thay một số và xem kết quả thay đổi thế nào. Nhớ đổi về cùng đơn vị trước khi dùng công thức. Phần “Thử phép tính” không tự đổi đơn vị hay giải bài tìm x. Thầy cô có thể sao chép hoặc in lời giải để cùng học sinh thảo luận.</p></div>
       </section>
     </main>
-    <footer><span>Mind Phoenix · Nuôi dưỡng trí tò mò.</span><nav aria-label="Liên kết cuối trang"><a href="../">Công cụ</a><a href="../../pages/privacy-policy.html">Bảo mật</a><a href="../../pages/terms-of-service.html">Điều khoản</a></nav></footer>
+    <footer><span data-en="Mind Phoenix · Nurturing curiosity.">Mind Phoenix · Nuôi dưỡng trí tò mò.</span><nav aria-label="Liên kết cuối trang" data-en-aria-label="Footer links"><a href="../" data-en="Tools">Công cụ</a><a href="../../pages/privacy-policy.html" data-en="Privacy">Bảo mật</a><a href="../../pages/terms-of-service.html" data-en="Terms">Điều khoản</a></nav></footer>
   </div>
 </body>
 </html>

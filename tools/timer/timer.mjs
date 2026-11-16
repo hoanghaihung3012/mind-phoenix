@@ -1,23 +1,24 @@
 const MAX_SECONDS = 100 * 60 * 60 - 1;
 
-function validateDuration(seconds) {
+function validateDuration(seconds, language = 'vi') {
   if (!Number.isSafeInteger(seconds) || seconds < 1 || seconds > MAX_SECONDS) {
-    throw new RangeError('Thời gian phải từ 1 giây đến 99 giờ 59 phút 59 giây.');
+    throw new RangeError(language === 'en' ? 'Duration must be between 1 second and 99 hours, 59 minutes, 59 seconds.' : 'Thời gian phải từ 1 giây đến 99 giờ 59 phút 59 giây.');
   }
   return seconds;
 }
 
-export function readDuration({ hours, minutes, seconds }) {
-  const parts = [[hours, 'Giờ', 99], [minutes, 'Phút', 59], [seconds, 'Giây', 59]];
+export function readDuration({ hours, minutes, seconds }, language = 'vi') {
+  const en = language === 'en';
+  const parts = [[hours, en ? 'Hours' : 'Giờ', 99], [minutes, en ? 'Minutes' : 'Phút', 59], [seconds, en ? 'Seconds' : 'Giây', 59]];
   const values = parts.map(([raw, label, maximum]) => {
     const text = String(raw).trim();
     const value = Number(text);
     if (!/^\d*$/.test(text) || !Number.isSafeInteger(value) || value > maximum) {
-      throw new RangeError(`${label} phải là số nguyên từ 0 đến ${maximum}.`);
+      throw new RangeError(en ? `${label} must be a whole number from 0 to ${maximum}.` : `${label} phải là số nguyên từ 0 đến ${maximum}.`);
     }
     return value;
   });
-  return validateDuration(values[0] * 3600 + values[1] * 60 + values[2]);
+  return validateDuration(values[0] * 3600 + values[1] * 60 + values[2], language);
 }
 
 export function formatDuration(milliseconds) {

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#21584b">
+  <meta name="description" content="Vòng quay may mắn lớp 4/6, Trường Tiểu học Phú Thọ. Nhập tên, tạo dãy số, nhập file .txt và chọn ngẫu nhiên ngay trên trình duyệt.">
+  <title>Vòng quay may mắn Phú Thọ — Mind Phoenix Tools</title>
+  <link rel="canonical" href="https://mindphoenix.xyz/tools/spin-wheel/">
+  <link rel="icon" type="image/png" href="../../assets/mascots/mind-phoenix-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="wheel.css">
+  <script type="module" src="wheel.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#wheel-panel">Đến vòng quay</a>
+  <main class="app">
+    <aside class="sidebar" aria-labelledby="page-title">
+      <header class="brand"><a href="../"><img src="../../assets/mascots/mind-phoenix-logo.png" width="36" height="42" alt="">Mind Phoenix Tools</a><p>Hôm nay, ai sẽ là ngôi sao?</p><h1 id="page-title">Vòng quay<br><span>may mắn</span></h1></header>
+      <form id="setup-form">
+        <fieldset id="setup-fields">
+          <legend class="sr-only">Danh sách và cài đặt vòng quay</legend>
+          <section class="card" aria-labelledby="list-title">
+            <div class="section-heading"><h2 id="list-title">Danh sách</h2><output id="participant-count" for="participants">0 / 200</output></div>
+            <label for="participants">Mỗi dòng một tên hoặc một số</label>
+            <textarea id="participants" rows="8" spellcheck="false" aria-describedby="names-note" placeholder="An&#10;Bình&#10;Chi"></textarea>
+            <div class="list-actions"><button id="shuffle-names" type="button">⇄ Trộn</button><button id="open-numbers" type="button"># Dãy số</button><button id="clear-names" type="button">Xóa</button></div>
+            <button id="add-class-4-6" class="wide" type="button">Nạp danh sách lớp 4/6</button>
+            <input id="import-file" type="file" accept=".txt,text/plain" hidden>
+            <button id="import-names" class="wide" type="button">↑ Nhập file .txt</button>
+            <p id="names-note" class="hint">Tối đa 200 dòng, mỗi dòng 80 ký tự. File UTF-8 tối đa 1 MB. Nạp lớp, tạo số hoặc nhập file sẽ thay danh sách hiện tại.</p>
+            <p id="import-feedback" class="hint" role="status"></p>
+          </section>
+          <section class="card" aria-labelledby="settings-title">
+            <h2 id="settings-title">Một chút hồi hộp</h2>
+            <label for="duration">Thời gian quay</label>
+            <select id="duration"><option value="5">5 giây · Nhanh gọn</option><option value="10" selected>10 giây · Hồi hộp</option><option value="15">15 giây · Cùng cổ vũ</option></select>
+            <label class="check-row"><input id="remove-picked" type="checkbox"><span>Loại người đã trúng<small>Không xuất hiện ở lượt tiếp theo</small></span></label>
+          </section>
+        </fieldset>
+      </form>
+      <p class="error" id="setup-error" role="alert" hidden></p>
+      <p class="notice" id="notice" role="status" hidden></p>
+      <footer class="sidebar-footer"><a href="../">← Tất cả công cụ</a><a href="../../games/duck-race/">Chơi đua vịt ↗</a></footer>
+    </aside>
+
+    <section id="wheel-panel" class="classroom" aria-labelledby="class-title" tabindex="-1">
+      <header class="classroom-header"><div><p class="eyebrow">Trường Tiểu học Phú Thọ</p><h2 id="class-title">Lớp 4/6 <span>·</span> Cùng tỏa sáng!</h2></div><label class="sound-option"><input id="sound-toggle" type="checkbox" checked>Âm thanh</label></header>
+      <div class="bunting" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="board-note">Mỗi bạn một sắc màu. Mỗi lượt một bất ngờ.</p>
+      <div class="wheel-stage">
+        <span class="chalk-star star-one" aria-hidden="true">✦</span><span class="chalk-star star-two" aria-hidden="true">✧</span>
+        <div class="wheel-frame"><span class="pointer" aria-hidden="true"></span><canvas id="wheel" width="1000" height="1000" role="img" aria-label="Vòng quay nhiều màu. Kim chỉ ở phía trên; kết quả được hiển thị bằng văn bản.">Trình duyệt cần hỗ trợ Canvas để hiển thị vòng quay.</canvas><div class="wheel-hub" aria-hidden="true"><span>4/6</span><small>PHÚ THỌ</small></div></div>
+      </div>
+      <div class="spin-controls"><button id="spin" class="primary" type="button" disabled>Quay may mắn!</button><button id="cancel-spin" class="cancel" type="button" hidden>Hủy lượt quay</button></div>
+      <p id="spin-status" class="spin-status" role="status">Đang chuẩn bị vòng quay…</p>
+      <div class="classroom-bottom"><span aria-hidden="true">✎ Học hết mình, vui hết nấc!</span><img src="../../assets/mascots/mindmath-sigma-happy.webp" width="85" height="95" alt=""></div>
+      <noscript><p class="notice">Hãy bật JavaScript để sử dụng vòng quay.</p></noscript>
+      <details class="roster"><summary>Xem tên đầy đủ trên vòng quay</summary><p>Khi có trên 48 dòng, các ô hiển thị số thứ tự tương ứng danh sách dưới đây.</p><ol id="roster-list"></ol></details>
+      <details class="help"><summary>Cách dùng &amp; quyền riêng tư</summary><p>Nhập mỗi tên hoặc số trên một dòng, bỏ qua dòng trống. Có thể trộn, tạo dãy số, nạp lớp 4/6 hoặc nhập file .txt. Mỗi dòng có cơ hội bằng nhau, kể cả trùng tên. Mỗi lượt chọn một dòng; chỉ loại dòng trúng khi lượt quay hoàn tất nếu đã bật tùy chọn.</p><p>Danh sách và cài đặt chỉ lưu trên trình duyệt này, không gửi lên máy chủ. Hủy lượt quay không loại tên. Với chế độ giảm chuyển động của thiết bị, vòng quay không xoay nhưng vẫn chờ hết thời gian để công bố kết quả.</p><p>Bối cảnh bảng lớp Phú Thọ là minh họa. <a href="../../pages/privacy-policy.html">Chính sách bảo mật</a>.</p></details>
+    </section>
+  </main>
+  <dialog id="numbers-dialog" aria-labelledby="numbers-title">
+    <h2 id="numbers-title">Tạo dãy số</h2><p>Dãy số sẽ thay thế danh sách hiện tại.</p>
+    <form id="numbers-form"><div class="number-fields"><label for="number-from">Từ số<input id="number-from" type="number" min="1" max="99999" step="1" value="1" required></label><label for="number-to">Đến số<input id="number-to" type="number" min="1" max="99999" step="1" value="30" required></label></div><p id="numbers-error" class="error" role="alert" hidden></p><div class="dialog-actions"><button type="button" data-close-dialog>Đóng</button><button class="primary" type="submit">Tạo danh sách</button></div></form>
+  </dialog>
+  <dialog id="results-dialog" aria-labelledby="results-title">
+    <p class="result-star" aria-hidden="true">✦</p><p class="eyebrow">Ngôi sao lớp 4/6</p><h2 id="results-title">Chúc mừng!</h2><p id="winner-name"></p><p id="winner-line" class="hint"></p><p id="removal-note"></p><div class="dialog-actions"><button type="button" data-close-dialog>Đóng</button><button id="spin-again" class="primary" type="button" autofocus>Quay tiếp</button></div>
+  </dialog>
+</body>
+</html>

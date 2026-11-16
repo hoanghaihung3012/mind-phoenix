@@ -1,5 +1,6 @@
 import { MAX_NAME_LENGTH, MAX_PARTICIPANTS, createRace, parseNames, progressAt, readNamesFile, remainingNames, selectRacers, shuffle, validateSetup } from './race.mjs';
 import { createGameAudio } from '../audio.mjs';
+import { class46Names } from '../class-4-6.mjs';
 
 const get = (id) => document.getElementById(id);
 const namesInput = get('participants');
@@ -14,37 +15,6 @@ const fileInput = get('import-file');
 const actionButtons = [get('start-race'), get('track-start')];
 const resetButtons = [get('reset-race'), get('track-reset')];
 const colors = ['#ffd575', '#ef97a9', '#9acbea', '#b9a0dc', '#95d2b5', '#f6b68a', '#f4e79c', '#a8c8d6'];
-const class46Names = [
-  'Giàu',
-  'Mỹ Hân',
-  'Gia Hân',
-  'Bích Hân',
-  'Huy',
-  'Hưng',
-  'Khang',
-  'Khoa',
-  'Lâm',
-  'Long',
-  'Mẫn',
-  'Gia Minh',
-  'Quang Minh',
-  'Tuyết My',
-  'Gia My',
-  'Ngọc',
-  'Ni',
-  'Nguyên',
-  'Phát',
-  'Thiên Phúc',
-  'Huỳnh Thiên Phúc',
-  'Phụng',
-  'Thiên Phượng',
-  'Quân',
-  'San',
-  'Thủy Tiên',
-  'Toàn',
-  'Trân',
-  'Tứ'
-];
 const storageKey = 'mp-duck-race-settings-v1';
 const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
 let phase = 'idle';

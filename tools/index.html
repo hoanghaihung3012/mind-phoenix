@@ -4,9 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#d9d6ff">
-  <meta name="description" content="Công cụ nhỏ, hữu ích từ Mind Phoenix: học Toán tiểu học, đổi đơn vị, thử phép tính, quản lý kênh YouTube và hẹn giờ đếm ngược.">
+  <meta name="description" content="Công cụ nhỏ, hữu ích từ Mind Phoenix: học Toán tiểu học, đổi đơn vị, thử phép tính, quản lý kênh YouTube và hẹn giờ đếm ngược." data-en-content="Small, useful tools from Mind Phoenix: explore primary-school math, convert units, try calculations, manage YouTube channels and set countdown timers.">
   <link rel="canonical" href="https://mindphoenix.xyz/tools/">
-  <title>Công cụ — Mind Phoenix Tools</title>
+  <title data-en="Tools — Mind Phoenix Tools">Công cụ — Mind Phoenix Tools</title>
+  <link rel="stylesheet" href="language.css">
   <link rel="icon" type="image/png" href="../assets/mascots/mind-phoenix-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,6 +50,9 @@
     .open { padding: 8px 15px; border: 2px solid var(--ink); border-radius: 10px; background: #dcd2ff; box-shadow: 0 3px 0 var(--ink); font: 700 14px 'Baloo 2', system-ui, sans-serif; }
     .dashboard-tool .open { background: #bfeedd; }
     .timer-tool .open { background: #ffd98a; }
+    .wheel-cover { background-color: #dcebd4; background-image: radial-gradient(#a7c39c 1px, transparent 1px); }
+    .wheel-preview { width: 136px; height: 136px; border: 6px solid #ffda79; border-radius: 50%; background: conic-gradient(#ffd982 0deg 60deg, #f3a69e 60deg 120deg, #add7d9 120deg 180deg, #c4b5df 180deg 240deg, #b8d7a3 240deg 300deg, #f7be8e 300deg); box-shadow: 0 4px 0 var(--ink); display: grid; place-items: center; font: 800 24px 'Baloo 2', system-ui, sans-serif; }
+    .wheel-preview span { padding: 6px; border: 2px solid var(--ink); border-radius: 50%; background: #fffaf5; }
     footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; padding: 24px 0; border-top: 1px solid #ded7e8; color: var(--muted); font-size: 12px; }
     footer nav { display: flex; flex-wrap: wrap; gap: 18px; }
     @media (max-width: 650px) { .tools { grid-template-columns: 1fr; } main { padding-top: 32px; } .brand { font-size: 21px; } .cover { height: 170px; } }
@@ -57,27 +61,35 @@
 </head>
 <body>
   <div class="wrap">
-    <header><a class="brand" href="../"><img src="../assets/mascots/mind-phoenix-logo.png" width="42" height="50" alt="">Mind Phoenix Tools</a><a class="home-link" href="../">← Trang chủ</a></header>
+    <header><a class="brand" href="../"><img src="../assets/mascots/mind-phoenix-logo.png" width="42" height="50" alt="">Mind Phoenix Tools</a><div class="header-links"><a class="home-link" href="../" data-en="← Home">← Trang chủ</a><div class="lang-toggle" role="group" aria-label="Ngôn ngữ" data-en-aria-label="Language" hidden><button type="button" data-lang="vi" aria-pressed="true" aria-label="Tiếng Việt">VI</button><button type="button" data-lang="en" aria-pressed="false" aria-label="English">EN</button></div></div></header>
     <main>
-      <p class="kicker">Hộp đồ nghề cho trí tò mò</p>
-      <h1>Công cụ nhỏ.<br><span>Khả năng không nhỏ.</span></h1>
-      <p class="intro">Cho một giờ học thú vị hơn, một ý tưởng rõ ràng hơn, một ngày làm việc nhẹ nhàng hơn.</p>
+      <p class="kicker" data-en="A toolkit for curious minds">Hộp đồ nghề cho trí tò mò</p>
+      <h1 data-en="Small tools.<br><span>Big possibilities.</span>">Công cụ nhỏ.<br><span>Khả năng không nhỏ.</span></h1>
+      <p class="intro" data-en="For a more engaging lesson, a clearer idea and an easier workday.">Cho một giờ học thú vị hơn, một ý tưởng rõ ràng hơn, một ngày làm việc nhẹ nhàng hơn.</p>
       <div class="tools">
+        <a class="tool" href="spin-wheel/">
+          <div class="cover wheel-cover" aria-hidden="true"><div class="wheel-preview"><span>4/6</span></div></div>
+          <div class="copy"><span class="tag" data-en="Classroom · Phu Tho Primary School">Lớp học · Trường Tiểu học Phú Thọ</span><h2 data-en="Lucky<br>Spin Wheel">Vòng quay<br>may mắn</h2><p data-en="A colorful wheel for class 4/6! Enter names, generate numbers or import a TXT file. Pick one lucky entry at a time, with an option to remove winners.">Vòng quay sắc màu cho lớp 4/6! Nhập tên, tạo dãy số hoặc nhập file .txt như game đua vịt. Chọn ngẫu nhiên từng bạn, tùy chọn loại người đã trúng.</p><span class="open" data-en="Spin the wheel →">Quay ngay →</span></div>
+        </a>
         <a class="tool" href="formula-sandbox/">
           <div class="cover" aria-hidden="true"><img src="../assets/mascots/mindmath-sigma-happy.webp" width="125" height="140" alt=""><span class="formula">ƒ(x) = ?</span></div>
-          <div class="copy"><span class="tag">Toán tiểu học · Cho học sinh &amp; thầy cô</span><h2>Mini Formula<br>&amp; Unit Sandbox</h2><p>Cùng tính chu vi, diện tích, thể tích, trung bình cộng và tỉ số phần trăm; đổi 6 nhóm đơn vị quen thuộc. Tự thử phép tính, xem cách làm và sao chép hoặc in lời giải.</p><span class="open">Khám phá ngay →</span></div>
+          <div class="copy"><span class="tag" data-en="Primary-school math · For students &amp; teachers">Toán tiểu học · Cho học sinh &amp; thầy cô</span><h2>Mini Formula<br>&amp; Unit Sandbox</h2><p data-en="Calculate perimeter, area, volume, averages and percentages; convert six familiar groups of units. Try calculations, explore the steps, and copy or print solutions.">Cùng tính chu vi, diện tích, thể tích, trung bình cộng và tỉ số phần trăm; đổi 6 nhóm đơn vị quen thuộc. Tự thử phép tính, xem cách làm và sao chép hoặc in lời giải.</p><span class="open" data-en="Explore now →">Khám phá ngay →</span></div>
         </a>
         <a class="tool dashboard-tool" href="youtube-dashboard/">
           <div class="cover dashboard-cover" aria-hidden="true"><div class="chart"><i></i><i></i><i></i></div></div>
-          <div class="copy"><span class="tag">Nhà sáng tạo · Kết nối Google</span><h2>YouTube<br>Channel Dashboard</h2><p>Theo dõi các kênh bạn quản lý, tổng hợp chỉ số và xem video mới nhất trong một giao diện gọn gàng. Giữ nguyên các cài đặt Dashboard hiện có.</p><span class="open">Mở Dashboard →</span></div>
+          <div class="copy"><span class="tag" data-en="Creators · Connect with Google">Nhà sáng tạo · Kết nối Google</span><h2>YouTube<br>Channel Dashboard</h2><p data-en="Track the channels you manage and review public subscriber, view and video counts in one tidy dashboard. Your existing Dashboard settings are preserved.">Theo dõi các kênh bạn quản lý và tổng hợp số người đăng ký, lượt xem, số video công khai trong một giao diện gọn gàng. Giữ nguyên các cài đặt Dashboard hiện có.</p><span class="open" data-en="Open Dashboard →">Mở Dashboard →</span></div>
         </a>
         <a class="tool timer-tool" href="timer/">
           <div class="cover timer-cover" aria-hidden="true"><span class="timer-preview">05:00</span></div>
-          <div class="copy"><span class="tag">Tập trung · Học tập &amp; Nghỉ ngơi</span><h2>Timer<br>Đồng hồ đếm ngược</h2><p>Chọn nhanh các mốc 1–60 phút hoặc tự nhập giờ, phút, giây. Bắt đầu, tạm dừng, đặt lại và nghe âm báo khi hết giờ, ngay trong trình duyệt.</p><span class="open">Mở Timer →</span></div>
+          <div class="copy"><span class="tag" data-en="Focus · Study &amp; Rest">Tập trung · Học tập &amp; Nghỉ ngơi</span><h2 data-en="Timer<br>Countdown clock">Timer<br>Đồng hồ đếm ngược</h2><p data-en="Choose a preset from 1–60 minutes or enter hours, minutes and seconds. Start, pause, reset and hear an alarm when time is up, right in your browser.">Chọn nhanh các mốc 1–60 phút hoặc tự nhập giờ, phút, giây. Bắt đầu, tạm dừng, đặt lại và nghe âm báo khi hết giờ, ngay trong trình duyệt.</p><span class="open" data-en="Open Timer →">Mở Timer →</span></div>
         </a>
       </div>
     </main>
-    <footer><span>Mind Phoenix · Nuôi dưỡng trí tò mò.</span><nav aria-label="Liên kết cuối trang"><a href="../games/">Trò chơi</a><a href="../pages/privacy-policy.html">Bảo mật</a><a href="../pages/terms-of-service.html">Điều khoản</a></nav></footer>
+    <footer><span data-en="Mind Phoenix · Nurturing curiosity.">Mind Phoenix · Nuôi dưỡng trí tò mò.</span><nav aria-label="Liên kết cuối trang" data-en-aria-label="Footer links"><a href="../games/" data-en="Games">Trò chơi</a><a href="../pages/privacy-policy.html" data-en="Privacy">Bảo mật</a><a href="../pages/terms-of-service.html" data-en="Terms">Điều khoản</a></nav></footer>
   </div>
+  <script type="module">
+    import { initLanguage } from './i18n.mjs';
+    initLanguage();
+  </script>
 </body>
 </html>

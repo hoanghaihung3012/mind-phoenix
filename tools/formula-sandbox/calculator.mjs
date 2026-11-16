@@ -1,47 +1,49 @@
 const NUMBER = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i;
 
-export function readNumber(raw, label = 'Giá trị') {
+export function readNumber(raw, label, language = 'vi') {
+  label ??= language === 'en' ? 'Value' : 'Giá trị';
   const text = String(raw).trim().replace(',', '.');
   if (!NUMBER.test(text) || !Number.isFinite(Number(text))) {
-    throw new Error(`${label}: hãy nhập một số hợp lệ, không dùng dấu phân cách hàng nghìn.`);
+    throw new Error(language === 'en' ? `${label}: enter a valid number without thousands separators.` : `${label}: hãy nhập một số hợp lệ, không dùng dấu phân cách hàng nghìn.`);
   }
   return Number(text);
 }
 
-function finite(value) {
-  if (!Number.isFinite(value)) throw new Error('Kết quả vượt giới hạn tính toán. Em hãy thử các số nhỏ hơn.');
+function finite(value, language = 'vi') {
+  if (!Number.isFinite(value)) throw new Error(language === 'en' ? 'The result exceeds the calculation limit. Try smaller numbers.' : 'Kết quả vượt giới hạn tính toán. Em hãy thử các số nhỏ hơn.');
   return value;
 }
 
-export function formatNumber(value) {
-  finite(value);
-  return new Intl.NumberFormat('vi-VN', {
+export function formatNumber(value, language = 'vi') {
+  finite(value, language);
+  return new Intl.NumberFormat(language === 'en' ? 'en-US' : 'vi-VN', {
     maximumSignificantDigits: 12,
     useGrouping: false,
     notation: value !== 0 && (Math.abs(value) >= 1e12 || Math.abs(value) < 1e-6) ? 'scientific' : 'standard'
   }).format(Object.is(value, -0) ? 0 : value);
 }
 
-export function compileExpression(source) {
-  if (typeof source !== 'string' || !source.trim()) throw new Error('Hãy nhập một biểu thức.');
-  if (source.length > 500) throw new Error('Biểu thức dài tối đa 500 ký tự.');
+export function compileExpression(source, language = 'vi') {
+  const t = (vi, en) => language === 'en' ? en : vi;
+  if (typeof source !== 'string' || !source.trim()) throw new Error(t('Hãy nhập một biểu thức.', 'Enter an expression.'));
+  if (source.length > 500) throw new Error(t('Biểu thức dài tối đa 500 ký tự.', 'An expression can contain at most 500 characters.'));
   const tokens = [];
   const lexer = /\s*(?:(\d+(?:\.\d*)?|\.\d+)|([A-Za-z][A-Za-z0-9_]*)|([+\-*/()]))/y;
   let position = 0;
   while (position < source.trimEnd().length) {
     lexer.lastIndex = position;
     const match = lexer.exec(source);
-    if (!match) throw new Error(`Ký tự không hợp lệ ở vị trí ${position + 1}. Dùng dấu chấm cho số thập phân trong biểu thức.`);
-    tokens.push(match[1] ? { type: 'number', value: finite(Number(match[1])) }
+    if (!match) throw new Error(t(`Ký tự không hợp lệ ở vị trí ${position + 1}. Dùng dấu chấm cho số thập phân trong biểu thức.`, `Invalid character at position ${position + 1}. Use a decimal point in expressions.`));
+    tokens.push(match[1] ? { type: 'number', value: finite(Number(match[1]), language) }
       : match[2] ? { type: 'name', value: match[2] } : { type: match[3] });
     position = lexer.lastIndex;
-    if (tokens.length > 200) throw new Error('Biểu thức quá phức tạp (tối đa 200 thành phần).');
+    if (tokens.length > 200) throw new Error(t('Biểu thức quá phức tạp (tối đa 200 thành phần).', 'The expression is too complex (at most 200 tokens).'));
   }
   let index = 0;
   const variables = new Set();
   const take = (type) => tokens[index]?.type === type ? tokens[index++] : null;
   const expect = (type) => {
-    if (!take(type)) throw new Error(`Thiếu dấu "${type}" hoặc biểu thức chưa hoàn chỉnh.`);
+    if (!take(type)) throw new Error(t(`Thiếu dấu "${type}" hoặc biểu thức chưa hoàn chỉnh.`, `Missing "${type}" or an incomplete expression.`));
   };
   function primary() {
     const number = take('number');
@@ -52,10 +54,10 @@ export function compileExpression(source) {
       return node;
     }
     const name = take('name');
-    if (!name) throw new Error('Thiếu số, biến hoặc dấu ngoặc hợp lệ.');
-    if (tokens[index]?.type === '(') throw new Error('Dùng dấu * để nhân với một biểu thức trong ngoặc, ví dụ: a*(b+c).');
+    if (!name) throw new Error(t('Thiếu số, biến hoặc dấu ngoặc hợp lệ.', 'A number, variable or valid parenthesis is missing.'));
+    if (tokens[index]?.type === '(') throw new Error(t('Dùng dấu * để nhân với một biểu thức trong ngoặc, ví dụ: a*(b+c).', 'Use * to multiply by a parenthesized expression, for example: a*(b+c).'));
     variables.add(name.value);
-    if (variables.size > 20) throw new Error('Dùng tối đa 20 biến trong một biểu thức.');
+    if (variables.size > 20) throw new Error(t('Dùng tối đa 20 biến trong một biểu thức.', 'Use at most 20 variables in an expression.'));
     return { type: 'variable', name: name.value };
   }
   function unary() {
@@ -78,31 +80,31 @@ export function compileExpression(source) {
     return node;
   }
   const root = sum();
-  if (index !== tokens.length) throw new Error('Dư dấu ngoặc hoặc thiếu phép toán. Viết phép nhân bằng dấu * (ví dụ: 2*x).');
+  if (index !== tokens.length) throw new Error(t('Dư dấu ngoặc hoặc thiếu phép toán. Viết phép nhân bằng dấu * (ví dụ: 2*x).', 'Extra parentheses or a missing operator. Write multiplication with * (for example: 2*x).'));
 
   function evaluateNode(node, values) {
     if (node.type === 'number') return node.value;
     if (node.type === 'variable') {
-      if (!Object.hasOwn(values, node.name)) throw new Error(`Thiếu giá trị cho biến ${node.name}.`);
-      return readNumber(values[node.name], `Biến ${node.name}`);
+      if (!Object.hasOwn(values, node.name)) throw new Error(t(`Thiếu giá trị cho biến ${node.name}.`, `Missing a value for variable ${node.name}.`));
+      return readNumber(values[node.name], t(`Biến ${node.name}`, `Variable ${node.name}`), language);
     }
     if (node.type === 'negate') return -evaluateNode(node.argument, values);
     const left = evaluateNode(node.left, values);
     const right = evaluateNode(node.right, values);
     switch (node.type) {
-      case '+': return finite(left + right);
-      case '-': return finite(left - right);
-      case '*': return finite(left * right);
+      case '+': return finite(left + right, language);
+      case '-': return finite(left - right, language);
+      case '*': return finite(left * right, language);
       case '/':
-        if (right === 0) throw new Error('Không thể chia cho 0.');
-        return finite(left / right);
-      default: throw new Error('Phép toán không được hỗ trợ.');
+        if (right === 0) throw new Error(t('Không thể chia cho 0.', 'Cannot divide by zero.'));
+        return finite(left / right, language);
+      default: throw new Error(t('Phép toán không được hỗ trợ.', 'Unsupported operation.'));
     }
   }
   return {
     variables: [...variables],
     evaluate(values = {}) {
-      return finite(evaluateNode(root, values));
+      return finite(evaluateNode(root, values), language);
     }
   };
 }
@@ -141,22 +143,23 @@ export const FORMULAS = [
     fields: [field('s', 'Quãng đường', 'km', 120, false), field('t', 'Thời gian', 'giờ', 3)], note: 'Vận tốc = quãng đường : thời gian. Đi được bao nhiêu kilômét trong 1 giờ thì vận tốc là bấy nhiêu km/giờ.' }
 ];
 
-export function calculateFormula(id, rawValues) {
-  const formula = FORMULAS.find((item) => item.id === id);
-  if (!formula) throw new Error('Công thức không hợp lệ.');
+export function calculateFormula(id, rawValues, language = 'vi') {
+  const t = (vi, en) => language === 'en' ? en : vi;
+  const formula = getFormulas(language).find((item) => item.id === id);
+  if (!formula) throw new Error(t('Công thức không hợp lệ.', 'Invalid formula.'));
   const values = {};
   for (const input of formula.fields) {
-    const value = readNumber(rawValues[input.id] ?? '', input.label);
+    const value = readNumber(rawValues[input.id] ?? '', input.label, language);
     if (input.positive ? value <= 0 : value < 0) {
-      throw new Error(`${input.label} phải ${input.positive ? 'lớn hơn' : 'lớn hơn hoặc bằng'} 0.`);
+      throw new Error(t(`${input.label} phải ${input.positive ? 'lớn hơn' : 'lớn hơn hoặc bằng'} 0.`, `${input.label} must be ${input.positive ? 'greater than' : 'greater than or equal to'} 0.`));
     }
     values[input.id] = value;
   }
   if (id === 'rectangle' || id === 'rectangle-perimeter' || id === 'cuboid') {
-    if (values.a < values.b) throw new Error('Chiều dài cần lớn hơn hoặc bằng chiều rộng. Em hãy đổi lại hai số đo nhé.');
+    if (values.a < values.b) throw new Error(t('Chiều dài cần lớn hơn hoặc bằng chiều rộng. Em hãy đổi lại hai số đo nhé.', 'Length must be greater than or equal to width. Swap the two measurements.'));
   }
-  if (id === 'trapezoid' && values.a < values.b) throw new Error('Đáy lớn cần lớn hơn hoặc bằng đáy bé. Em hãy kiểm tra hai số đo nhé.');
-  return { value: compileExpression(formula.expression).evaluate(values), values };
+  if (id === 'trapezoid' && values.a < values.b) throw new Error(t('Đáy lớn cần lớn hơn hoặc bằng đáy bé. Em hãy kiểm tra hai số đo nhé.', 'The longer base must be greater than or equal to the shorter base. Check both measurements.'));
+  return { value: compileExpression(formula.expression, language).evaluate(values), values };
 }
 
 const unit = (id, label, scale) => ({ id, label, scale });
@@ -169,13 +172,63 @@ export const UNIT_GROUPS = [
   { id: 'speed', title: 'Vận tốc · Lớp 5', units: [unit('km/h', 'Kilômét/giờ · km/giờ', 1 / 3.6), unit('m/s', 'Mét/giây · m/giây', 1), unit('m/min', 'Mét/phút · m/phút', 1 / 60)] }
 ];
 
-export function convertUnit(groupId, rawValue, fromId, toId) {
+export function convertUnit(groupId, rawValue, fromId, toId, language = 'vi') {
   const group = UNIT_GROUPS.find((item) => item.id === groupId);
   const from = group?.units.find((item) => item.id === fromId);
   const to = group?.units.find((item) => item.id === toId);
-  if (!from || !to) throw new Error('Hãy chọn hai đơn vị thuộc cùng một đại lượng.');
-  const value = readNumber(rawValue);
-  if (value < 0) throw new Error('Em hãy nhập số lớn hơn hoặc bằng 0 cho số đo cần đổi.');
+  if (!from || !to) throw new Error(language === 'en' ? 'Choose two units from the same measurement group.' : 'Hãy chọn hai đơn vị thuộc cùng một đại lượng.');
+  const value = readNumber(rawValue, undefined, language);
+  if (value < 0) throw new Error(language === 'en' ? 'Enter a measurement greater than or equal to 0.' : 'Em hãy nhập số lớn hơn hoặc bằng 0 cho số đo cần đổi.');
   if (fromId === toId) return value;
-  return finite(value * (from.scale / to.scale));
+  return finite(value * (from.scale / to.scale), language);
+}
+
+const EN_FORMULAS = {
+  rectangle: ['Rectangle area', ['Length', 'Width'], 'Area = length × width. Both measurements must use the same unit. cm² means square centimeters.'],
+  'rectangle-perimeter': ['Rectangle perimeter', ['Length', 'Width'], 'Perimeter is the distance around a shape. Add length and width, then multiply by 2.'],
+  'square-area': ['Square area', ['Side length'], 'The area of a square is its side length multiplied by itself.'],
+  'square-perimeter': ['Square perimeter', ['Side length'], 'A square has 4 equal sides. Multiply the side length by 4.'],
+  triangle: ['Triangle area', ['Base', 'Corresponding height'], 'The height must be perpendicular to the chosen base.'],
+  parallelogram: ['Parallelogram area', ['Base', 'Height'], 'Multiply the base by its corresponding height. Do not confuse the height with a sloping side.'],
+  rhombus: ['Rhombus area', ['First diagonal', 'Second diagonal'], 'Multiply the two diagonal lengths and divide by 2. Both diagonals must use the same unit.'],
+  trapezoid: ['Trapezoid area', ['Longer base', 'Shorter base', 'Height'], 'Add the two bases, multiply by the height, then divide by 2. The height is perpendicular to both bases.'],
+  'circle-perimeter': ['Circle circumference', ['Radius'], 'The diameter is twice the radius. In primary-school math, use 3.14 as an approximation for pi.'],
+  circle: ['Circle area', ['Radius'], 'Multiply the radius by itself, then multiply by 3.14, as in primary-school math.'],
+  cuboid: ['Cuboid volume', ['Length', 'Width', 'Height'], 'Volume = length × width × height. cm³ means cubic centimeters.'],
+  cube: ['Cube volume', ['Side length'], 'A cube has equal edges. Multiply the side length by itself, then by the side length once more.'],
+  average: ['Average of 3 numbers', ['First number', 'Second number', 'Third number'], 'To find the average, add the numbers and divide by how many numbers there are (3 here).'],
+  percent: ['Percentage of two numbers', ['Compared number', 'Reference number'], 'Divide the first number by the second, multiply by 100 and add %. For example, 5 is 25% of 20.'],
+  speed: ['Speed · Grade 5', ['Distance', 'Time'], 'Speed = distance ÷ time. The number of kilometers traveled in 1 hour is the speed in km/h.']
+};
+
+export function unitLabel(id, language = 'vi') {
+  const labels = language === 'en'
+    ? { t: 'tonne', 'tạ': 'quintal', 'yến': '10-kg unit', min: 'min', h: 'h', s: 's', 'ngày': 'day', 'tuần': 'week', 'giờ': 'h', 'km/giờ': 'km/h', 'm/giây': 'm/s', 'm/phút': 'm/min' }
+    : { t: 'tấn', min: 'phút', h: 'giờ', s: 'giây', 'km/h': 'km/giờ', 'm/s': 'm/giây', 'm/min': 'm/phút' };
+  return labels[id] ?? id;
+}
+
+export function getFormulas(language = 'vi') {
+  if (language !== 'en') return FORMULAS;
+  return FORMULAS.map((formula) => {
+    const [title, labels, note] = EN_FORMULAS[formula.id];
+    return {
+      ...formula, title, note, display: formula.display.replaceAll('3,14', '3.14'), unit: unitLabel(formula.unit, language),
+      fields: formula.fields.map((input, index) => ({ ...input, label: labels[index], unit: unitLabel(input.unit, language) }))
+    };
+  });
+}
+
+export function getUnitGroups(language = 'vi') {
+  if (language !== 'en') return UNIT_GROUPS;
+  const titles = { length: 'Length', area: 'Area', volume: 'Volume', mass: 'Mass', time: 'Time', speed: 'Speed · Grade 5' };
+  const labels = {
+    m: 'Meter · m', cm: 'Centimeter · cm', km: 'Kilometer · km', hm: 'Hectometer · hm', dam: 'Decameter · dam', dm: 'Decimeter · dm', mm: 'Millimeter · mm',
+    'm²': 'Square meter · m²', 'cm²': 'Square centimeter · cm²', 'km²': 'Square kilometer · km²', ha: 'Hectare · ha', 'dm²': 'Square decimeter · dm²', 'mm²': 'Square millimeter · mm²',
+    L: 'Liter · L', mL: 'Milliliter · mL', 'm³': 'Cubic meter · m³', 'dm³': 'Cubic decimeter · dm³', 'cm³': 'Cubic centimeter · cm³',
+    kg: 'Kilogram · kg', g: 'Gram · g', t: 'Tonne · 1000 kg', 'tạ': 'Quintal · 100 kg', 'yến': 'Ten kilograms · 10 kg',
+    h: 'Hour', min: 'Minute', s: 'Second', 'ngày': 'Day', 'tuần': 'Week',
+    'km/h': 'Kilometers/hour · km/h', 'm/s': 'Meters/second · m/s', 'm/min': 'Meters/minute · m/min'
+  };
+  return UNIT_GROUPS.map((group) => ({ ...group, title: titles[group.id], units: group.units.map((item) => ({ ...item, label: labels[item.id] })) }));
 }

@@ -49,6 +49,7 @@ h1 span { color: #7754ae; }
 .tabbar button[aria-selected="true"] { border-color: var(--ink); background: var(--lilac); box-shadow: 0 3px 0 var(--ink); }
 .tabbar button:hover:not([aria-selected="true"]) { background: white; }
 .tabbar button span { font-size: 21px; }
+.tabbar button b, .local-note b { font-weight: inherit; }
 .workspace { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; align-items: start; }
 .input-panels { min-width: 0; }
 .panel, .result-panel { min-width: 0; padding: 26px; border: 2.5px solid var(--ink); border-radius: 22px; background: white; box-shadow: 0 5px 0 var(--ink); }
