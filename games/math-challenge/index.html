@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#faf8f2">
+  <meta name="description" content="Thử thách toán học tiểu học qua 4 mini game: bắn bong bóng, xây cầu, hái sao và đúng sai chớp nhoáng. Chọn dễ hoặc khó và chơi miễn phí!">
+  <title>Thử thách toán học — Mind Phoenix Games</title>
+  <link rel="canonical" href="https://mindphoenix.xyz/games/math-challenge/">
+  <meta property="og:title" content="Thử thách toán học — Mind Phoenix Games">
+  <meta property="og:description" content="4 vòng chơi, 4 thử thách toán tiểu học. Tính thật nhanh, chơi thật vui!">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mindphoenix.xyz/games/math-challenge/">
+  <meta property="og:image" content="https://mindphoenix.xyz/assets/og/mind-phoenix-social.png">
+  <meta property="og:locale" content="vi_VN">
+  <link rel="icon" type="image/png" href="../../assets/mascots/mind-phoenix-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="game.css">
+  <script type="module" src="game.js"></script>
+</head>
+<body>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-sound" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13-1a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-muted" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13 0 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  </svg>
+  <div class="shell">
+    <header>
+      <a class="brand" href="../"><img src="../../assets/mascots/mind-phoenix-logo.png" width="42" height="42" alt=""><span>Mind Phoenix <small>GAMES · CHƠI MÀ HỌC</small></span></a>
+      <a class="back" href="../">← Các trò chơi</a>
+    </header>
+    <main>
+      <section id="menu" aria-labelledby="menu-title">
+        <div class="intro">
+          <div>
+            <p class="eyebrow">MỘT HÀNH TRÌNH · BỐN THỬ THÁCH</p>
+            <h1 id="menu-title">Thử thách<br><span>toán học</span><i aria-hidden="true">✦</i></h1>
+            <p class="lead">Bộ não nhỏ, cuộc phiêu lưu lớn! Cùng Sigma tính thật nhanh và chinh phục những trò chơi bất ngờ.</p>
+            <div class="badges"><span>Toán tiểu học</span><span>4 mini game</span><span>Chơi bằng chuột, chạm hoặc bàn phím</span></div>
+          </div>
+          <div class="hero-art" aria-hidden="true"><span class="math-float one">7 + 5</span><span class="math-float two">×</span><img src="../../assets/mascots/mindmath-sigma-happy.webp" width="260" height="260" alt=""><span class="math-float three">= 12</span><span class="orbit">✦</span></div>
+        </div>
+        <div class="menu-bottom">
+          <div class="journey"><p class="eyebrow">BẢN ĐỒ PHIÊU LƯU</p><ol id="round-list"></ol></div>
+          <form id="start-form" class="setup">
+            <h2>Sẵn sàng thử sức?</h2>
+            <fieldset><legend>Chọn độ khó</legend>
+              <label class="difficulty"><input type="radio" name="difficulty" value="easy" checked><span><strong>🌱 Dễ</strong><small>Cộng, trừ trong 40; bảng nhân 1–5<br>18 giây / câu</small></span></label>
+              <label class="difficulty"><input type="radio" name="difficulty" value="hard"><span><strong>🔥 Khó</strong><small>Cộng, trừ, nhân, chia và tính kết hợp<br>12 giây / câu</small></span></label>
+            </fieldset>
+            <p class="rule">Mỗi vòng 5 câu · Đúng ít nhất 3 câu để qua vòng.<br>Đúng +100 điểm, mỗi giây còn lại +5. Sai hoặc hết giờ: 0 điểm. Chưa qua? Thử lại vòng đó!</p>
+            <button type="submit" class="primary">Bắt đầu phiêu lưu <span aria-hidden="true">→</span></button>
+          </form>
+        </div>
+      </section>
+
+      <section id="play" aria-labelledby="round-title" hidden>
+        <nav id="route" class="route" aria-label="Các vòng chơi"></nav>
+        <div class="play-heading"><div><p class="eyebrow" id="round-label"></p><h1 id="round-title" tabindex="-1"></h1></div><div class="actions"><button id="sound-toggle" class="secondary" type="button" aria-pressed="true"><svg class="icon" aria-hidden="true"><use href="#icon-sound"/></svg><span>Âm thanh</span></button><button id="pause" class="secondary" type="button">Tạm dừng</button></div></div>
+        <div class="game-card">
+          <div class="stats"><span id="question-count"></span><span>Đúng <strong id="correct-count">0/5</strong></span><span>Điểm <strong id="score">0</strong></span><span class="clock" role="timer" aria-label="Thời gian còn lại"><strong id="seconds">18</strong> giây</span></div>
+          <div class="time-track" aria-hidden="true"><span id="time-fill"></span></div>
+          <p id="instruction" class="instruction"></p>
+          <h2 id="prompt"></h2>
+          <div class="arena" id="arena"></div>
+          <div class="answer-footer"><p id="feedback" role="status" aria-live="polite"></p><button id="next-question" class="primary" type="button" hidden>Câu tiếp theo →</button></div>
+        </div>
+        <p class="keyboard-note" id="keyboard-note"></p>
+      </section>
+
+      <section id="round-end" class="result" aria-labelledby="result-title" hidden>
+        <p class="result-icon" id="result-icon" aria-hidden="true">✦</p>
+        <p class="eyebrow" id="result-label"></p><h1 id="result-title" tabindex="-1"></h1>
+        <p id="result-copy" class="lead"></p>
+        <div id="result-stats" class="result-stats"></div>
+        <div class="result-actions"><button class="primary" id="continue" type="button"></button><button class="secondary" type="button" data-menu>Về trang đầu</button></div>
+      </section>
+
+      <section id="complete" class="result" aria-labelledby="complete-title" hidden>
+        <img class="winner" src="../../assets/mascots/mindmath-sigma-wow.webp" width="160" height="160" alt="Sigma vui mừng">
+        <p class="eyebrow">NHÀ THÁM HIỂM TOÁN HỌC</p><h1 id="complete-title" tabindex="-1">Bạn thật xuất sắc!</h1>
+        <p id="final-copy" class="lead"></p><div id="final-stats" class="result-stats"></div><ol id="recap" class="recap"></ol>
+        <div class="result-actions"><button class="primary" id="again" type="button">Chơi lại từ đầu ↻</button><button class="secondary" type="button" data-menu>Đổi độ khó</button></div>
+      </section>
+      <dialog id="pause-dialog" aria-labelledby="pause-title"><h2 id="pause-title">Nghỉ một chút nhé!</h2><p>Đồng hồ đã dừng. Sẵn sàng thì chơi tiếp nào.</p><div class="result-actions"><button id="resume" class="primary" type="button">Chơi tiếp</button><button class="secondary" type="button" data-menu>Về trang đầu</button></div></dialog>
+      <p id="audio-error" role="alert" hidden></p>
+      <noscript><p>Hãy bật JavaScript để chơi Thử thách toán học.</p></noscript>
+    </main>
+    <footer>Chậm một chút cũng không sao. Mỗi câu hỏi là một lần tiến bộ! · Mind Phoenix</footer>
+  </div>
+</body>
+</html>
