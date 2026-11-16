@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#172e39">
+  <meta name="description" content="Mascot ôm thanh đỡ, đánh bóng phá gạch, săn điểm thưởng và trả lời câu hỏi như Nhảy mây. 3 mạng, tốc độ tăng dần có giới hạn." data-en-content="Help your mascot bounce the ball, break bonus bricks and answer Sky Jump questions. Three lives and gradually increasing, capped ball speed.">
+  <title>Breakout — Mind Phoenix Games</title>
+  <link rel="canonical" href="https://mindphoenix.xyz/games/breakout/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Breakout — Mind Phoenix Games">
+  <meta property="og:description" content="Cùng mascot đỡ bóng phá gạch, săn điểm thưởng và giải câu hỏi!">
+  <meta property="og:url" content="https://mindphoenix.xyz/games/breakout/">
+  <meta property="og:image" content="https://mindphoenix.xyz/assets/og/mind-phoenix-social.png">
+  <link rel="icon" type="image/png" href="../../assets/mascots/mind-phoenix-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="game.css">
+  <link rel="stylesheet" href="../language.css">
+  <script type="module" src="game.js"></script>
+</head>
+<body>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-sound" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13-1a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="icon-muted" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13 0 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  </svg>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="../"><img src="../../assets/mascots/mind-phoenix-logo.png" width="40" height="40" alt=""><span><small>Mind Phoenix Games</small><strong>Break<span>out</span></strong></span></a>
+      <div class="top-actions">
+        <div class="lang-toggle" role="group" aria-label="Language" hidden><button type="button" data-lang="vi" aria-pressed="true" lang="vi">VI</button><button type="button" data-lang="en" aria-pressed="false" lang="en">EN</button></div>
+        <button class="round-button" id="sound-toggle" type="button" aria-pressed="true" aria-label="Tắt âm thanh"><svg class="icon" aria-hidden="true"><use href="#icon-sound"/></svg></button>
+        <button class="round-button" id="pause-toggle" type="button" aria-label="Tạm dừng" title="Tạm dừng (P)" disabled>Ⅱ</button>
+      </div>
+    </header>
+    <main>
+      <div class="hud">
+        <div><span>Điểm</span><strong id="hud-score">0</strong></div>
+        <div><span data-en="Wave">Bảng gạch</span><strong id="hud-wave">01</strong></div>
+        <div><span data-en="Ball speed">Tốc độ bóng</span><strong id="hud-speed">330 <small>/ 660</small></strong></div>
+        <div class="lives"><span data-en="Lives">Mạng</span><strong id="hud-lives" aria-live="polite">♥ ♥ ♥</strong></div>
+      </div>
+      <div class="stage" id="stage">
+        <canvas id="breakout" width="800" height="620" tabindex="0" role="img" aria-label="Đỡ bóng phá gạch bằng chuột, cảm ứng hoặc phím trái phải." data-en-aria-label="Bounce the ball to break bricks using your mouse, touch or arrow keys.">Trình duyệt của bạn cần hỗ trợ Canvas để chơi.</canvas>
+        <div class="ready-hint" id="ready-hint" hidden><span data-en="Click / tap or press Space to launch">Chạm màn hình hoặc nhấn Space để phóng bóng</span></div>
+        <div class="toast" id="toast" role="status" hidden></div>
+
+        <section class="overlay" id="start-screen" aria-labelledby="start-title">
+          <div class="panel start-panel">
+            <div class="start-main">
+              <p class="eyebrow" data-en="Little paddle. Big adventure.">Thanh đỡ nhỏ. Thử thách lớn.</p>
+              <h1 id="start-title">Break<span>out!</span></h1>
+              <p class="lead" data-en="Hug the paddle. Bounce the ball. Break every brick!">Ôm thanh đỡ, tung bóng lên.<br>Phá gạch, mở kho tri thức!</p>
+              <form id="start-form">
+                <fieldset><legend>Chọn nhân vật</legend><div class="character-grid" id="character-grid"></div></fieldset>
+                <label class="name-field" for="player-name"><span>Tên của bạn</span><input id="player-name" name="nickname" maxlength="16" autocomplete="nickname" placeholder="Bạn nhỏ" spellcheck="false"></label>
+                <button class="primary-button big" type="submit" data-en="Let's break bricks →">Phá gạch thôi →</button>
+              </form>
+            </div>
+            <aside class="guide">
+              <div class="brick-demo" aria-hidden="true"><span>+10</span><span>★</span><span>?</span></div>
+              <h2 data-en="Your mission">Nhiệm vụ của bạn</h2>
+              <ul class="rules">
+                <li data-en="Mouse / drag or ← → / A D to move. Click, tap or Space to launch. P to pause.">Chuột / kéo cảm ứng hoặc ← → / A D để di chuyển. Chạm hoặc Space để phóng bóng. P tạm dừng.</li>
+                <li data-en="Normal brick: +10. Gold ★ brick: +50. Hit near the paddle edge to change the bounce angle.">Gạch thường: +10. Gạch vàng ★: +50. Đỡ gần mép thanh để đổi góc bóng.</li>
+                <li data-en="? brick: a Sky Jump question, 30 seconds. Correct: +50 and +2 per second left. Wrong / timeout: lose half the potential reward, never a life; score stays ≥ 0.">Gạch ?: câu hỏi như Nhảy mây, 30 giây. Đúng: +50 và +2 mỗi giây còn lại. Sai / hết giờ: trừ nửa điểm thưởng, không mất mạng; điểm không âm.</li>
+                <li data-en="3 lives. Miss a ball, lose a life. Clear the board for a new wave. Speed rises with active play and broken bricks, capped at 660 px/s.">3 mạng. Rơi bóng mất 1 mạng. Phá hết gạch để sang bảng mới. Bóng nhanh dần theo thời gian chơi và số gạch phá, tối đa 660 px/giây.</li>
+                <li data-en="Secret names: HHH or Phoenix Hoang = unlimited lives (case-insensitive).">Tên bí mật: HHH hoặc Phoenix Hoang = mạng vô hạn (không phân biệt hoa thường).</li>
+              </ul>
+              <h2>Bảng xếp hạng</h2>
+              <ol class="board" id="board"></ol>
+              <p class="board-note">Lưu trên thiết bị này.</p>
+            </aside>
+          </div>
+        </section>
+
+        <section class="overlay" id="question-screen" hidden>
+          <div class="panel question-panel" role="dialog" aria-modal="true" aria-labelledby="question-text">
+            <div class="question-head"><span class="topic" id="question-topic"></span><span class="question-timer"><strong id="question-seconds">30</strong> <span>giây</span></span></div>
+            <div class="timer-track" aria-hidden="true"><span id="question-bar"></span></div>
+            <h2 id="question-text"></h2>
+            <div class="answers" id="answers"></div>
+            <p class="question-feedback" id="question-feedback" role="status"></p>
+            <button class="primary-button" id="continue-button" type="button" hidden>Chơi tiếp</button>
+          </div>
+        </section>
+
+        <section class="overlay" id="pause-screen" hidden>
+          <div class="panel small-panel" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+            <p class="eyebrow">Nghỉ một chút</p><h2 id="pause-title">Tạm dừng</h2>
+            <button class="primary-button" id="resume-button" type="button">Chơi tiếp</button>
+            <button class="ghost-button" id="quit-button" type="button">Kết thúc lượt</button>
+          </div>
+        </section>
+
+        <section class="overlay" id="over-screen" hidden>
+          <div class="panel small-panel" role="dialog" aria-modal="true" aria-labelledby="over-title">
+            <img id="over-avatar" class="over-avatar" src="../../assets/mascots/mind-phoenix-mascot.png" alt="">
+            <p class="eyebrow" id="over-reason">Hết mạng rồi!</p><h2 id="over-title">Game over</h2>
+            <p class="final-score"><strong id="final-score">0</strong> <span>điểm</span></p>
+            <p id="final-stats"></p><p id="rank-note"></p>
+            <button class="primary-button" id="again-button" type="button">Chơi lại</button>
+            <button class="ghost-button" id="menu-button" type="button" data-en="Characters & leaderboard">Nhân vật & bảng xếp hạng</button>
+          </div>
+        </section>
+      </div>
+      <div class="controls">
+        <span class="control-note" data-en="MOVE: mouse / drag / ← → · LAUNCH: Space · PAUSE: P">DI CHUYỂN: chuột / kéo / ← → · PHÓNG: Space · DỪNG: P</span>
+        <div class="touch-controls"><button type="button" data-direction="-1" aria-label="Sang trái" data-en-aria-label="Move left">←</button><button id="launch-button" type="button" data-en="Launch">Phóng bóng</button><button type="button" data-direction="1" aria-label="Sang phải" data-en-aria-label="Move right">→</button></div>
+        <a href="../" data-en="← All games">← Tất cả trò chơi</a>
+      </div>
+      <p class="storage-notice" id="storage-notice" role="status" hidden></p>
+    </main>
+  </div>
+</body>
+</html>
