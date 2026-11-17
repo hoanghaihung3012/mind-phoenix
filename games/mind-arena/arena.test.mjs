@@ -39,7 +39,7 @@ test('SUBJECTS covers Math, Vietnamese, English, and All-round with rich metadat
   }
 });
 
-test('STAGE_CONFIGS defines 3 stages according to VioEdu progression', () => {
+test('STAGE_CONFIGS defines 3 stages with progressive difficulty', () => {
   assert.equal(STAGE_CONFIGS.length, 3);
   assert.equal(STAGE_CONFIGS[0].id, 'sprint');
   assert.equal(STAGE_CONFIGS[1].id, 'surge');

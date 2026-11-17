@@ -1,5 +1,5 @@
 /**
- * Mind Arena (Đấu Trường Mind theo phong cách VioEdu)
+ * Mind Arena (Đấu Trường Trí Tuệ Mind Phoenix)
  * Core Game Engine: Topics, Lessons, Stages, Scoring, Streak, and Opponent Simulation.
  */
 
@@ -1080,7 +1080,7 @@ export function calculateMedal(score, maxScore) {
 }
 
 /**
- * Generate simulated live arena rivals to create real-time VioEdu leaderboard feel.
+ * Generate simulated live arena rivals to create real-time leaderboard feel.
  */
 export const ARENA_BOT_NAMES = [
   { name: 'Bảo Nam', school: 'TH Chu Văn An (Hà Nội)', avatar: '🦊' },
