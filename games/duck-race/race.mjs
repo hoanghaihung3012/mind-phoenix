@@ -1,9 +1,21 @@
-export const MAX_PARTICIPANTS = 200;
-export const MAX_NAME_LENGTH = 80;
+import {
+  MAX_PARTICIPANTS,
+  MAX_NAME_LENGTH,
+  parseNames,
+  readNamesFile,
+  shuffle,
+  remainingNames,
+  randomInteger
+} from '../../shared/core/participants.mjs';
 
-export function parseNames(text) {
-  return text.split(/\r\n?|\n/).map((name) => name.trim()).filter(Boolean);
-}
+export {
+  MAX_PARTICIPANTS,
+  MAX_NAME_LENGTH,
+  parseNames,
+  readNamesFile,
+  shuffle,
+  remainingNames
+};
 
 export function validateSetup(names, { duration, count, mode }, language = 'vi') {
   const t = (vi, en) => language === 'en' ? en : vi;
@@ -14,44 +26,6 @@ export function validateSetup(names, { duration, count, mode }, language = 'vi')
   if (!Number.isInteger(count) || count < 1 || count > names.length) return t(`Số người chọn phải là số nguyên từ 1 đến ${names.length}.`, `The number to pick must be an integer from 1 to ${names.length}.`);
   if (!['first', 'last'].includes(mode)) return t('Chọn người về đầu hoặc về cuối.', 'Choose first or last finishers.');
   return '';
-}
-
-function fileError(message, englishMessage, options) {
-  return Object.assign(new Error(message, options), { englishMessage });
-}
-
-export async function readNamesFile(file) {
-  if (!file.name.toLowerCase().endsWith('.txt')) throw fileError('Vui lòng chọn file có đuôi .txt.', 'Please choose a .txt file.');
-  if (file.size > 1024 * 1024) throw fileError('File quá lớn. Vui lòng chọn file .txt tối đa 1 MB.', 'The file is too large. Choose a .txt file up to 1 MB.');
-  let text;
-  try {
-    text = new TextDecoder('utf-8', { fatal: true }).decode(await file.arrayBuffer());
-  } catch (error) {
-    throw fileError('Không thể đọc file UTF-8. Hãy lưu lại file .txt với mã hóa UTF-8 rồi nhập lại.', 'Could not read the UTF-8 file. Save it as UTF-8 text and import it again.', { cause: error });
-  }
-  if (text.includes('\0')) throw fileError('File chứa dữ liệu không phải văn bản. Vui lòng chọn danh sách .txt UTF-8.', 'The file contains non-text data. Choose a UTF-8 .txt list.');
-  const names = parseNames(text);
-  const error = validateSetup(names, { duration: 30, count: 1, mode: 'first' });
-  if (error) throw Object.assign(new RangeError(error), { englishMessage: validateSetup(names, { duration: 30, count: 1, mode: 'first' }, 'en') });
-  return names;
-}
-
-function randomInteger(upperBound) {
-  const range = 0x100000000;
-  const limit = range - (range % upperBound);
-  const value = new Uint32Array(1);
-  // Rejection sampling keeps every shuffle position equally likely.
-  do { globalThis.crypto.getRandomValues(value); } while (value[0] >= limit);
-  return value[0] % upperBound;
-}
-
-export function shuffle(items, nextInteger = randomInteger) {
-  const result = [...items];
-  for (let index = result.length - 1; index > 0; index--) {
-    const other = nextInteger(index + 1);
-    [result[index], result[other]] = [result[other], result[index]];
-  }
-  return result;
 }
 
 export function createRace(names, duration, nextInteger = randomInteger) {
@@ -88,9 +62,4 @@ export function selectRacers(racers, mode, count) {
     throw new RangeError('Lựa chọn kết quả không hợp lệ.');
   }
   return [...racers].sort((a, b) => mode === 'first' ? a.rank - b.rank : b.rank - a.rank).slice(0, count);
-}
-
-export function remainingNames(names, selected) {
-  const ids = new Set(selected.map((racer) => racer.id));
-  return names.filter((name, id) => !ids.has(id));
 }

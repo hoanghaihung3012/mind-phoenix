@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createSpin, numberRange, validateNames } from './wheel.mjs';
-import { remainingNames } from '../../games/duck-race/race.mjs';
+import { remainingNames } from '../../shared/core/participants.mjs';
 
 test('every selected entry lands at the fixed top pointer, across repeated spins and list sizes', () => {
   for (const count of [1, 2, 29, 48, 200]) {

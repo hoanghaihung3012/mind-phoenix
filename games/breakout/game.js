@@ -2,8 +2,8 @@ import {
   BALL_RADIUS, HEIGHT, MAX_SPEED, PADDLE_HEIGHT, PADDLE_WIDTH, PADDLE_Y, WIDTH,
   advance, ballSpeed, createGame, finishQuestion, launch, movePaddle,
 } from './breakout.mjs';
-import { QUESTION_TIME, addScore, createQuestionDeck, normalizeName, parseLeaderboard } from '../sky-jump/sky.mjs';
-import { createGameAudio } from '../audio.mjs';
+import { QUESTION_TIME, addScore, createQuestionDeck, normalizeName, parseLeaderboard } from '../../shared/core/game-utils.mjs';
+import { createGameAudio } from '../../shared/core/audio.mjs';
 import { english, initGameLanguage } from '../i18n.mjs';
 
 const i18n = initGameLanguage();

@@ -1,6 +1,6 @@
-import { GameAudio } from '../../games/audio.mjs';
+import { GameAudio } from '../../shared/core/audio.mjs';
 import { createCountdown, formatDuration, readDuration } from './timer.mjs';
-import { initLanguage } from '../i18n.mjs';
+import { initLanguage } from '../../shared/core/i18n.mjs';
 
 const i18n = initLanguage();
 const t = i18n.t;

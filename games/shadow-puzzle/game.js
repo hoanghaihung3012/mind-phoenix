@@ -1,5 +1,5 @@
 import { PUZZLES, constrainPosition, createBoard, isWithinSnap } from './puzzle.mjs';
-import { createGameAudio } from '../audio.mjs';
+import { createGameAudio } from '../../shared/core/audio.mjs';
 import { english, initGameLanguage } from '../i18n.mjs';
 
 const i18n = initGameLanguage();

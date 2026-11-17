@@ -1,4 +1,4 @@
-import { MAX_NAME_LENGTH, MAX_PARTICIPANTS, shuffle } from '../../games/duck-race/race.mjs';
+import { MAX_NAME_LENGTH, MAX_PARTICIPANTS, shuffle } from '../../shared/core/participants.mjs';
 
 export function validateNames(names) {
   if (!names.length) return 'Thêm ít nhất một tên hoặc số để quay.';

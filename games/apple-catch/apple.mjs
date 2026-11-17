@@ -1,6 +1,6 @@
-import { createQuestionDeck as createDeck } from '../sky-jump/sky.mjs';
+import { createQuestionDeck as createDeck } from '../../shared/core/game-utils.mjs';
 
-export { addScore, mulberry32, normalizeName, parseLeaderboard } from '../sky-jump/sky.mjs';
+export { addScore, mulberry32, normalizeName, parseLeaderboard } from '../../shared/core/game-utils.mjs';
 
 export const VIEW_HEIGHT = 540;
 export const GROUND_Y = 510;

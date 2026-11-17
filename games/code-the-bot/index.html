@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f8fafc">
+  <meta name="description" content="Dẫn đường cho Cmd — trò chơi tư duy lập trình khối lệnh cho học sinh tiểu học. Giúp robot Cmd né bọ Bug, nhặt sao và cắm sạc pin qua các thuật toán thông minh!">
+  <title>Dẫn Đường Cho Cmd — Mind Phoenix Games</title>
+  <link rel="canonical" href="https://mindphoenix.xyz/games/code-the-bot/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Mind Phoenix">
+  <meta property="og:title" content="Dẫn Đường Cho Cmd — Code the Bot">
+  <meta property="og:description" content="Lập trình chuỗi khối lệnh giúp Cmd vượt chướng ngại vật, né bọ và sạc đầy năng lượng!">
+  <meta property="og:url" content="https://mindphoenix.xyz/games/code-the-bot/">
+  <meta property="og:locale" content="vi_VN">
+  <meta property="og:image" content="https://mindphoenix.xyz/assets/og/mind-phoenix-social.png">
+  <link rel="icon" type="image/png" href="../../assets/mascots/mind-phoenix-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="game.css">
+  <link rel="stylesheet" href="../language.css">
+  <script type="module" src="game.js"></script>
+</head>
+<body>
+  <svg class="icon-library" style="display: none;" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-back" viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-sound" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13-1a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-muted" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13 0 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4" fill="currentColor"/></symbol>
+    <symbol id="icon-step" viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4" fill="currentColor"/><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
+    <symbol id="icon-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="3 3 3 8 8 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24"><path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></symbol>
+    <symbol id="icon-arrow" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><polyline points="5 12 12 5 19 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-turn-left" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v5.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-turn-right" viewBox="0 0 24 24"><path d="m15 14 5-5-5-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5V20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-jump" viewBox="0 0 24 24"><path d="M4 18c2-8 12-8 16 0" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><polyline points="16 10 20 18 12 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <div class="page-wrap">
+    <header class="topbar">
+      <a class="brand" href="../../" aria-label="Trang chủ Mind Phoenix">
+        <img src="../../assets/mascots/mind-phoenix-logo.png" width="40" height="40" alt="Mind Phoenix Logo">
+        <span>Mind Phoenix<small>MINDDEV · TƯ DUY LẬP TRÌNH</small></span>
+      </a>
+      <div class="top-actions">
+        <div class="lang-toggle" role="group" aria-label="Ngôn ngữ" hidden>
+          <button type="button" data-lang="vi" aria-pressed="true">VI</button>
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+        <button class="round-button" id="sound-toggle" type="button" aria-pressed="true" aria-label="Tắt âm thanh" title="Tắt âm thanh">
+          <svg class="icon" aria-hidden="true"><use href="#icon-sound"/></svg>
+        </button>
+        <a class="round-button" href="../" aria-label="Tất cả trò chơi" title="Tất cả trò chơi">
+          <svg class="icon" aria-hidden="true"><use href="#icon-back"/></svg>
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <section class="level-header">
+        <div class="level-info">
+          <div class="level-badge" id="level-badge">1</div>
+          <div class="level-text">
+            <h1 id="level-title">Bước đầu tiên</h1>
+            <p id="level-hint">Thêm 2 lệnh Tiến về phía trước để Cmd cắm sạc!</p>
+          </div>
+        </div>
+        <div class="level-nav">
+          <div class="stars-rating" id="stars-display">
+            <span class="star-icon">★</span>
+            <span class="star-icon">★</span>
+            <span class="star-icon">★</span>
+          </div>
+          <button class="round-button" id="prev-level" aria-label="Màn trước" title="Màn trước">❮</button>
+          <button class="round-button" id="next-level" aria-label="Màn tiếp theo" title="Màn tiếp theo">❯</button>
+        </div>
+      </section>
+
+      <div class="workspace">
+        <!-- GAME BOARD -->
+        <div class="board-card">
+          <canvas id="game-canvas" class="grid-canvas" width="480" height="400"></canvas>
+          <div id="status-bar" class="status-bar">Sẵn sàng lập trình</div>
+        </div>
+
+        <!-- CODING PANEL -->
+        <div class="coding-panel">
+          <div class="palette-section">
+            <div class="palette-heading">1. Hộp lệnh lập trình (Chạm để chọn)</div>
+            <div class="command-palette" id="palette-buttons">
+              <button class="cmd-btn forward" data-cmd="forward">
+                <svg class="icon"><use href="#icon-arrow"/></svg> Tiến
+              </button>
+              <button class="cmd-btn turn-left" data-cmd="turn-left">
+                <svg class="icon"><use href="#icon-turn-left"/></svg> Rẽ trái
+              </button>
+              <button class="cmd-btn turn-right" data-cmd="turn-right">
+                <svg class="icon"><use href="#icon-turn-right"/></svg> Rẽ phải
+              </button>
+              <button class="cmd-btn jump" data-cmd="jump">
+                <svg class="icon"><use href="#icon-jump"/></svg> Nhảy
+              </button>
+              <button class="cmd-btn repeat" data-cmd="repeat-2">
+                🔁 Lặp 2x
+              </button>
+              <button class="cmd-btn repeat" data-cmd="repeat-3">
+                🔁 Lặp 3x
+              </button>
+            </div>
+          </div>
+
+          <div class="program-section">
+            <div class="program-header">
+              <div class="palette-heading" style="margin: 0;">2. Chuỗi dòng lệnh của Cmd</div>
+              <div class="block-count" id="block-counter">0 khối lệnh</div>
+            </div>
+            <div class="program-queue" id="program-queue"></div>
+          </div>
+
+          <div class="controls-bar">
+            <button class="action-btn run" id="run-btn">
+              <svg class="icon"><use href="#icon-play"/></svg> Chạy Code
+            </button>
+            <button class="action-btn step" id="step-btn">
+              <svg class="icon"><use href="#icon-step"/></svg> Từng bước
+            </button>
+            <button class="action-btn reset" id="reset-btn" title="Đặt lại vị trí ban đầu">
+              <svg class="icon"><use href="#icon-reset"/></svg> Đặt lại
+            </button>
+            <button class="round-button" id="clear-btn" title="Xóa toàn bộ code">
+              <svg class="icon"><use href="#icon-trash"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- VICTORY DIALOG -->
+  <dialog id="win-dialog">
+    <div class="modal-content">
+      <img src="../../assets/mascots/minddev-cmd-wow.webp" class="modal-mascot" alt="Cmd Wow">
+      <h2>Tuyệt vời!</h2>
+      <p id="win-desc">Cmd đã được sạc đầy 100% năng lượng!</p>
+      <div class="modal-stars" id="win-stars">★★★</div>
+      <div class="modal-actions">
+        <button class="action-btn reset" id="replay-btn" style="flex: 1;">Chơi lại</button>
+        <button class="action-btn run" id="next-lvl-btn" style="flex: 1;">Màn tiếp theo →</button>
+      </div>
+    </div>
+  </dialog>
+</body>
+</html>

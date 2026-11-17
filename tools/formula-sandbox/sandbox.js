@@ -1,5 +1,5 @@
 import { calculateFormula, compileExpression, convertUnit, getFormulas, getUnitGroups, formatNumber, readNumber, unitLabel } from './calculator.mjs';
-import { initLanguage } from '../i18n.mjs';
+import { initLanguage } from '../../shared/core/i18n.mjs';
 
 const i18n = initLanguage();
 const t = i18n.t;

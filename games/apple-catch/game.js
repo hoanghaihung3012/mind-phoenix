@@ -2,7 +2,7 @@ import {
   BASKET_RIM, BASKET_W, GROUND_Y, ITEMS, LEVELS, MOVE_SPEED, VIEW_HEIGHT,
   addScore, applyPoints, createQuestionDeck, isCaught, levelResult, mulberry32, normalizeName, parseLeaderboard, spawnItem,
 } from './apple.mjs';
-import { createGameAudio } from '../audio.mjs';
+import { createGameAudio } from '../../shared/core/audio.mjs';
 import { english, initGameLanguage } from '../i18n.mjs';
 
 const i18n = initGameLanguage();

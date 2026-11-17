@@ -1,6 +1,6 @@
 import { MAX_NAME_LENGTH, MAX_PARTICIPANTS, createRace, parseNames, progressAt, readNamesFile, remainingNames, selectRacers, shuffle, validateSetup } from './race.mjs';
-import { createGameAudio } from '../audio.mjs';
-import { class46Names } from '../class-4-6.mjs';
+import { createGameAudio } from '../../shared/core/audio.mjs';
+import { class46Names } from '../../shared/core/participants.mjs';
 import { english, initGameLanguage } from '../i18n.mjs';
 
 const i18n = initGameLanguage();

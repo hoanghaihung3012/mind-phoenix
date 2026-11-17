@@ -1,7 +1,1 @@
-.header-links { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
-.lang-toggle { display: inline-flex; flex: none; padding: 3px; border: 2px solid #2b2550; border-radius: 12px; background: white; box-shadow: 0 3px 0 #2b2550; }
-.lang-toggle[hidden] { display: none; }
-.lang-toggle button { min-width: 40px; min-height: 36px; padding: 0 8px; border: 0; border-radius: 8px; background: transparent; color: #2b2550; font: 800 14px 'Nunito', system-ui, sans-serif; cursor: pointer; }
-.lang-toggle button[aria-pressed="true"] { background: #ffd98a; }
-.lang-toggle button:focus-visible { outline: 3px dashed #7754ae; outline-offset: 3px; }
-@media print { .lang-toggle { display: none; } }
+@import url('../shared/styles/language.css');

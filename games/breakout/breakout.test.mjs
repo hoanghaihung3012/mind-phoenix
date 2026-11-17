@@ -4,7 +4,7 @@ import {
   BALL_RADIUS, BONUS_POINTS, BRICK_POINTS, HEIGHT, MAX_SPEED, PADDLE_Y, START_SPEED,
   WIDTH, advance, ballSpeed, createGame, finishQuestion, launch, movePaddle,
 } from './breakout.mjs';
-import { mulberry32 } from '../sky-jump/sky.mjs';
+import { mulberry32 } from '../../shared/core/game-utils.mjs';
 
 function playing() {
   const game = createGame('Player', mulberry32(4));

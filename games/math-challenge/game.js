@@ -1,5 +1,5 @@
 import { DIFFICULTIES, PASS_COUNT, QUESTIONS_PER_ROUND, ROUNDS, advanceRound, createQuestion, createRun, recordAnswer, retryRound } from './challenge.mjs';
-import { createGameAudio } from '../audio.mjs';
+import { createGameAudio } from '../../shared/core/audio.mjs';
 import { english, initGameLanguage } from '../i18n.mjs';
 
 const i18n = initGameLanguage();

@@ -1,4 +1,4 @@
-import { initLanguage } from '../tools/i18n.mjs';
+import { initLanguage } from '../shared/core/i18n.mjs';
 import { translations } from './translations.mjs';
 
 export const english = (text) => Object.hasOwn(translations, text) ? translations[text] : text;
@@ -29,3 +29,5 @@ export function initGameLanguage() {
     attr: (node, attribute, vi, en = english(vi)) => bind(node, attribute, vi, en),
   });
 }
+
+export const createGameI18n = initGameLanguage;

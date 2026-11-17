@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#fffbf0">
+  <meta name="description" content="Nối Số Bùng Nổ — Math Chain Target. Vuốt nối các số liền kề để đạt tổng mục tiêu, kích hoạt combo nổ bùm và rèn luyện phản xạ tính nhẩm siêu tốc cùng Sigma!">
+  <title>Nối Số Bùng Nổ — Mind Phoenix Games</title>
+  <link rel="canonical" href="https://mindphoenix.xyz/games/math-chain/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Mind Phoenix">
+  <meta property="og:title" content="Nối Số Bùng Nổ — Math Chain Target">
+  <meta property="og:description" content="Vuốt nối các số đạt tổng mục tiêu, kích hoạt nổ chuỗi và nhận điểm thưởng ngoạn mục cùng Sigma!">
+  <meta property="og:url" content="https://mindphoenix.xyz/games/math-chain/">
+  <meta property="og:locale" content="vi_VN">
+  <meta property="og:image" content="https://mindphoenix.xyz/assets/og/mind-phoenix-social.png">
+  <link rel="icon" type="image/png" href="../../assets/mascots/mind-phoenix-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="game.css">
+  <link rel="stylesheet" href="../language.css">
+  <script type="module" src="game.js"></script>
+</head>
+<body>
+  <svg class="icon-library" style="display: none;" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-back" viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-sound" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13-1a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-muted" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13 0 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="3 3 3 8 8 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-shuffle" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="4" y1="20" x2="21" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="21 16 21 21 16 21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="15" y1="15" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="4" y1="4" x2="9" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <div class="page-wrap">
+    <header class="topbar">
+      <a class="brand" href="../../" aria-label="Trang chủ Mind Phoenix">
+        <img src="../../assets/mascots/mind-phoenix-logo.png" width="40" height="40" alt="Mind Phoenix Logo">
+        <span>Mind Phoenix<small>MINDMATH · TÍNH NHẨM BÙNG NỔ</small></span>
+      </a>
+      <div class="top-actions">
+        <div class="lang-toggle" role="group" aria-label="Ngôn ngữ" hidden>
+          <button type="button" data-lang="vi" aria-pressed="true">VI</button>
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+        <button class="round-button" id="sound-toggle" type="button" aria-pressed="true" aria-label="Tắt âm thanh" title="Tắt âm thanh">
+          <svg class="icon" aria-hidden="true"><use href="#icon-sound"/></svg>
+        </button>
+        <a class="round-button" href="../" aria-label="Tất cả trò chơi" title="Tất cả trò chơi">
+          <svg class="icon" aria-hidden="true"><use href="#icon-back"/></svg>
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hud-dashboard">
+        <div class="hud-card target-card">
+          <span class="hud-label" id="label-target">Mục tiêu</span>
+          <span class="hud-value" id="target-value">10</span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label" id="label-score">Điểm</span>
+          <span class="hud-value" id="score-value">0</span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label" id="label-time">Thời gian</span>
+          <span class="hud-value" id="time-value">90s</span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label" id="label-level">Màn chơi</span>
+          <span class="hud-value" id="level-value">1/7</span>
+        </div>
+      </section>
+
+      <!-- LIVE SUM DISPLAY -->
+      <div class="sum-indicator" id="sum-indicator">
+        Vuốt nối các số liền kề đạt mục tiêu!
+      </div>
+
+      <!-- MAIN CANVAS -->
+      <div class="board-container">
+        <canvas id="chain-canvas" class="chain-canvas" width="420" height="420"></canvas>
+      </div>
+
+      <!-- CONTROLS -->
+      <div class="board-controls">
+        <button class="btn-secondary" id="shuffle-btn">
+          <svg class="icon"><use href="#icon-shuffle"/></svg> <span id="text-shuffle">Xáo trộn bảng</span>
+        </button>
+        <button class="btn-secondary" id="restart-btn">
+          <svg class="icon"><use href="#icon-reset"/></svg> <span id="text-restart">Chơi lại</span>
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <!-- VICTORY MODAL -->
+  <dialog id="win-dialog">
+    <div class="modal-content">
+      <img src="../../assets/mascots/mindmath-sigma-wow.webp" class="modal-mascot" alt="Sigma Wow">
+      <h2 id="win-title">Chiến Thắng!</h2>
+      <p id="win-message">Bạn đã hoàn thành mục tiêu điểm số xuất sắc!</p>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" id="modal-replay-btn">Chơi lại</button>
+        <button class="modal-btn primary" id="modal-next-btn">Màn tiếp theo →</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- GAME OVER MODAL -->
+  <dialog id="gameover-dialog">
+    <div class="modal-content">
+      <img src="../../assets/mascots/mindmath-sigma-happy.webp" class="modal-mascot" alt="Sigma">
+      <h2>Hết giờ rồi!</h2>
+      <p id="gameover-message">Đừng nản lòng, hãy thử lại cùng Sigma nhé!</p>
+      <div class="modal-actions">
+        <button class="modal-btn primary" id="modal-tryagain-btn" style="flex: 1;">Thử lại ngay</button>
+      </div>
+    </div>
+  </dialog>
+</body>
+</html>

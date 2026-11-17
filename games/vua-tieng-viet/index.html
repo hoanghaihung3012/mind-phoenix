@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#faf8f2">
+  <meta name="description" content="Vua Tiếng Việt — Thử tài phản xạ ngôn ngữ, sắp xếp chữ cái và ghép thành ngữ ca dao tục ngữ đỉnh cao của tiếng Việt cùng Mind Phoenix!">
+  <title>Vua Tiếng Việt — Mind Phoenix Games</title>
+  <link rel="canonical" href="https://mindphoenix.xyz/games/vua-tieng-viet/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Mind Phoenix">
+  <meta property="og:title" content="Vua Tiếng Việt — Thử Tài Sắp Xếp Chữ & Ghép Thành Ngữ">
+  <meta property="og:description" content="Chinh phục tiếng Việt qua các vòng thi ghép từ, đoán nghĩa, thành ngữ dân gian đầy hào hứng cùng Mind Phoenix!">
+  <meta property="og:url" content="https://mindphoenix.xyz/games/vua-tieng-viet/">
+  <meta property="og:locale" content="vi_VN">
+  <meta property="og:image" content="https://mindphoenix.xyz/assets/og/mind-phoenix-social.png">
+  <link rel="icon" type="image/png" href="../../assets/mascots/mind-phoenix-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="game.css">
+  <link rel="stylesheet" href="../language.css">
+  <script type="module" src="game.js"></script>
+</head>
+<body>
+  <svg class="icon-library" style="display: none;" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-back" viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-sound" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13-1a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-muted" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13 0 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="3 3 3 8 8 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-shuffle" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="4" y1="20" x2="21" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="21 16 21 21 16 21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="15" y1="15" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="4" y1="4" x2="9" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <div class="page-wrap">
+    <header class="topbar">
+      <a class="brand" href="../../" aria-label="Trang chủ Mind Phoenix">
+        <img src="../../assets/mascots/mind-phoenix-logo.png" width="40" height="40" alt="Mind Phoenix Logo">
+        <span>Mind Phoenix<small>MINDWORDS · VUA TIẾNG VIỆT</small></span>
+      </a>
+      <div class="top-actions">
+        <div class="lang-toggle" role="group" aria-label="Ngôn ngữ" hidden>
+          <button type="button" data-lang="vi" aria-pressed="true">VI</button>
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+        <button class="round-button" id="sound-toggle" type="button" aria-pressed="true" aria-label="Tắt âm thanh" title="Tắt âm thanh">
+          <svg class="icon" aria-hidden="true"><use href="#icon-sound"/></svg>
+        </button>
+        <a class="round-button" href="../" aria-label="Tất cả trò chơi" title="Tất cả trò chơi">
+          <svg class="icon" aria-hidden="true"><use href="#icon-back"/></svg>
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <!-- HUD Dashboard -->
+      <section class="hud-dashboard">
+        <div class="hud-card">
+          <span class="hud-label" data-i18n="score">Điểm</span>
+          <span class="hud-value" id="score-val">0</span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label" data-i18n="level">Ải</span>
+          <span class="hud-value" id="level-val">1/5</span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label" data-i18n="streak">Chuỗi</span>
+          <span class="hud-value streak" id="streak-val">0</span>
+        </div>
+        <div class="hud-card timer-card">
+          <span class="hud-label" data-i18n="time">Thời gian</span>
+          <span class="hud-value time" id="time-val">45s</span>
+        </div>
+      </section>
+
+      <!-- Category & Level Meta -->
+      <div class="level-meta-bar">
+        <span class="badge-category" id="category-badge">Từ ghép</span>
+        <span class="level-title-display" id="level-title">Ải 1: Nhập Môn — Chữ Vàng</span>
+      </div>
+
+      <!-- Clue & Meaning card -->
+      <div class="clue-panel" id="clue-panel">
+        <span class="clue-icon">💡</span>
+        <p id="clue-text" data-i18n="clueDefault">Sắp xếp các chữ hoặc tiếng bên dưới thành từ ngữ có nghĩa.</p>
+      </div>
+
+      <!-- Selected tray -->
+      <section class="tray-section">
+        <div class="tray-header">
+          <span class="tray-title" data-i18n="trayLabel">Khay ghép từ của bạn:</span>
+          <span class="tray-sub">(Bấm vào chữ trong khay để trả lại)</span>
+        </div>
+        <div class="tray-container" id="tray-container">
+          <!-- Dynamically populated selected tokens -->
+        </div>
+      </section>
+
+      <!-- Pool container -->
+      <section class="pool-section">
+        <div class="pool-header">
+          <span class="pool-title">Chữ cái & Tiếng xáo trộn:</span>
+        </div>
+        <div class="pool-container" id="pool-container">
+          <!-- Dynamically populated pool tokens -->
+        </div>
+      </section>
+
+      <!-- Action buttons -->
+      <div class="controls-grid">
+        <button class="ctrl-btn" id="btn-undo" type="button" disabled>
+          <span class="btn-icon">⌫</span>
+          <span data-i18n="undoBtn">Xóa lùi</span>
+        </button>
+        <button class="ctrl-btn" id="btn-reset" type="button" disabled>
+          <svg class="icon" aria-hidden="true"><use href="#icon-reset"/></svg>
+          <span data-i18n="resetBtn">Đặt lại</span>
+        </button>
+        <button class="ctrl-btn" id="btn-shuffle" type="button">
+          <svg class="icon" aria-hidden="true"><use href="#icon-shuffle"/></svg>
+          <span data-i18n="shuffleBtn">Xáo lại</span>
+        </button>
+        <button class="ctrl-btn hint-btn" id="btn-hint" type="button">
+          <span class="btn-icon">💡</span>
+          <span data-i18n="hintBtn">Gợi ý (-30đ)</span>
+        </button>
+      </div>
+
+      <button class="submit-action-btn" id="btn-submit" type="button">
+        <span data-i18n="submitBtn">✨ Kiểm Tra Đáp Án ✨</span>
+      </button>
+    </main>
+  </div>
+
+  <!-- Modal Result / Meaning -->
+  <div class="overlay-modal" id="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-crown">👑</div>
+      <h2 class="modal-title" id="modal-title">Chính Xác!</h2>
+      <div class="modal-word" id="modal-word">UỐNG NƯỚC NHỚ NGUỒN</div>
+      <div class="modal-meaning" id="modal-meaning">Bài học đạo lý nhắc nhở con người phải luôn biết ơn cội nguồn.</div>
+      <div class="modal-score-badge" id="modal-score">+150 Điểm</div>
+      <div class="modal-actions">
+        <button class="modal-btn-confirm" id="modal-btn-next" type="button">Tiếp tục ➜</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

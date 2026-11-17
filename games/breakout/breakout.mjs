@@ -1,4 +1,4 @@
-import { questionScoreChange, shuffle, startingLives } from '../sky-jump/sky.mjs';
+import { questionScoreChange, shuffle, startingLives } from '../../shared/core/game-utils.mjs';
 
 export const WIDTH = 800;
 export const HEIGHT = 620;

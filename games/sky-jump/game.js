@@ -2,7 +2,7 @@ import {
   GRAVITY, JUMP_VELOCITY, LEVEL_DISTANCE, LEVELS, LevelGenerator, PIXELS_PER_METER, PLATFORM_LIFE, QUESTION_TIME, RUN_SPEED, START_LIVES, STAR_POINTS, VIEW_HEIGHT,
   addScore, createQuestionDeck, distancePoints, levelProgress, mulberry32, normalizeName, parseLeaderboard, platformState, questionScoreChange, startingLives,
 } from './sky.mjs';
-import { createGameAudio } from '../audio.mjs';
+import { createGameAudio } from '../../shared/core/audio.mjs';
 import { english, initGameLanguage } from '../i18n.mjs';
 
 const i18n = initGameLanguage();
