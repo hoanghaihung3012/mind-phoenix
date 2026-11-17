@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node dev-server.mjs",
     "start": "node dev-server.mjs",
-    "test": "node --test 'games/**/*.test.mjs' 'tools/**/*.test.mjs'",
+    "test": "node --test 'games/**/*.test.mjs' 'tools/**/*.test.mjs' 'shared/**/*.test.mjs'",
     "test:games": "node --test 'games/**/*.test.mjs'",
     "test:tools": "node --test 'tools/**/*.test.mjs'"
   },

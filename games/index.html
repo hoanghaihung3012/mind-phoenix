@@ -9,6 +9,7 @@
   <title>Trò chơi — Mind Phoenix Games</title>
   <link rel="icon" type="image/png" href="../assets/mascots/mind-phoenix-logo.png">
   <link rel="stylesheet" href="language.css">
+  <link rel="stylesheet" href="../shared/auth/auth.css">
   <script type="module">import { initGameLanguage } from './i18n.mjs'; initGameLanguage();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -99,6 +100,35 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
+    
+    /* THEME: ĐẤU TRƯỜNG MIND (VIOEDU ARENA) */
+    .theme-arena {
+      border-color: #f59e0b;
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+      color: #fff;
+      box-shadow: 0 6px 0 #1e1b4b;
+    }
+    .theme-arena .category-icon {
+      background: linear-gradient(135deg, #fef3c7, #fed7aa);
+      border-color: #f59e0b;
+      box-shadow: 0 3px 0 #d97706;
+    }
+    .theme-arena .category-badge-pill {
+      background: #fde047;
+      color: #78350f;
+    }
+    .theme-arena .category-info h2 {
+      color: #fef08a;
+    }
+    .theme-arena .category-info p {
+      color: #e2e8f0;
+    }
+    .theme-arena .category-count {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fde047;
+      border: 1.5px solid rgba(253, 224, 71, 0.5);
+    }
+    .arena-cover { background: linear-gradient(135deg, #1e1b4b, #4338ca); }
     
     /* THEME: TIẾNG ANH (ENGLISH) */
     .theme-english {
@@ -240,6 +270,7 @@
         <img src="../assets/mascots/mind-phoenix-logo.png" width="42" height="42" alt="">Mind Phoenix Games
       </a>
       <div class="game-language">
+        <div id="nav-auth-container"></div>
         <a class="home-link" href="../">← Trang chủ</a>
         <div class="lang-toggle" role="group" aria-label="Language" hidden>
           <button type="button" data-lang="vi" aria-pressed="true" lang="vi">VI</button>
@@ -252,6 +283,53 @@
       <p class="eyebrow" data-en="Learn through play · Mind Phoenix">Chơi mà học · Mind Phoenix</p>
       <h1>Một chút chơi,<br><span>cả trời khám phá.</span></h1>
       <p class="intro" data-en="Small games, big fun. Pick a subject and explore!">Những trò chơi nhỏ, niềm vui lớn. Chọn môn học yêu thích và cùng khám phá nào!</p>
+
+      <!-- SECTION: ĐẤU TRƯỜNG MIND (VIOEDU ARENA) -->
+      <section class="category-section">
+        <div class="category-head theme-arena">
+          <div class="category-head-left">
+            <div class="category-icon" aria-hidden="true">🏆</div>
+            <div class="category-info">
+              <span class="category-badge-pill" data-en="VioEdu Arena Style">Đấu Trường Trí Tuệ</span>
+              <h2 data-en="Mind Arena (VioEdu Style)">Đấu Trường Mind Phoenix</h2>
+              <p data-en="Multi-stage battles across Math, Vietnamese & English. Speed bonus, combo streaks and national rankings!">Thi đấu kịch tính 3 chặng: Khởi Động ⚡ Tăng Tốc 🚀 Về Đích 👑. Chủ đề Toán, Tiếng Việt & Tiếng Anh, tính điểm tốc độ và bảng xếp hạng!</p>
+            </div>
+          </div>
+          <div class="category-count">
+            <span>🔥 8+ Bài thi đấu</span>
+          </div>
+        </div>
+        <div class="games" style="grid-template-columns: 1fr;">
+          <a class="game" href="mind-arena/" style="border: 2.5px solid #f59e0b; background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%);">
+            <div class="cover arena-cover" aria-hidden="true">
+              <svg viewBox="0 0 400 180" style="width: 100%; max-width: 360px; height: 160px;">
+                <circle cx="200" cy="90" r="70" fill="rgba(245, 158, 11, 0.15)"/>
+                <polygon points="200,30 220,75 270,75 230,105 245,150 200,122 155,150 170,105 130,75 180,75" fill="#fde047" stroke="#eab308" stroke-width="2"/>
+                <text x="75" y="95" font-size="32">🧮</text>
+                <text x="325" y="95" font-size="32">👑</text>
+                <text x="200" y="95" font-size="28" text-anchor="middle">⚡</text>
+                <g fill="#fff" font-family="Baloo 2, sans-serif" font-weight="900" font-size="13" text-anchor="middle">
+                  <rect x="30" y="125" width="90" height="24" rx="6" fill="#0284c7"/>
+                  <text x="75" y="141">TOÁN HỌC</text>
+                  <rect x="280" y="125" width="90" height="24" rx="6" fill="#ea580c"/>
+                  <text x="325" y="141">TIẾNG VIỆT</text>
+                  <rect x="145" y="145" width="110" height="24" rx="6" fill="#16a34a"/>
+                  <text x="200" y="161">TIẾNG ANH</text>
+                </g>
+              </svg>
+            </div>
+            <div class="game-copy" style="padding: 24px 28px;">
+              <span class="tag" style="color: #d97706;" data-en="VioEdu Arena Model · Math · Vietnamese · English">Mô hình Đấu Trường VioEdu · Toán · Tiếng Việt · Tiếng Anh</span>
+              <h3 style="font-size: 32px; color: #1e1b4b;">Đấu Trường Mind <span style="font-size: 16px; color: #d97706; vertical-align: middle;">✦ 3 Chặng Thi Đấu</span></h3>
+              <p style="font-size: 14px; color: #475569;" data-en="Choose your subject and lesson, battle through Sprint Start, Speed Surge, and Summit Dash. Race against live rivals on the national leaderboard!">Chọn bài học theo môn (Toán, Tiếng Việt, Tiếng Anh hoặc Siêu đấu trường Toàn Năng), vượt qua 3 chặng thử thách với đồng hồ đếm ngược, tích lũy điểm thưởng tốc độ, nhân chuỗi streak combo và so tài cùng các đấu thủ trên Bảng Vàng!</p>
+              <span class="play" style="background: #312e81; font-size: 13.5px; padding: 11px 22px; border-radius: 12px; box-shadow: 0 4px 12px rgba(49, 46, 129, 0.25);">
+                <span data-en="Enter Mind Arena Now">Vào Đấu Trường Ngay</span>
+                <span aria-hidden="true">⚔️ →</span>
+              </span>
+            </div>
+          </a>
+        </div>
+      </section>
 
       <!-- SECTION: MÔN TIẾNG ANH (ENGLISH ADVENTURES) -->
       <section class="category-section">
@@ -482,5 +560,9 @@
 
     <footer>Một chút tò mò, thật nhiều niềm vui · Mind Phoenix<nav aria-label="Pháp lý"><a href="../pages/privacy-policy.html">Chính sách bảo mật</a><a href="../pages/terms-of-service.html">Điều khoản dịch vụ</a></nav></footer>
   </div>
+  <script type="module">
+    import { auth } from '../shared/auth/auth.mjs';
+    auth.initUI('nav-auth-container');
+  </script>
 </body>
 </html>

@@ -25,6 +25,7 @@
   <meta name="twitter:image:alt" content="Mind Phoenix, colorful 2D animated educational videos for curious minds">
   <link rel="icon" type="image/png" href="assets/mascots/mind-phoenix-logo.png">
   <link rel="stylesheet" href="shared/auth/auth.css">
+  <link rel="stylesheet" href="shared/contact/contact.css">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -759,9 +760,10 @@
             <p class="lead" data-i18n="contact.lead">Need custom math animations, coding explainers, or interactive educational widgets? Let Mind Phoenix bring your big ideas to life.</p>
           </div>
           <div class="contact-actions">
-            <a class="btn" href="mailto:haihung1988@gmail.com" data-i18n="contact.btn">Contact us</a>
+            <button type="button" class="btn btn-open-contact-modal" data-i18n="contact.btn">Contact us</button>
             <a class="contact-email" href="mailto:haihung1988@gmail.com">haihung1988@gmail.com</a>
           </div>
+          <div id="inline-contact-form-container"></div>
           <ol class="contact-services" role="list">
             <li>
               <h3 data-i18n="contact.short.title">Short-form Animation</h3>
@@ -875,6 +877,7 @@
         document.getElementById('twitter-description').content = ui().desc;
         langBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
         onLang.forEach((fn) => fn());
+        window.dispatchEvent(new CustomEvent('mp-lang-change', { detail: { lang } }));
         try { localStorage.setItem('mp-lang', lang); } catch (e) { /* storage unavailable */ }
       };
       langBtns.forEach((b) => b.addEventListener('click', () => setLang(b.dataset.lang)));
@@ -1054,7 +1057,11 @@
   </script>
   <script type="module">
     import { auth } from './shared/auth/auth.mjs';
+    import { contact } from './shared/contact/contact.mjs';
+
     auth.initUI('nav-auth-container');
+    contact.init();
+    contact.mountInlineForm('inline-contact-form-container');
   </script>
 </body>
 </html>

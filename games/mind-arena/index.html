@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#faf8f2">
+  <meta name="description" content="Đấu trường Mind Phoenix (phong cách VioEdu) — Đăng nhập thi đấu 2 thể loại: Leo Tháp Trí Tuệ & Đấu Đối Kháng 1v1. Tích lũy điểm XP, thăng cấp Level và tranh tài Bảng vàng toàn quốc!">
+  <title>Đấu Trường Mind — Mind Phoenix Games</title>
+  <link rel="canonical" href="https://mindphoenix.xyz/games/mind-arena/">
+  <meta property="og:title" content="Đấu Trường Mind — Mind Phoenix Games">
+  <meta property="og:description" content="Đấu trường trí tuệ VioEdu: Leo Tháp & Đấu Đối Kháng 1v1, tích lũy Level & Leaderboard!">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mindphoenix.xyz/games/mind-arena/">
+  <meta property="og:image" content="https://mindphoenix.xyz/assets/og/mind-phoenix-social.png">
+  <link rel="icon" type="image/png" href="../../assets/mascots/mind-phoenix-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/auth/auth.css">
+  <link rel="stylesheet" href="game.css">
+  <link rel="stylesheet" href="../language.css">
+  <script type="module" src="game.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <a class="brand" href="../">
+        <img src="../../assets/mascots/mind-phoenix-logo.png" width="44" height="44" alt="Mind Phoenix Logo">
+        <span>Mind Phoenix <small>ARENA · ĐẤU TRƯỜNG TRÍ TUỆ</small></span>
+      </a>
+      <div class="header-right">
+        <div id="nav-auth-container"></div>
+        <button id="btn-sound" class="btn-icon" type="button" aria-pressed="true">
+          🔊 <span>Âm thanh</span>
+        </button>
+        <a class="back-link" href="../">← Tất cả trò chơi</a>
+      </div>
+    </header>
+
+    <main>
+      <!-- SCREEN 0: AUTH REQUIRED (KHI CHƯA ĐĂNG NHẬP) -->
+      <section id="screen-auth-required" hidden>
+        <div class="auth-lock-card">
+          <div class="auth-lock-icon" aria-hidden="true">🔒</div>
+          <h1>Yêu Cầu Đăng Nhập Đấu Sĩ</h1>
+          <p>Khác với các trò chơi tự do khác trong kho game, <strong>Đấu Trường Mind</strong> là hệ sinh thái thi đấu chuyên nghiệp có tính điểm tích lũy lâu dài, cấp bậc Level và xếp hạng vinh danh toàn quốc.</p>
+
+          <ul class="auth-features-list">
+            <li><span>🏰</span> <strong>Thể loại 1: Leo Tháp Trí Tuệ</strong> — Vượt 5 tầng tháp, tích lũy điểm kinh nghiệm chung.</li>
+            <li><span>⚔️</span> <strong>Thể loại 2: Đấu Đối Kháng 1v1</strong> — Chọn đối thủ so tài trực tiếp, thắng nhận trọn điểm + thưởng lớn, thua không được gì.</li>
+            <li><span>🏆</span> <strong>Cấp Độ Level & Bảng Vàng</strong> — Thăng cấp từ Tập Sự lên Huyền Thoại và ghi danh trên Bảng Xếp Hạng quốc gia.</li>
+          </ul>
+
+          <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+            <button class="btn-auth-action" id="btn-open-auth-modal" type="button">
+              <span>🔑</span>
+              <span>Đăng Nhập / Tạo Tài Khoản</span>
+            </button>
+            <a class="btn-secondary" href="../" style="text-decoration: none; display: inline-flex; align-items: center;">
+              ← Chơi game khác miễn phí
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 1: FIGHTER HUB (SAU KHI ĐĂNG NHẬP) -->
+      <section id="screen-hub">
+        <!-- Profile Card -->
+        <div class="profile-card">
+          <div class="profile-left">
+            <div class="user-avatar-badge" id="profile-avatar-initial">U</div>
+            <div class="profile-info">
+              <h2 id="profile-user-name">Đang tải tên đấu sĩ...</h2>
+              <div class="level-badge-pill" id="profile-level-badge">
+                <span>🌱</span>
+                <span>Cấp 1 · Tập Sự Đấu Trường</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- XP Bar -->
+          <div class="profile-xp-section">
+            <div class="xp-header">
+              <span>Kinh Nghiệm Đấu Trường</span>
+              <span id="profile-xp-text">0 / 200 XP</span>
+            </div>
+            <div class="xp-bar" aria-hidden="true">
+              <div class="xp-fill" id="profile-xp-fill" style="width: 0%;"></div>
+            </div>
+            <div style="text-align: right; font-size: 11.5px; font-weight: 700; color: #cbd5e1; margin-top: 4px;">
+              Tiến độ cấp: <span id="profile-xp-percent">0%</span>
+            </div>
+          </div>
+
+          <div class="profile-actions">
+            <button class="btn-nav-leaderboard" id="btn-view-leaderboard" type="button">
+              <span>🏆</span>
+              <span>Bảng Xếp Hạng</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2 Game Modes Selection -->
+        <h2 class="modes-title"><span>⚔️</span> Chọn Thể Loại Thi Đấu</h2>
+        <div class="modes-grid">
+          <!-- MODE 1: LEO THÁP -->
+          <div class="mode-card tower">
+            <div>
+              <div class="mode-header">
+                <div class="mode-icon" aria-hidden="true">🏰</div>
+                <div>
+                  <span class="mode-badge badge-tower">Chế độ Solo</span>
+                  <h3>1. Leo Tháp Trí Tuệ</h3>
+                </div>
+              </div>
+              <p class="mode-desc">Bước vào toà tháp 5 tầng thử thách. Trả lời các câu hỏi tính điểm liên tiếp, càng lên cao điểm thưởng càng lớn. Điểm số được tích lũy thẳng vào Level và ghi danh Bảng vàng!</p>
+              <div class="mode-highlights">
+                <span class="highlight-tag">⚡ 5 Tầng thử thách</span>
+                <span class="highlight-tag">🎯 Tích lũy điểm chung</span>
+                <span class="highlight-tag">🔥 Thưởng Combo Streak</span>
+              </div>
+            </div>
+            <button class="btn-play-mode btn-tower" id="btn-start-tower" type="button">
+              <span>Chinh Phục Ngọn Tháp</span>
+              <span aria-hidden="true">🏰 →</span>
+            </button>
+          </div>
+
+          <!-- MODE 2: ĐẤU ĐỐI KHÁNG 1v1 -->
+          <div class="mode-card duel">
+            <div>
+              <div class="mode-header">
+                <div class="mode-icon" aria-hidden="true">⚔️</div>
+                <div>
+                  <span class="mode-badge badge-duel">Chế độ Đối Kháng</span>
+                  <h3>2. Đấu Đối Kháng 1v1</h3>
+                </div>
+              </div>
+              <p class="mode-desc">Tự do chọn đối thủ từ các trường trên toàn quốc để so tài 5 hiệp đấu rực lửa. Người <strong>CHIẾN THẮNG</strong> nhận trọn điểm + thưởng lớn tính vào Level; người <strong>THUA KHÔNG ĐƯỢC GÌ</strong>!</p>
+              <div class="mode-highlights">
+                <span class="highlight-tag">👥 Tự chọn đối thủ</span>
+                <span class="highlight-tag">🏆 Thắng nhận trọn +100đ</span>
+                <span class="highlight-tag">❌ Thua 0 điểm</span>
+              </div>
+            </div>
+            <button class="btn-play-mode btn-duel" id="btn-start-duel" type="button">
+              <span>Chọn Đối Thủ Thi Đấu</span>
+              <span aria-hidden="true">⚔️ →</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: RIVAL SELECTION (FOR DUEL MODE) -->
+      <section id="screen-rival-select" hidden>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+          <div>
+            <h2 style="font: 800 24px 'Baloo 2', sans-serif; color: #0f172a;">Chọn Đối Thủ Thách Đấu 1v1</h2>
+            <p style="font-size: 14px; color: #64748b;">Chọn một đấu sĩ ngang tài để so tài hoặc sử dụng tính năng ghép nhanh.</p>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn-primary" id="btn-auto-match" type="button" style="background: #ea580c;">
+              <span>⚡ Ghép Nhanh Ngẫu Nhiên</span>
+            </button>
+            <button class="btn-secondary" data-action="hub" type="button">
+              <span>← Trở về Hub</span>
+            </button>
+          </div>
+        </div>
+        <div class="rivals-grid" id="rivals-grid"></div>
+      </section>
+
+      <!-- SCREEN 3: LIVE BATTLE SCREEN (BOTH TOWER & DUEL) -->
+      <section id="screen-battle" class="battle-container" hidden>
+        <!-- Tower Map Visual (Active only in Tower mode) -->
+        <div class="tower-map" id="tower-map-container"></div>
+
+        <!-- 1v1 Versus HUD (Active in Duel mode) -->
+        <div class="versus-hud" id="versus-hud" hidden>
+          <div class="fighter-block">
+            <span style="font-size: 28px;">👑</span>
+            <div>
+              <div id="duel-user-name" style="font-weight: 800; font-size: 15px;">Bạn</div>
+              <div class="fighter-score" id="duel-user-score">0đ</div>
+            </div>
+          </div>
+          <div class="vs-badge">VS</div>
+          <div class="fighter-block right">
+            <span id="duel-rival-avatar" style="font-size: 28px;">🦁</span>
+            <div>
+              <div id="duel-rival-name" style="font-weight: 800; font-size: 15px;">Đối thủ</div>
+              <div class="fighter-score" id="duel-rival-score">0đ</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tower HUD (Active in Tower mode) -->
+        <div class="versus-hud" id="tower-hud" style="background: #1e3a8a;">
+          <div id="hud-floor-title" style="font: 800 18px 'Baloo 2', sans-serif; color: #93c5fd;">Tầng 1</div>
+          <div style="font: 800 20px 'Baloo 2', monospace; color: #fde047;">Điểm Tháp: <span id="hud-tower-score">0</span>đ</div>
+        </div>
+
+        <!-- Shared Question Counter & Timer -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 16px 0 8px;">
+          <div style="font-weight: 800; font-size: 14px; color: #475569;">
+            Câu hỏi: <strong id="hud-question-number" style="color: #0f172a;">1/4</strong>
+            <span id="hud-streak-badge" class="highlight-tag" style="background: #fef3c7; color: #b45309; border-color: #fde68a; margin-left: 8px;" hidden>🔥 COMBO 0</span>
+          </div>
+          <div style="font: 800 18px 'Baloo 2', monospace; color: #0284c7;">
+            ⏱️ <span id="hud-timer-sec">15s</span>
+          </div>
+        </div>
+
+        <!-- Timer progress bar -->
+        <div class="time-gauge" aria-hidden="true">
+          <div class="time-gauge-fill" id="time-gauge-fill" style="width: 100%;"></div>
+        </div>
+
+        <!-- Question Card -->
+        <div class="question-box">
+          <h2 class="question-prompt" id="question-prompt">Đang nạp câu hỏi...</h2>
+          <div class="options-grid" id="options-grid"></div>
+
+          <!-- Feedback Box -->
+          <div class="feedback-box" id="feedback-box" hidden>
+            <div class="feedback-headline" id="feedback-headline"></div>
+            <p class="feedback-explanation" id="feedback-explanation"></p>
+            <button class="btn-next-question" id="btn-next-question" type="button" hidden>
+              <span>Tiếp tục</span>
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: TOWER FLOOR CLEAR TRANSITION -->
+      <section id="screen-floor-clear" hidden>
+        <div class="celebration-card">
+          <div class="celebration-icon" aria-hidden="true">🚀</div>
+          <h1 class="celebration-title" id="floor-clear-title">Vượt Tầng Thành Công!</h1>
+          <p class="celebration-lead">Bạn đã vượt qua các câu hỏi thử thách với phong độ tuyệt vời. Hãy giữ vững chuỗi thắng để vươn tới đỉnh tháp!</p>
+
+          <div class="stats-summary-grid">
+            <div class="stat-box">
+              <small>Điểm Tích Lũy</small>
+              <strong id="floor-clear-score">+0</strong>
+            </div>
+            <div class="stat-box">
+              <small>Tầng Kế Tiếp</small>
+              <strong id="floor-clear-next-floor" style="color: #2563eb;">Tầng 2</strong>
+            </div>
+            <div class="stat-box">
+              <small>Trạng Thái</small>
+              <strong style="color: #16a34a;">VƯỢT QUA</strong>
+            </div>
+          </div>
+
+          <button class="btn-primary" id="btn-next-floor" type="button" style="padding: 14px 36px; font-size: 16px;">
+            <span>Tiến Lên Tầng Tiếp Theo →</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: FINAL RESULT (TOWER OR DUEL) -->
+      <section id="screen-final-result" hidden>
+        <div class="celebration-card">
+          <div class="celebration-icon" id="final-icon" aria-hidden="true">🏆</div>
+          <h1 class="celebration-title" id="final-title">Kết Quả Trận Đấu</h1>
+          <p class="celebration-lead" id="final-subtitle"></p>
+          <div id="final-match-detail"></div>
+
+          <div class="stats-summary-grid" style="margin-top: 24px;">
+            <div class="stat-box">
+              <small id="final-stat-label">Điểm Nhận Được</small>
+              <strong id="final-stat-score">+0</strong>
+            </div>
+            <div class="stat-box">
+              <small>Cấp Độ Mới</small>
+              <strong id="final-stat-level" style="color: #2563eb;">Cấp 1</strong>
+            </div>
+            <div class="stat-box">
+              <small>Tổng Điểm XP</small>
+              <strong id="final-stat-total-xp" style="color: #ea580c;">0 XP</strong>
+            </div>
+          </div>
+
+          <div class="action-buttons">
+            <button class="btn-primary" data-action="hub" type="button">
+              <span>Trở Về Hub Đấu Trường</span>
+            </button>
+            <button class="btn-secondary" id="btn-result-view-board" type="button" onclick="document.getElementById('btn-view-leaderboard').click()">
+              <span>🏆 Xem Bảng Vàng</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 6: NATIONAL LEADERBOARD -->
+      <section id="screen-leaderboard" hidden>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+          <div>
+            <h2 style="font: 800 28px 'Baloo 2', sans-serif; color: #0f172a;">🏆 Bảng Vàng Đấu Sĩ Toàn Quốc</h2>
+            <p style="font-size: 14px; color: #64748b;">Xếp hạng dựa trên tổng điểm kinh nghiệm (XP) tích lũy qua các trận Leo Tháp và Đối Kháng 1v1.</p>
+          </div>
+          <button class="btn-secondary" data-action="hub" type="button">
+            <span>← Quay lại Hub</span>
+          </button>
+        </div>
+        <ul class="leaderboard-list" id="national-leaderboard-list"></ul>
+      </section>
+    </main>
+
+    <footer style="margin-top: 48px; text-align: center; font-size: 13.5px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 24px;">
+      Mind Phoenix Games · Đấu Trường Trí Tuệ VioEdu (Leo Tháp & Đối Kháng 1v1) · Học mà chơi, chơi mà học
+    </footer>
+  </div>
+</body>
+</html>
