@@ -12,7 +12,7 @@
   <script type="module">import { initGameLanguage } from './i18n.mjs'; initGameLanguage();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root { color-scheme: light; }
     * { box-sizing: border-box; }
@@ -28,15 +28,151 @@
     .eyebrow { margin: 0 0 12px; color: #ae8760; font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
     h1 { margin: 0; font: 800 clamp(34px, 6vw, 52px)/1.15 "Baloo 2", system-ui, sans-serif; letter-spacing: -.03em; }
     h1 span { color: #358b79; }
-    .intro { margin: 14px 0 36px; color: #7b8882; font-size: 14px; }
+    .intro { margin: 14px 0 40px; color: #7b8882; font-size: 14px; }
     
-    /* SECTION CATEGORIES */
-    .category-section { margin-bottom: 44px; }
-    .category-head { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #eae8df; }
-    .category-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; font-size: 24px; background: #fff; border: 2px solid #e4e5db; box-shadow: 0 3px 0 #e9e7dd; flex-shrink: 0; }
-    .category-info h2 { margin: 0; font: 800 24px/1.2 "Baloo 2", system-ui, sans-serif; color: #233e3d; }
-    .category-info p { margin: 2px 0 0; color: #7b8882; font-size: 13px; font-weight: 600; }
+    /* VIBRANT CATEGORY SECTIONS */
+    .category-section { margin-bottom: 56px; }
     
+    .category-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding: 16px 24px;
+      background: #ffffff;
+      border: 2px solid #e7e5dc;
+      border-radius: 20px;
+      box-shadow: 0 4px 0 #ede9dd;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .category-head-left {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    
+    .category-icon {
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      font-size: 30px;
+      background: #fff;
+      border: 2px solid #e4e5db;
+      box-shadow: 0 3px 0 #dedad0;
+      flex-shrink: 0;
+    }
+    
+    .category-badge-pill {
+      display: inline-block;
+      font: 800 10.5px/1 "Nunito", sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 4px;
+    }
+    
+    .category-info h2 {
+      margin: 0;
+      font: 800 28px/1.15 "Baloo 2", system-ui, sans-serif;
+      letter-spacing: -0.01em;
+    }
+    
+    .category-info p {
+      margin: 3px 0 0;
+      color: #64748b;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    
+    .category-count {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 12px;
+      font: 800 13px "Baloo 2", sans-serif;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    
+    /* THEME: TIẾNG VIỆT */
+    .theme-viet {
+      border-color: #fde68a;
+      background: linear-gradient(135deg, #ffffff 0%, #fffdf5 100%);
+      box-shadow: 0 5px 0 #fcd34d;
+    }
+    .theme-viet .category-icon {
+      background: linear-gradient(135deg, #fef3c7, #fee2e2);
+      border-color: #fca5a5;
+      box-shadow: 0 3px 0 #f87171;
+    }
+    .theme-viet .category-badge-pill {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+    .theme-viet .category-info h2 {
+      color: #991b1b;
+    }
+    .theme-viet .category-count {
+      background: #fef3c7;
+      color: #b45309;
+      border: 1.5px solid #fde68a;
+    }
+    
+    /* THEME: TOÁN & LOGIC */
+    .theme-math {
+      border-color: #a7f3d0;
+      background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+      box-shadow: 0 5px 0 #6ee7b7;
+    }
+    .theme-math .category-icon {
+      background: linear-gradient(135deg, #ecfdf5, #dbeafe);
+      border-color: #6ee7b7;
+      box-shadow: 0 3px 0 #34d399;
+    }
+    .theme-math .category-badge-pill {
+      background: #dcfce7;
+      color: #15803d;
+    }
+    .theme-math .category-info h2 {
+      color: #065f46;
+    }
+    .theme-math .category-count {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1.5px solid #a7f3d0;
+    }
+    
+    /* THEME: LỚP HỌC & GIỜ RA CHƠI */
+    .theme-fun {
+      border-color: #bae6fd;
+      background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+      box-shadow: 0 5px 0 #7dd3fc;
+    }
+    .theme-fun .category-icon {
+      background: linear-gradient(135deg, #e0f2fe, #fef9c3);
+      border-color: #7dd3fc;
+      box-shadow: 0 3px 0 #38bdf8;
+    }
+    .theme-fun .category-badge-pill {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    .theme-fun .category-info h2 {
+      color: #075985;
+    }
+    .theme-fun .category-count {
+      background: #f0f9ff;
+      color: #0284c7;
+      border: 1.5px solid #bae6fd;
+    }
+    
+    /* GAME CARDS GRID */
     .games { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
     .game { overflow: hidden; border: 1.5px solid #e4e5db; border-radius: 22px; background: #fffefa; box-shadow: 0 5px 0 #e9e7dd; transition: transform .18s, border-color .18s; }
     .game:hover { transform: translateY(-4px); border-color: #7bb7a1; }
@@ -54,7 +190,16 @@
     .play { display: inline-flex; align-items: center; gap: 9px; margin-top: 20px; padding: 9px 16px; border-radius: 10px; background: #358b79; color: white; font-size: 12px; font-weight: 800; }
     footer { padding: 18px 0 32px; color: #a0a497; font-size: 10px; text-align: center; }
     footer nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px 20px; margin-top: 10px; color: #304b4a; font-size: 12px; }
-    @media (max-width: 600px) { .games { grid-template-columns: 1fr; gap: 22px; } main { padding: 30px 0; } header { min-height: 76px; } .brand { font-size: 19px; } .cover { height: 180px; } }
+    @media (max-width: 600px) {
+      .games { grid-template-columns: 1fr; gap: 22px; }
+      main { padding: 30px 0; }
+      header { min-height: 76px; }
+      .brand { font-size: 19px; }
+      .cover { height: 180px; }
+      .category-head { flex-direction: column; align-items: flex-start; padding: 14px 18px; }
+      .category-head-left { width: 100%; }
+      .category-count { align-self: flex-end; }
+    }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
   </style>
 </head>
@@ -80,11 +225,17 @@
 
       <!-- SECTION 1: TIẾNG VIỆT & NGÔN NGỮ -->
       <section class="category-section">
-        <div class="category-head">
-          <div class="category-icon" aria-hidden="true">👑</div>
-          <div class="category-info">
-            <h2 data-en="Vietnamese & Language Arts">Môn Tiếng Việt & Ngôn Ngữ</h2>
-            <p data-en="Word scramble, rich vocabulary, proverbs, folk idioms and grammar wisdom.">Sắp xếp chữ cái xáo trộn, giải nghĩa từ ghép, từ láy và ghép thành ngữ ca dao tục ngữ dân gian!</p>
+        <div class="category-head theme-viet">
+          <div class="category-head-left">
+            <div class="category-icon" aria-hidden="true">👑</div>
+            <div class="category-info">
+              <span class="category-badge-pill" data-en="Language Arts Subject">Chủ đề Tiếng Việt</span>
+              <h2 data-en="Vietnamese & Language Arts">Môn Tiếng Việt & Ngôn Ngữ</h2>
+              <p data-en="Word scramble, rich vocabulary, proverbs, folk idioms and grammar wisdom.">Sắp xếp chữ cái xáo trộn, giải nghĩa từ ghép, từ láy và ghép thành ngữ ca dao tục ngữ dân gian!</p>
+            </div>
+          </div>
+          <div class="category-count">
+            <span>✨ 1 Trò chơi</span>
           </div>
         </div>
         <div class="games">
@@ -102,11 +253,17 @@
 
       <!-- SECTION 2: TOÁN & TƯ DUY LOGIC -->
       <section class="category-section">
-        <div class="category-head">
-          <div class="category-icon" aria-hidden="true">🧮</div>
-          <div class="category-info">
-            <h2 data-en="Math & Logical Thinking">Môn Toán & Tư Duy Logic</h2>
-            <p data-en="Mental math, number chains, coding blocks, geometry and physics reflexes.">Tính nhẩm siêu tốc, nối số bùng nổ, khối lệnh lập trình và hình học tư duy sắc bén!</p>
+        <div class="category-head theme-math">
+          <div class="category-head-left">
+            <div class="category-icon" aria-hidden="true">🧮</div>
+            <div class="category-info">
+              <span class="category-badge-pill" data-en="Math & Logic Subject">Chủ đề Toán học</span>
+              <h2 data-en="Math & Logical Thinking">Môn Toán & Tư Duy Logic</h2>
+              <p data-en="Mental math, number chains, coding blocks, geometry and physics reflexes.">Tính nhẩm siêu tốc, nối số bùng nổ, khối lệnh lập trình và hình học tư duy sắc bén!</p>
+            </div>
+          </div>
+          <div class="category-count">
+            <span>⚡ 7 Trò chơi</span>
           </div>
         </div>
         <div class="games">
@@ -184,11 +341,17 @@
 
       <!-- SECTION 3: GIỜ RA CHƠI & LỚP HỌC -->
       <section class="category-section">
-        <div class="category-head">
-          <div class="category-icon" aria-hidden="true">🦆</div>
-          <div class="category-info">
-            <h2 data-en="Classroom & Recess Fun">Giờ Ra Chơi & Lớp Học</h2>
-            <p data-en="Exciting random selector and party activities for lively school activities.">Hoạt động bốc thăm ngẫu nhiên đầy hào hứng cho lớp học và giờ giải lao.</p>
+        <div class="category-head theme-fun">
+          <div class="category-head-left">
+            <div class="category-icon" aria-hidden="true">🦆</div>
+            <div class="category-info">
+              <span class="category-badge-pill" data-en="Classroom Activities">Lớp học & Hoạt động</span>
+              <h2 data-en="Classroom & Recess Fun">Giờ Ra Chơi & Lớp Học</h2>
+              <p data-en="Exciting random selector and party activities for lively school activities.">Hoạt động bốc thăm ngẫu nhiên đầy hào hứng cho lớp học và giờ giải lao.</p>
+            </div>
+          </div>
+          <div class="category-count">
+            <span>🎉 1 Trò chơi</span>
           </div>
         </div>
         <div class="games">
