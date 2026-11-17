@@ -1,0 +1,300 @@
+/* Mind Phoenix — Nối Từ Siêu Tốc Stylesheet */
+:root {
+  --ink: #1e293b;
+  --muted: #64748b;
+  --bg-primary: #fffbf0;
+  --card-bg: #ffffff;
+  --amber-gold: #f59e0b;
+  --amber-dark: #b45309;
+  --amber-light: #fef3c7;
+  --green-emerald: #10b981;
+  --font-display: 'Baloo 2', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg-primary);
+  color: var(--ink);
+  font: 700 15px/1.5 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; }
+
+.page-wrap {
+  width: min(840px, calc(100% - 24px));
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* TOPBAR */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 76px;
+  gap: 16px;
+  border-bottom: 2px solid #fef3c7;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font: 800 24px/1 var(--font-display);
+}
+
+.brand span { display: flex; flex-direction: column; }
+.brand small {
+  font: 800 10px var(--font-body);
+  letter-spacing: 0.12em;
+  color: var(--amber-dark);
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.round-button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #fde68a;
+  border-radius: 12px;
+  background: white;
+  color: var(--ink);
+  box-shadow: 0 2px 0 #fcd34d;
+  transition: all 0.15s ease;
+}
+
+.round-button:hover:not(:disabled) {
+  border-color: var(--amber-gold);
+  color: var(--amber-dark);
+  transform: translateY(-1px);
+}
+
+.icon { width: 20px; height: 20px; }
+
+main {
+  padding: 16px 0 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+/* HUD */
+.hud-dashboard {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .hud-dashboard { grid-template-columns: repeat(2, 1fr); }
+}
+
+.hud-card {
+  background: white;
+  border: 2px solid #fde68a;
+  border-radius: 16px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 0 #fef3c7;
+}
+
+.hud-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.hud-value { font: 800 26px/1.1 var(--font-display); }
+.hud-value.streak { color: #ea580c; }
+.hud-value.time { color: #0284c7; }
+
+/* CURRENT CHAIN VIEW */
+.chain-history-box {
+  background: white;
+  border: 2px solid #fde68a;
+  border-radius: 20px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 0 #fef3c7;
+}
+
+.chain-scroll {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 6px 2px 10px;
+}
+
+.chain-item {
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  font: 800 16px var(--font-display);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.chain-item.active-current {
+  background: linear-gradient(135deg, #fef3c7, #fee2e2);
+  border-color: #f59e0b;
+  color: #78350f;
+  box-shadow: 0 3px 0 #d97706;
+}
+
+.chain-arrow {
+  color: #94a3b8;
+  font-weight: 800;
+  font-size: 16px;
+}
+
+/* TARGET SYLLABLE SPOTLIGHT */
+.spotlight-card {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 2px solid #fde68a;
+  border-radius: 20px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 0 #fcd34d;
+}
+
+.spotlight-title {
+  font-size: 13.5px;
+  color: #92400e;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.spotlight-syllable {
+  font: 900 36px var(--font-display);
+  color: #78350f;
+  margin: 6px 0;
+  letter-spacing: 0.06em;
+}
+
+/* OPTIONS GRID */
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 600px) {
+  .options-grid { grid-template-columns: 1fr; }
+}
+
+.choice-btn {
+  background: white;
+  border: 2.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 18px 14px;
+  font: 800 20px var(--font-display);
+  color: var(--ink);
+  box-shadow: 0 4px 0 #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.choice-btn:hover {
+  transform: translateY(-2px);
+  border-color: #f59e0b;
+  box-shadow: 0 6px 0 #d97706;
+}
+
+.choice-btn.is-correct-pick {
+  background: #f0fdf4;
+  border-color: #10b981;
+  color: #065f46;
+  box-shadow: 0 4px 0 #059669;
+}
+
+.choice-btn.is-wrong-pick {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #991b1b;
+  box-shadow: 0 4px 0 #b91c1c;
+  animation: shake 0.4s ease;
+}
+
+/* MODAL */
+.overlay-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+}
+
+.overlay-modal.active { display: flex; }
+
+.modal-card {
+  background: white;
+  border: 3px solid #fde68a;
+  border-radius: 24px;
+  padding: 28px 24px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-btn {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  font: 800 16px var(--font-display);
+  padding: 12px 32px;
+  border-radius: 14px;
+  box-shadow: 0 4px 0 #b45309;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%, 75% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+}
