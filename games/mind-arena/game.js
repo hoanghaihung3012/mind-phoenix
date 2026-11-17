@@ -920,44 +920,59 @@ function showFinalResultScreen({ titleVi, titleEn, subtitleVi, subtitleEn, score
 async function showLeaderboardScreen() {
   showScreen(screenLeaderboard);
   // Show local/default leaderboard immediately
-  renderLeaderboardItems(getNationalLeaderboard(currentProfile));
+  const localBoard = getNationalLeaderboard(currentProfile);
+  renderLeaderboardItems(localBoard);
 
   // Fetch live database leaderboard
   try {
     const res = await fetch(`${API_BASE_URL}/arena/leaderboard?limit=20`);
     const json = await res.json();
-    if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-      const dbRanks = json.data.map((u, idx) => ({
-        rank: idx + 1,
-        id: u.id,
-        name: u.name,
-        school: u.school || 'Mind Phoenix Member',
-        avatar: u.avatar || '👑',
-        level: u.level || 1,
-        xp: u.xp || 0,
-        wins: u.duelWins || 0,
-        isUser: currentUser && (u.id === currentUser.id || u.name === currentUser.name),
-        isBot: false,
-      }));
+    if (json.success && Array.isArray(json.data)) {
+      // Base contestants from national leaderboard
+      const baseBots = getNationalLeaderboard(null).filter((c) => c.isBot);
 
-      // If current user is not in top ranks returned, append them
-      const userInList = dbRanks.some((r) => r.isUser);
-      if (!userInList && currentUser) {
+      // Real human users with points from database
+      const dbUsers = json.data
+        .filter((u) => (u.xp || 0) > 0 || (u.duelWins || 0) > 0)
+        .map((u) => ({
+          name: u.name,
+          school: u.school || 'Mind Phoenix Member',
+          avatar: u.avatar || '👑',
+          level: u.level || 1,
+          xp: u.xp || 0,
+          wins: u.duelWins || 0,
+          isUser: currentUser && (u.id === currentUser.id || u.name === currentUser.name),
+          isBot: false,
+        }));
+
+      // Combine real players + national bot contestants
+      const combined = [...baseBots];
+      dbUsers.forEach((user) => {
+        const existingIdx = combined.findIndex((c) => c.name === user.name);
+        if (existingIdx >= 0) {
+          combined[existingIdx] = user;
+        } else {
+          combined.push(user);
+        }
+      });
+
+      if (currentUser && currentProfile && !combined.some((c) => c.isUser)) {
         const userLevel = calculatePlayerLevel(currentProfile.xp).level;
-        dbRanks.push({
-          rank: dbRanks.length + 1,
+        combined.push({
           name: currentProfile.name,
           school: currentProfile.school || 'Mind Phoenix Member',
           avatar: currentProfile.avatar || '👑',
           level: userLevel,
-          xp: currentProfile.xp,
+          xp: currentProfile.xp || 0,
           wins: currentProfile.duelWins || 0,
           isUser: true,
           isBot: false,
         });
       }
 
-      renderLeaderboardItems(dbRanks);
+      combined.sort((a, b) => (b.xp || 0) - (a.xp || 0));
+      const ranked = combined.map((item, idx) => ({ rank: idx + 1, ...item }));
+      renderLeaderboardItems(ranked);
     }
   } catch (err) {
     console.warn('Could not load online leaderboard, fallback to local:', err);
