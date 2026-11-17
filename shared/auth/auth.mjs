@@ -3,7 +3,11 @@
  * Handles user sign in, sign up, session management, and auth modal UI.
  */
 
-const API_BASE_URL = window.MINDPHOENIX_API_URL || 'http://localhost:5005/api';
+const API_BASE_URL = window.MINDPHOENIX_API_URL || (
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5005/api'
+    : 'https://api-production-c2686e59.up.railway.app/api'
+);
 const TOKEN_KEY = 'mindphoenix_user_token';
 const USER_KEY = 'mindphoenix_user_data';
 
