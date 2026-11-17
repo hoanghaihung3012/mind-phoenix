@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#faf8f2">
-  <meta name="description" content="Chơi mà học cùng Mind Phoenix: Vua Tiếng Việt, thử thách toán học, nối số bùng nổ, lập trình robot Cmd, đua vịt, nhảy mây và Breakout. Miễn phí, chơi ngay trên trình duyệt." data-en-content="Learn through play with Mind Phoenix: Vietnamese Word Master, Math Challenge, Math Chain Target, Code the Bot, Duck Race, Sky Jump, Apple Catch and Breakout. Free in your browser.">
+  <meta name="description" content="Chơi mà học cùng Mind Phoenix: Vua Tiếng Việt, Word Pop, Spell Quest, Sentence Builder, Memory Safari, thử thách toán học và Breakout. Miễn phí, chơi ngay trên trình duyệt." data-en-content="Learn through play with Mind Phoenix: Vietnamese Word Master, English Word Pop, Spell Quest, Sentence Builder, Memory Safari, Math Challenge and Breakout. Free in your browser.">
   <link rel="canonical" href="https://mindphoenix.xyz/games/">
   <title>Trò chơi — Mind Phoenix Games</title>
   <link rel="icon" type="image/png" href="../assets/mascots/mind-phoenix-logo.png">
@@ -100,6 +100,30 @@
       flex-shrink: 0;
     }
     
+    /* THEME: TIẾNG ANH (ENGLISH) */
+    .theme-english {
+      border-color: #c4b5fd;
+      background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%);
+      box-shadow: 0 5px 0 #a78bfa;
+    }
+    .theme-english .category-icon {
+      background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+      border-color: #c4b5fd;
+      box-shadow: 0 3px 0 #8b5cf6;
+    }
+    .theme-english .category-badge-pill {
+      background: #ede9fe;
+      color: #6d28d9;
+    }
+    .theme-english .category-info h2 {
+      color: #5b21b6;
+    }
+    .theme-english .category-count {
+      background: #f5f3ff;
+      color: #6d28d9;
+      border: 1.5px solid #c4b5fd;
+    }
+
     /* THEME: TIẾNG VIỆT */
     .theme-viet {
       border-color: #fde68a;
@@ -183,6 +207,10 @@
     .apple-cover { background: linear-gradient(#7cc8f5, #e6f8ff); }
     .math-cover { background: linear-gradient(135deg, #e5efdf, #eee6f8); }
     .vua-cover { background: linear-gradient(135deg, #fef2f2, #fef3c7); }
+    .wordpop-cover { background: linear-gradient(135deg, #eff6ff, #fdf2f8); }
+    .spell-cover { background: linear-gradient(135deg, #e0f2fe, #f0fdf4); }
+    .sentence-cover { background: linear-gradient(135deg, #ede9fe, #fae8ff); }
+    .safari-cover { background: linear-gradient(135deg, #ecfdf5, #fef3c7); }
     .game-copy { padding: 23px; }
     .tag { color: #9caa91; font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
     .game-copy h3 { margin: 9px 0; font: 700 28px/1.1 "Baloo 2", system-ui, sans-serif; }
@@ -221,9 +249,71 @@
     <main>
       <p class="eyebrow" data-en="Learn through play · Mind Phoenix">Chơi mà học · Mind Phoenix</p>
       <h1>Một chút chơi,<br><span>cả trời khám phá.</span></h1>
-      <p class="intro" data-en="Small games, big fun. Pick a category and explore!">Những trò chơi nhỏ, niềm vui lớn. Chọn môn học yêu thích và cùng khám phá nào!</p>
+      <p class="intro" data-en="Small games, big fun. Pick a subject and explore!">Những trò chơi nhỏ, niềm vui lớn. Chọn môn học yêu thích và cùng khám phá nào!</p>
 
-      <!-- SECTION 1: TIẾNG VIỆT & NGÔN NGỮ -->
+      <!-- SECTION: MÔN TIẾNG ANH (ENGLISH ADVENTURES) -->
+      <section class="category-section">
+        <div class="category-head theme-english">
+          <div class="category-head-left">
+            <div class="category-icon" aria-hidden="true">🌍</div>
+            <div class="category-info">
+              <span class="category-badge-pill" data-en="English Subject">Chủ đề Tiếng Anh</span>
+              <h2 data-en="English Adventures">Môn Tiếng Anh & Khám Phá</h2>
+              <p data-en="Vocabulary balloon pop, spelling detective, sentence rocket, and memory match cards!">Bắn bóng từ vựng, thám tử đánh vần, tên lửa cú pháp và lật thẻ ghi nhớ tiếng Anh!</p>
+            </div>
+          </div>
+          <div class="category-count">
+            <span>🚀 4 Trò chơi</span>
+          </div>
+        </div>
+        <div class="games">
+          <!-- Game 1: Word Pop -->
+          <a class="game" href="word-pop/">
+            <div class="cover wordpop-cover" aria-hidden="true"><svg viewBox="0 0 300 210"><circle cx="80" cy="80" r="32" fill="#f43f5e"/><circle cx="160" cy="65" r="36" fill="#3b82f6"/><circle cx="230" cy="90" r="30" fill="#10b981"/><path d="M80 112v20 M160 101v22 M230 120v18" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3 3"/><g fill="#fff" font-family="Baloo 2, sans-serif" font-weight="900" font-size="13" text-anchor="middle"><text x="80" y="85">LION</text><text x="160" y="70">APPLE</text><text x="230" y="95">BLUE</text></g><circle cx="150" cy="150" r="16" fill="#f59e0b" opacity="0.6"/><text x="150" y="156" fill="#fff" font-size="16" text-anchor="middle">💥</text></svg></div>
+            <div class="game-copy">
+              <span class="tag" data-en="English · Vocabulary Reflex">Tiếng Anh · Phản xạ từ vựng</span>
+              <h3>Word Pop</h3>
+              <p data-en="Pop colorful balloons containing target English words by category: animals, food, school, colors and nature!">Bắn các quả bóng từ vựng tiếng Anh theo chủ đề: con vật, đồ ăn, trường học, màu sắc và thiên nhiên!</p>
+              <span class="play"><span data-en="Pop now">Bắn bóng ngay</span> <span aria-hidden="true">→</span></span>
+            </div>
+          </a>
+
+          <!-- Game 2: Spell Quest -->
+          <a class="game" href="spell-quest/">
+            <div class="cover spell-cover" aria-hidden="true"><svg viewBox="0 0 300 210"><circle cx="100" cy="85" r="45" fill="#f0fdf4" stroke="#0284c7" stroke-width="4"/><line x1="135" y1="120" x2="175" y2="160" stroke="#0284c7" stroke-width="8" stroke-linecap="round"/><text x="100" y="98" font-size="38" text-anchor="middle">🦁</text><g stroke="#38bdf8" stroke-width="2"><rect x="180" y="50" width="34" height="34" rx="8" fill="#fff"/><rect x="220" y="50" width="34" height="34" rx="8" fill="#fff"/><rect x="180" y="90" width="34" height="34" rx="8" fill="#fff"/><rect x="220" y="90" width="34" height="34" rx="8" fill="#fff"/></g><g fill="#0369a1" font-family="Baloo 2, sans-serif" font-weight="900" font-size="18" text-anchor="middle"><text x="197" y="73">L</text><text x="237" y="73">I</text><text x="197" y="113">O</text><text x="237" y="113">N</text></g></svg></div>
+            <div class="game-copy">
+              <span class="tag" data-en="English · Spelling Detective">Tiếng Anh · Thám tử đánh vần</span>
+              <h3>Spell Quest</h3>
+              <p data-en="Unscramble letter gems and discover English spelling through colorful clue illustrations!">Giải mã các viên ngọc chữ cái xáo trộn để đánh vần chính xác từ vựng tiếng Anh qua hình minh họa!</p>
+              <span class="play"><span data-en="Spell now">Đánh vần ngay</span> <span aria-hidden="true">→</span></span>
+            </div>
+          </a>
+
+          <!-- Game 3: Sentence Builder -->
+          <a class="game" href="sentence-builder/">
+            <div class="cover sentence-cover" aria-hidden="true"><svg viewBox="0 0 300 210"><path d="M150 40 L170 80 L160 80 L160 115 L140 115 L140 80 L130 80 Z" fill="#7c3aed"/><polygon points="130,90 120,110 140,110" fill="#f59e0b"/><polygon points="170,90 180,110 160,110" fill="#f59e0b"/><circle cx="150" cy="70" r="6" fill="#38bdf8"/><g stroke="#a78bfa" stroke-width="2"><rect x="40" y="140" width="46" height="30" rx="8" fill="#fff"/><rect x="92" y="140" width="54" height="30" rx="8" fill="#fff"/><rect x="152" y="140" width="58" height="30" rx="8" fill="#fff"/><rect x="216" y="140" width="50" height="30" rx="8" fill="#fff"/></g><g fill="#5b21b6" font-family="Baloo 2, sans-serif" font-weight="800" font-size="14" text-anchor="middle"><text x="63" y="160">She</text><text x="119" y="160">drinks</text><text x="181" y="160">warm</text><text x="241" y="160">milk.</text></g></svg></div>
+            <div class="game-copy">
+              <span class="tag" data-en="English · Grammar Rocket">Tiếng Anh · Tên lửa cú pháp</span>
+              <h3>Sentence Builder</h3>
+              <p data-en="Assemble scrambled words in the right grammatical order to fuel your rocket and explore outer space!">Sắp xếp các từ ngữ xáo trộn thành câu hoàn chỉnh đúng ngữ pháp để nạp năng lượng cho tên lửa du hành vũ trụ!</p>
+              <span class="play"><span data-en="Build now">Ghép câu ngay</span> <span aria-hidden="true">→</span></span>
+            </div>
+          </a>
+
+          <!-- Game 4: Memory Safari -->
+          <a class="game" href="memory-safari/">
+            <div class="cover safari-cover" aria-hidden="true"><svg viewBox="0 0 300 210"><rect x="60" y="50" width="75" height="100" rx="14" fill="#10b981" stroke="#059669" stroke-width="3"/><text x="97" y="112" font-size="34" fill="#fff" text-anchor="middle">🐘</text><rect x="165" y="50" width="75" height="100" rx="14" fill="#fff" stroke="#10b981" stroke-width="3"/><text x="202" y="106" font-family="Baloo 2, sans-serif" font-weight="900" font-size="17" fill="#065f46" text-anchor="middle">Elephant</text><path d="M135 100 Q150 85 165 100" stroke="#f59e0b" stroke-width="4" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="game-copy">
+              <span class="tag" data-en="English · Picture-Word Match">Tiếng Anh · Lật thẻ ghép đôi</span>
+              <h3>Memory Safari</h3>
+              <p data-en="Flip and match English vocabulary words with their corresponding pictures to boost visual memory!">Lật mở các cặp thẻ bài ghép đôi giữa từ tiếng Anh và hình ảnh minh họa tương ứng để tăng cường trí nhớ!</p>
+              <span class="play"><span data-en="Match now">Lật thẻ ngay</span> <span aria-hidden="true">→</span></span>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- SECTION: MÔN TIẾNG VIỆT -->
       <section class="category-section">
         <div class="category-head theme-viet">
           <div class="category-head-left">
@@ -251,7 +341,7 @@
         </div>
       </section>
 
-      <!-- SECTION 2: TOÁN & TƯ DUY LOGIC -->
+      <!-- SECTION: TOÁN & TƯ DUY LOGIC -->
       <section class="category-section">
         <div class="category-head theme-math">
           <div class="category-head-left">
@@ -339,7 +429,7 @@
         </div>
       </section>
 
-      <!-- SECTION 3: GIỜ RA CHƠI & LỚP HỌC -->
+      <!-- SECTION: GIỜ RA CHƠI & LỚP HỌC -->
       <section class="category-section">
         <div class="category-head theme-fun">
           <div class="category-head-left">

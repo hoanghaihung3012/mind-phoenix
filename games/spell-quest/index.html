@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#faf8f2">
+  <meta name="description" content="Spell Quest — Thám Tử Đánh Vần Tiếng Anh. Sắp xếp các chữ cái để giải đố từ vựng cùng Mind Phoenix!">
+  <title>Spell Quest — Mind Phoenix Games</title>
+  <link rel="canonical" href="https://mindphoenix.xyz/games/spell-quest/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Mind Phoenix">
+  <meta property="og:title" content="Spell Quest — Thám Tử Đánh Vần Tiếng Anh">
+  <meta property="og:description" content="Thử tài đánh vần và phản xạ từ vựng tiếng Anh qua hình ảnh sinh động!">
+  <meta property="og:url" content="https://mindphoenix.xyz/games/spell-quest/">
+  <meta property="og:locale" content="vi_VN">
+  <meta property="og:image" content="https://mindphoenix.xyz/assets/og/mind-phoenix-social.png">
+  <link rel="icon" type="image/png" href="../../assets/mascots/mind-phoenix-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="game.css">
+  <link rel="stylesheet" href="../language.css">
+  <script type="module" src="game.js"></script>
+</head>
+<body>
+  <svg class="icon-library" style="display: none;" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-back" viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-sound" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13-1a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-muted" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3Zm13 0 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <div class="page-wrap">
+    <header class="topbar">
+      <a class="brand" href="../../" aria-label="Trang chủ Mind Phoenix">
+        <img src="../../assets/mascots/mind-phoenix-logo.png" width="40" height="40" alt="Mind Phoenix Logo">
+        <span>Mind Phoenix<small>ENGLISH · SPELL QUEST</small></span>
+      </a>
+      <div class="top-actions">
+        <div class="lang-toggle" role="group" aria-label="Ngôn ngữ" hidden>
+          <button type="button" data-lang="vi" aria-pressed="true">VI</button>
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+        <button class="round-button" id="sound-toggle" type="button" aria-pressed="true" aria-label="Tắt âm thanh" title="Tắt âm thanh">
+          <svg class="icon" aria-hidden="true"><use href="#icon-sound"/></svg>
+        </button>
+        <a class="round-button" href="../" aria-label="Tất cả trò chơi" title="Tất cả trò chơi">
+          <svg class="icon" aria-hidden="true"><use href="#icon-back"/></svg>
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <!-- HUD Dashboard -->
+      <section class="hud-dashboard">
+        <div class="hud-card">
+          <span class="hud-label" data-i18n="score">Điểm</span>
+          <span class="hud-value" id="score-val">0</span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label" data-i18n="level">Từ số</span>
+          <span class="hud-value" id="level-val">1/15</span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label" data-i18n="streak">Chuỗi</span>
+          <span class="hud-value streak" id="streak-val">0</span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label" data-i18n="time">Thời gian</span>
+          <span class="hud-value time" id="time-val">40s</span>
+        </div>
+      </section>
+
+      <!-- Clue Card -->
+      <div class="clue-card">
+        <div class="clue-icon" id="clue-icon">🐱</div>
+        <p class="clue-hint" id="clue-hint">Con mèo đáng yêu</p>
+      </div>
+
+      <!-- Selected Tray -->
+      <div class="tray-box" id="tray-box">
+        <!-- Rendered selected tiles -->
+      </div>
+
+      <!-- Pool -->
+      <div class="pool-box" id="pool-box">
+        <!-- Available letter tiles -->
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-grid">
+        <button class="ctrl-btn" id="btn-undo" type="button" disabled>
+          <span>⌫</span> <span data-i18n="undo">Xóa lùi</span>
+        </button>
+        <button class="ctrl-btn" id="btn-reset" type="button" disabled>
+          <span>↺</span> <span data-i18n="reset">Đặt lại</span>
+        </button>
+        <button class="ctrl-btn hint-btn" id="btn-hint" type="button">
+          <span>💡</span> <span data-i18n="hint">Gợi ý (-20đ)</span>
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div class="overlay-modal" id="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div style="font-size: 52px;" id="modal-icon">✨</div>
+      <h2 style="font-size: 24px;" id="modal-title">Chính Xác!</h2>
+      <div class="modal-word" id="modal-word">LION</div>
+      <div class="modal-meaning" id="modal-meaning">Chúa sơn lâm dũng mãnh</div>
+      <div style="font: 800 18px 'Baloo 2'; color: var(--accent-green); margin-bottom: 20px;" id="modal-score">+120 Điểm</div>
+      <button class="modal-btn" id="modal-btn" type="button">Tiếp tục</button>
+    </div>
+  </div>
+</body>
+</html>
