@@ -14,6 +14,12 @@ import {
   shuffleArray,
 } from './arena.mjs';
 
+const API_BASE_URL = (typeof window !== 'undefined' && window.MINDPHOENIX_API_URL) || (
+  typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:5005/api'
+    : 'https://api-production-c2686e59.up.railway.app/api'
+);
+
 // --- SOUND SYNTHESIZER ---
 class ArenaAudio {
   constructor() {
@@ -107,6 +113,12 @@ let currentStreak = 0;
 let maxStreak = 0;
 let isAnswered = false;
 
+// Realtime Presence & Challenge
+let activeRivalTab = 'human'; // 'human' | 'bot'
+let onlineHumanPlayers = [];
+let pendingIncomingChallenge = null;
+let heartbeatInterval = null;
+
 // DOM Screens
 const screenAuthRequired = document.getElementById('screen-auth-required');
 const screenHub = document.getElementById('screen-hub');
@@ -116,7 +128,10 @@ const screenFloorClear = document.getElementById('screen-floor-clear');
 const screenFinalResult = document.getElementById('screen-final-result');
 const screenLeaderboard = document.getElementById('screen-leaderboard');
 
-// Helpers for Language
+// Modals
+const challengeModalBackdrop = document.getElementById('challenge-modal-backdrop');
+const roomModalBackdrop = document.getElementById('room-modal-backdrop');
+
 function t(vi, en) {
   return currentLang === 'en' ? en : vi;
 }
@@ -132,7 +147,7 @@ function init() {
   checkAuthAndRender();
 
   // Listen to auth changes
-  window.addEventListener('mindphoenix-auth-change', (e) => {
+  window.addEventListener('mindphoenix-auth-change', () => {
     checkAuthAndRender();
   });
 
@@ -147,6 +162,9 @@ function init() {
 
   // Setup Global Navigation Listeners
   setupEventListeners();
+
+  // Start Presence Heartbeat Loop (every 5 seconds)
+  startHeartbeatLoop();
 }
 
 function checkAuthAndRender() {
@@ -156,11 +174,129 @@ function checkAuthAndRender() {
     showScreen(screenHub);
     renderProfileCard();
     renderModeCards();
+    sendHeartbeat();
   } else {
     currentUser = null;
     currentProfile = null;
     showScreen(screenAuthRequired);
   }
+}
+
+// --- HEARTBEAT & REALTIME CHALLENGES ---
+function startHeartbeatLoop() {
+  clearInterval(heartbeatInterval);
+  heartbeatInterval = setInterval(() => {
+    if (auth.isLoggedIn() && currentUser && currentProfile) {
+      sendHeartbeat();
+    }
+  }, 5000);
+}
+
+async function sendHeartbeat() {
+  if (!currentUser || !currentProfile) return;
+  try {
+    const res = await fetch(`${API_BASE_URL}/arena/heartbeat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: currentUser.id || currentUser.email,
+        name: currentProfile.name,
+        school: 'Mind Phoenix Member',
+        avatar: (currentProfile.name || 'U').charAt(0).toUpperCase(),
+        level: calculatePlayerLevel(currentProfile.xp).level,
+        xp: currentProfile.xp,
+        status: activeMode ? 'in_match' : 'idle',
+      }),
+    });
+
+    const json = await res.json();
+    if (json.success && json.data) {
+      onlineHumanPlayers = json.data.players || [];
+      const humanCountEl = document.getElementById('human-online-count');
+      if (humanCountEl) humanCountEl.textContent = onlineHumanPlayers.length;
+
+      // If user is currently browsing rival selection screen on human tab, re-render
+      if (!screenRivalSelect.hidden && activeRivalTab === 'human') {
+        renderRivalList();
+      }
+
+      // Check incoming challenge
+      if (json.data.challenges && json.data.challenges.length > 0) {
+        showIncomingChallengeModal(json.data.challenges[0]);
+      }
+
+      // Check if challenge sent by user was accepted
+      if (json.data.acceptedInvite) {
+        handleAcceptedInvite(json.data.acceptedInvite);
+      }
+    }
+  } catch {
+    // Offline or server unreachable
+  }
+}
+
+function showIncomingChallengeModal(challenge) {
+  if (pendingIncomingChallenge?.id === challenge.id) return;
+  pendingIncomingChallenge = challenge;
+  audio.playVictory();
+
+  const textEl = document.getElementById('ch-modal-text');
+  const avatarEl = document.getElementById('ch-modal-avatar');
+  if (textEl) {
+    textEl.innerHTML = `Đấu sĩ <strong>${challenge.fromUser.name}</strong> (Cấp ${challenge.fromUser.level}) đang gửi lời mời thách đấu đối kháng 1v1 đến bạn!`;
+  }
+  if (avatarEl) avatarEl.textContent = challenge.fromUser.avatar || '👑';
+
+  if (challengeModalBackdrop) challengeModalBackdrop.hidden = false;
+
+  document.getElementById('btn-accept-challenge').onclick = async () => {
+    challengeModalBackdrop.hidden = true;
+    try {
+      await fetch(`${API_BASE_URL}/arena/respond`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ challengeId: challenge.id, accept: true }),
+      });
+    } catch {}
+
+    // Start 1v1 Match with the real human challenger
+    startDuelMatch({
+      id: challenge.fromUser.id,
+      name: challenge.fromUser.name,
+      school: 'Người chơi online',
+      avatar: challenge.fromUser.avatar || '👑',
+      level: challenge.fromUser.level,
+      winRate: '75%',
+      botAccuracy: 0.8,
+      isBot: false,
+    });
+  };
+
+  document.getElementById('btn-decline-challenge').onclick = async () => {
+    challengeModalBackdrop.hidden = true;
+    try {
+      await fetch(`${API_BASE_URL}/arena/respond`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ challengeId: challenge.id, accept: false }),
+      });
+    } catch {}
+    pendingIncomingChallenge = null;
+  };
+}
+
+function handleAcceptedInvite(acceptedInvite) {
+  alert(`Đấu sĩ đã chấp nhận lời mời thách đấu! Chuẩn bị bước vào trận đấu...`);
+  startDuelMatch({
+    id: acceptedInvite.toUserId,
+    name: 'Đối Thủ Thách Đấu',
+    school: 'Người chơi online',
+    avatar: '👑',
+    level: 3,
+    winRate: '70%',
+    botAccuracy: 0.8,
+    isBot: false,
+  });
 }
 
 // --- FIGHTER PROFILE CARD ---
@@ -182,7 +318,6 @@ function renderProfileCard() {
 }
 
 function renderModeCards() {
-  // Setup button handlers in Hub
   document.getElementById('btn-start-tower').onclick = () => startTowerMode('all');
   document.getElementById('btn-start-duel').onclick = () => showRivalSelectScreen();
   document.getElementById('btn-view-leaderboard').onclick = () => showLeaderboardScreen();
@@ -206,17 +341,14 @@ function loadTowerFloor(floorIndex) {
   const floorConfig = TOWER_FLOORS[floorIndex];
   showScreen(screenBattle);
 
-  // Tower Map Visuals
   renderTowerMap();
 
-  // Hide duel versus HUD, show tower HUD
   document.getElementById('versus-hud').hidden = true;
   document.getElementById('tower-hud').hidden = false;
 
   document.getElementById('hud-floor-title').textContent = `${floorConfig.icon} ${t(floorConfig.titleVi, floorConfig.titleEn)}`;
   document.getElementById('hud-tower-score').textContent = towerScoreAccumulator;
 
-  // Gather questions for floor
   roundQuestions = getQuestionsForFloor(floorIndex, towerSelectedSubject);
   currentQuestionIndex = 0;
   loadQuestion(currentQuestionIndex);
@@ -241,54 +373,185 @@ function renderTowerMap() {
 }
 
 function getQuestionsForFloor(floorIdx, subjectId) {
-  // Pull from available LESSONS matching subject
   let pool = [];
   const relevantLessons = subjectId === 'all'
     ? LESSONS
     : LESSONS.filter((l) => l.subjectId === subjectId);
 
   relevantLessons.forEach((l) => {
-    // Map floor (0..4) to stage (0..2)
     const stage = Math.min(2, Math.floor(floorIdx / 2));
     const matching = l.questions.filter((q) => q.stage === stage);
     pool.push(...matching);
   });
 
-  return shuffleArray(pool).slice(0, 4); // 4 questions per floor
+  return shuffleArray(pool).slice(0, 4);
 }
 
 // --- MODE 2: ĐẤU ĐỐI KHÁNG 1v1 (PVP DUEL) ---
 function showRivalSelectScreen() {
   showScreen(screenRivalSelect);
+  sendHeartbeat();
+
+  // Setup tab switcher
+  const tabHuman = document.getElementById('tab-rivals-human');
+  const tabBot = document.getElementById('tab-rivals-bot');
+
+  tabHuman.onclick = () => {
+    activeRivalTab = 'human';
+    tabHuman.classList.add('active');
+    tabBot.classList.remove('active');
+    renderRivalList();
+  };
+
+  tabBot.onclick = () => {
+    activeRivalTab = 'bot';
+    tabBot.classList.add('active');
+    tabHuman.classList.remove('active');
+    renderRivalList();
+  };
+
+  // Auto match button
+  document.getElementById('btn-auto-match').onclick = () => {
+    if (onlineHumanPlayers.length > 0) {
+      const luckyPlayer = onlineHumanPlayers[Math.floor(Math.random() * onlineHumanPlayers.length)];
+      sendChallengeInvite(luckyPlayer);
+    } else {
+      const randomBot = DUEL_RIVALS[Math.floor(Math.random() * DUEL_RIVALS.length)];
+      startDuelMatch(randomBot);
+    }
+  };
+
+  // Create Room button
+  document.getElementById('btn-create-room').onclick = openCreateRoomModal;
+
+  renderRivalList();
+}
+
+function renderRivalList() {
   const container = document.getElementById('rivals-grid');
   if (!container) return;
 
-  container.innerHTML = DUEL_RIVALS.map((rival) => `
-    <div class="rival-card">
-      <div class="rival-left">
-        <div class="rival-avatar">${rival.avatar}</div>
-        <div class="rival-meta">
-          <h4>${rival.name}</h4>
-          <span class="rival-school">${rival.school}</span>
-          <span class="rival-stats">Cấp ${rival.level} · Thắng: ${rival.winRate}</span>
+  if (activeRivalTab === 'human') {
+    // --- HUMAN PLAYERS LIST ---
+    if (onlineHumanPlayers.length === 0) {
+      container.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px 24px; background: #fff; border-radius: 20px; border: 2px dashed #cbd5e1;">
+          <div style="font-size: 44px; margin-bottom: 10px;">👥</div>
+          <h3 style="font: 800 20px 'Baloo 2', sans-serif; color: #0f172a; margin-bottom: 6px;">Chưa có người chơi thật nào khác online lúc này</h3>
+          <p style="font-size: 14.5px; color: #64748b; margin-bottom: 20px;">Bạn có thể tạo liên kết phòng để mời bạn bè qua Zalo/Facebook, hoặc chuyển sang tab <strong>🤖 Đối Thủ BOT</strong> để so tài ngay lập tức!</p>
+          <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <button class="btn-primary" id="btn-empty-create" type="button" style="background: #2563eb;">
+              <span>🔗 Mời Bạn Bè Bằng Link</span>
+            </button>
+            <button class="btn-secondary" id="btn-switch-bot" type="button">
+              <span>🤖 Chuyển Sang Đấu Với Bot</span>
+            </button>
+          </div>
         </div>
+      `;
+
+      document.getElementById('btn-empty-create')?.addEventListener('click', openCreateRoomModal);
+      document.getElementById('btn-switch-bot')?.addEventListener('click', () => {
+        document.getElementById('tab-rivals-bot').click();
+      });
+      return;
+    }
+
+    container.innerHTML = onlineHumanPlayers.map((player) => `
+      <div class="rival-card" style="border-color: #86efac; background: linear-gradient(135deg, #ffffff, #f0fdf4);">
+        <div class="rival-left">
+          <div class="rival-avatar" style="background: #dcfce7; border-color: #86efac;">${player.avatar || '👑'}</div>
+          <div class="rival-meta">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <h4>${player.name}</h4>
+              <span class="badge-human"><span class="badge-pulse-dot"></span> NGƯỜI THẬT</span>
+            </div>
+            <span class="rival-school">${player.school}</span>
+            <span class="rival-stats" style="color: #15803d;">Cấp ${player.level} · ${player.xp} XP</span>
+          </div>
+        </div>
+        <button class="btn-challenge" data-human-id="${player.id}" style="background: #16a34a;">
+          <span>Mời Thách Đấu ⚔️</span>
+        </button>
       </div>
-      <button class="btn-challenge" data-rival-id="${rival.id}">
-        <span>Thách Đấu ⚔️</span>
-      </button>
-    </div>
-  `).join('');
+    `).join('');
 
-  container.querySelectorAll('.btn-challenge').forEach((btn) => {
-    btn.onclick = () => {
-      const rival = DUEL_RIVALS.find((r) => r.id === btn.dataset.rivalId) || DUEL_RIVALS[0];
-      startDuelMatch(rival);
-    };
-  });
+    container.querySelectorAll('[data-human-id]').forEach((btn) => {
+      btn.onclick = () => {
+        const player = onlineHumanPlayers.find((p) => p.id === btn.dataset.humanId);
+        if (player) sendChallengeInvite(player);
+      };
+    });
 
-  document.getElementById('btn-auto-match').onclick = () => {
-    const randomRival = DUEL_RIVALS[Math.floor(Math.random() * DUEL_RIVALS.length)];
-    startDuelMatch(randomRival);
+  } else {
+    // --- BOT RIVALS LIST ---
+    container.innerHTML = DUEL_RIVALS.map((rival) => `
+      <div class="rival-card">
+        <div class="rival-left">
+          <div class="rival-avatar">${rival.avatar}</div>
+          <div class="rival-meta">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <h4>${rival.name}</h4>
+              <span class="badge-bot">🤖 BOT</span>
+            </div>
+            <span class="rival-school">${rival.school}</span>
+            <span class="rival-stats">Cấp ${rival.level} · Thắng: ${rival.winRate}</span>
+          </div>
+        </div>
+        <button class="btn-challenge" data-bot-id="${rival.id}">
+          <span>Đấu Với Bot ⚔️</span>
+        </button>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('[data-bot-id]').forEach((btn) => {
+      btn.onclick = () => {
+        const rival = DUEL_RIVALS.find((r) => r.id === btn.dataset.botId) || DUEL_RIVALS[0];
+        startDuelMatch(rival);
+      };
+    });
+  }
+}
+
+async function sendChallengeInvite(targetPlayer) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/arena/invite`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fromUser: {
+          id: currentUser.id || currentUser.email,
+          name: currentProfile.name,
+          avatar: (currentProfile.name || 'U').charAt(0).toUpperCase(),
+          level: calculatePlayerLevel(currentProfile.xp).level,
+        },
+        toUserId: targetPlayer.id,
+      }),
+    });
+    const json = await res.json();
+    if (json.success) {
+      alert(`Đã gửi lời mời thách đấu tới ${targetPlayer.name}! Đang chờ phản hồi...`);
+    }
+  } catch {
+    alert('Không thể kết nối máy chủ gửi lời mời thách đấu.');
+  }
+}
+
+async function openCreateRoomModal() {
+  const roomCode = Math.random().toString(36).substring(2, 7).toUpperCase();
+  const inviteUrl = `${window.location.origin}${window.location.pathname}?room=${roomCode}`;
+
+  const inputEl = document.getElementById('room-invite-link-input');
+  if (inputEl) inputEl.value = inviteUrl;
+  if (roomModalBackdrop) roomModalBackdrop.hidden = false;
+
+  document.getElementById('btn-copy-room-link').onclick = () => {
+    navigator.clipboard.writeText(inviteUrl);
+    alert('Đã sao chép liên kết phòng vào bộ nhớ tạm! Hãy gửi link này cho bạn bè.');
+  };
+
+  document.getElementById('btn-close-room-modal').onclick = () => {
+    if (roomModalBackdrop) roomModalBackdrop.hidden = true;
   };
 }
 
@@ -302,7 +565,6 @@ function startDuelMatch(rival) {
   currentStreak = 0;
   maxStreak = 0;
 
-  // Prepare questions for 5 duel rounds
   let allQ = [];
   LESSONS.forEach((l) => allQ.push(...l.questions));
   roundQuestions = shuffleArray(allQ).slice(0, DUEL_TOTAL_ROUNDS);
@@ -312,10 +574,21 @@ function startDuelMatch(rival) {
   document.getElementById('tower-hud').hidden = true;
   document.getElementById('versus-hud').hidden = false;
 
-  // Setup Versus Header
-  document.getElementById('duel-user-name').textContent = currentProfile.name;
-  document.getElementById('duel-rival-name').textContent = rival.name;
-  document.getElementById('duel-rival-avatar').textContent = rival.avatar;
+  // Versus Header with explicit BOT or REAL HUMAN badge
+  document.getElementById('duel-user-name').innerHTML = `
+    <span>${currentProfile.name}</span>
+    <span class="badge-human" style="font-size: 10px; margin-left: 4px;"><span class="badge-pulse-dot"></span> BẠN</span>
+  `;
+
+  const rivalBadgeHtml = rival.isBot
+    ? `<span class="badge-bot" style="font-size: 10px; margin-left: 4px;">🤖 BOT</span>`
+    : `<span class="badge-human" style="font-size: 10px; margin-left: 4px;"><span class="badge-pulse-dot"></span> NGƯỜI THẬT</span>`;
+
+  document.getElementById('duel-rival-name').innerHTML = `
+    <span>${rival.name}</span>
+    ${rivalBadgeHtml}
+  `;
+  document.getElementById('duel-rival-avatar').textContent = rival.avatar || '🦁';
   updateVersusScores();
 
   currentQuestionIndex = 0;
@@ -336,20 +609,16 @@ function loadQuestion(qIndex) {
   const totalTime = activeMode === 'tower' ? TOWER_FLOORS[currentFloorIndex].timePerQ : 20;
   timeRemaining = totalTime;
 
-  // Update HUD
   document.getElementById('hud-question-number').textContent = `${qIndex + 1}/${roundQuestions.length}`;
   updateStreakBadge();
 
-  // Reset Feedback & Next Button
   const feedbackBox = document.getElementById('feedback-box');
   const btnNext = document.getElementById('btn-next-question');
   feedbackBox.hidden = true;
   btnNext.hidden = true;
 
-  // Render Prompt
   document.getElementById('question-prompt').textContent = t(currentQuestion.prompt, currentQuestion.promptEn);
 
-  // Render Options
   const optionsGrid = document.getElementById('options-grid');
   const keys = ['A', 'B', 'C', 'D'];
   optionsGrid.innerHTML = currentQuestion.options.map((opt, idx) => `
@@ -409,7 +678,6 @@ function handleAnswer(selectedIndex) {
   currentStreak = scoreResult.newStreak;
   if (currentStreak > maxStreak) maxStreak = currentStreak;
 
-  // Highlight choices
   const buttons = document.querySelectorAll('.option-btn');
   buttons.forEach((btn, idx) => {
     btn.disabled = true;
@@ -420,15 +688,13 @@ function handleAnswer(selectedIndex) {
   if (isCorrect) audio.playCorrect();
   else audio.playWrong();
 
-  // Mode Specific scoring
   if (activeMode === 'tower') {
     towerScoreAccumulator += scoreResult.pointsAwarded;
     document.getElementById('hud-tower-score').textContent = towerScoreAccumulator;
   } else if (activeMode === 'duel') {
     duelUserScore += scoreResult.pointsAwarded;
 
-    // Simulate Rival response based on botAccuracy
-    const rivalCorrect = Math.random() < activeRival.botAccuracy;
+    const rivalCorrect = Math.random() < (activeRival.botAccuracy || 0.75);
     if (rivalCorrect) {
       const rivalTimeRem = Math.floor(Math.random() * 10) + 5;
       const rivalResult = calculateQuestionScore({ stageIndex: 1, timeRemaining: rivalTimeRem, isCorrect: true, currentStreak: 1 });
@@ -437,7 +703,6 @@ function handleAnswer(selectedIndex) {
     updateVersusScores();
   }
 
-  // Show Feedback
   const feedbackBox = document.getElementById('feedback-box');
   const feedbackHeadline = document.getElementById('feedback-headline');
   const feedbackExplanation = document.getElementById('feedback-explanation');
@@ -485,8 +750,7 @@ function handleTimeout() {
   feedbackExplanation.textContent = currentQuestion.explanation;
 
   if (activeMode === 'duel') {
-    // Rival might still get points
-    if (Math.random() < activeRival.botAccuracy) {
+    if (Math.random() < (activeRival.botAccuracy || 0.75)) {
       duelRivalScore += 25;
       updateVersusScores();
     }
@@ -501,7 +765,6 @@ document.getElementById('btn-next-question').onclick = () => {
   if (currentQuestionIndex + 1 < roundQuestions.length) {
     loadQuestion(currentQuestionIndex + 1);
   } else {
-    // Round / Floor Completed
     if (activeMode === 'tower') {
       if (currentFloorIndex < TOWER_FLOORS.length - 1) {
         showFloorClearScreen();
@@ -542,8 +805,6 @@ function showFloorClearScreen() {
 
 function finishTowerMode() {
   audio.playVictory();
-
-  // Accumulate XP into user's profile and save
   currentProfile.xp += towerScoreAccumulator;
   currentProfile.towerFloorsCleared += 5;
   saveUserArenaProfile(currentProfile);
@@ -571,15 +832,13 @@ function finishDuelMode() {
   if (duelResult.isWinner) {
     audio.playVictory();
     currentProfile.duelWins++;
-    currentProfile.xp += duelResult.pointsAwarded; // Win gets points + bonus
+    currentProfile.xp += duelResult.pointsAwarded;
   } else if (duelResult.isDraw) {
     audio.playDefeat();
     currentProfile.duelDraws++;
-    // Draw: 0 points
   } else {
     audio.playDefeat();
     currentProfile.duelLosses++;
-    // Thua: KO ĐƯỢC GÌ (0 points)
   }
 
   saveUserArenaProfile(currentProfile);
@@ -595,7 +854,7 @@ function finishDuelMode() {
     icon: duelResult.isWinner ? '👑' : '💔',
     detailHtml: `
       <div style="font-size:16px; font-weight:800; color:#1e1b4b; margin-top:8px;">
-        Tỉ số: Bạn ${duelUserScore}đ — ${activeRival.name} ${duelRivalScore}đ
+        Tỉ số: Bạn ${duelUserScore}đ — ${activeRival.name} ${duelRivalScore}đ (${activeRival.isBot ? '🤖 BOT' : '🟢 Người Thật'})
       </div>
     `,
   });
@@ -620,39 +879,51 @@ function showFinalResultScreen({ titleVi, titleEn, subtitleVi, subtitleEn, score
   if (detailBox) detailBox.innerHTML = detailHtml;
 }
 
-// --- LEADERBOARD SCREEN ---
+// --- LEADERBOARD SCREEN WITH BOT & HUMAN LABELS ---
 function showLeaderboardScreen() {
   showScreen(screenLeaderboard);
   const board = getNationalLeaderboard(currentProfile);
   const listEl = document.getElementById('national-leaderboard-list');
 
-  listEl.innerHTML = board.map((item) => `
-    <li class="leaderboard-item ${item.isUser ? 'is-user' : ''}">
-      <div class="item-left">
-        <span class="rank-badge rank-${item.rank}">${item.rank}</span>
-        <span style="font-size: 24px;">${item.avatar}</span>
-        <div>
-          <div>${item.name} ${item.isUser ? '<strong>(Bạn)</strong>' : ''}</div>
-          <span class="item-school">${item.school} · Cấp ${item.level}</span>
+  listEl.innerHTML = board.map((item) => {
+    let typeBadgeHtml = '';
+    if (item.isUser) {
+      typeBadgeHtml = `<span class="badge-human" style="font-size: 10px; margin-left: 6px;"><span class="badge-pulse-dot"></span> BẠN</span>`;
+    } else if (item.isBot) {
+      typeBadgeHtml = `<span class="badge-bot" style="font-size: 10px; margin-left: 6px;">🤖 BOT</span>`;
+    } else {
+      typeBadgeHtml = `<span class="badge-human" style="font-size: 10px; margin-left: 6px;"><span class="badge-pulse-dot"></span> NGƯỜI THẬT</span>`;
+    }
+
+    return `
+      <li class="leaderboard-item ${item.isUser ? 'is-user' : ''}">
+        <div class="item-left">
+          <span class="rank-badge rank-${item.rank}">${item.rank}</span>
+          <span style="font-size: 24px;">${item.avatar}</span>
+          <div>
+            <div style="display: flex; align-items: center;">
+              <span>${item.name}</span>
+              ${typeBadgeHtml}
+            </div>
+            <span class="item-school">${item.school} · Cấp ${item.level}</span>
+          </div>
         </div>
-      </div>
-      <div style="text-align: right;">
-        <span style="font: 800 16px 'Baloo 2', monospace; color: #ea580c;">${item.xp} XP</span>
-        <div style="font-size: 11px; color: #64748b; font-weight: 700;">${item.wins} trận thắng</div>
-      </div>
-    </li>
-  `).join('');
+        <div style="text-align: right;">
+          <span style="font: 800 16px 'Baloo 2', monospace; color: #ea580c;">${item.xp} XP</span>
+          <div style="font-size: 11px; color: #64748b; font-weight: 700;">${item.wins} trận thắng</div>
+        </div>
+      </li>
+    `;
+  }).join('');
 }
 
 // --- EVENT LISTENERS & NAVIGATION ---
 function setupEventListeners() {
-  // Auth login trigger
   const btnAuthOpen = document.getElementById('btn-open-auth-modal');
   if (btnAuthOpen) {
     btnAuthOpen.onclick = () => auth.openModal('login');
   }
 
-  // Back to Hub
   document.querySelectorAll('[data-action="hub"]').forEach((btn) => {
     btn.onclick = () => {
       clearInterval(timerInterval);
@@ -661,7 +932,6 @@ function setupEventListeners() {
     };
   });
 
-  // Keyboard navigation (1, 2, 3, 4, Enter)
   window.addEventListener('keydown', (e) => {
     if (!screenBattle || screenBattle.hidden) {
       if (e.key === 'Enter') {

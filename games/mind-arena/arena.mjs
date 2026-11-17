@@ -1210,12 +1210,12 @@ export const TOWER_FLOORS = [
 ];
 
 export const DUEL_RIVALS = [
-  { id: 'rival-1', name: 'Minh Khôi', school: 'TH Lê Quý Đôn (Đà Nẵng)', avatar: '🦁', level: 2, winRate: '58%', botAccuracy: 0.60, titleVi: 'Tân Binh Tinh Nhuệ', titleEn: 'Elite Recruit' },
-  { id: 'rival-2', name: 'Bảo Nam', school: 'TH Chu Văn An (Hà Nội)', avatar: '🦊', level: 3, winRate: '68%', botAccuracy: 0.70, titleVi: 'Chiến Binh Trí Tuệ', titleEn: 'Mind Warrior' },
-  { id: 'rival-3', name: 'Thảo Nguyên', school: 'TH Nguyễn Du (TP.HCM)', avatar: '🐰', level: 4, winRate: '75%', botAccuracy: 0.78, titleVi: 'Dũng Sĩ Tinh Anh', titleEn: 'Valiant Champion' },
-  { id: 'rival-4', name: 'Hoàng Bách', school: 'TH Đinh Tiên Hoàng (Hải Phòng)', avatar: '🐯', level: 5, winRate: '82%', botAccuracy: 0.85, titleVi: 'Cao Thủ Đấu Trường', titleEn: 'Arena Master' },
-  { id: 'rival-5', name: 'Gia Hân', school: 'TH Châu Văn Liêm (Cần Thơ)', avatar: '🐼', level: 6, winRate: '88%', botAccuracy: 0.90, titleVi: 'Đại Sư Trí Tuệ', titleEn: 'Grand Master' },
-  { id: 'rival-6', name: 'Tuấn Kiệt', school: 'TH Ngô Mây (Bình Định)', avatar: '🦅', level: 7, winRate: '94%', botAccuracy: 0.95, titleVi: 'Tông Sư Bất Bại', titleEn: 'Supreme Grandmaster' },
+  { id: 'rival-1', name: 'Minh Khôi', school: 'TH Lê Quý Đôn (Đà Nẵng)', avatar: '🦁', level: 2, winRate: '58%', botAccuracy: 0.60, titleVi: 'Tân Binh Tinh Nhuệ', titleEn: 'Elite Recruit', isBot: true },
+  { id: 'rival-2', name: 'Bảo Nam', school: 'TH Chu Văn An (Hà Nội)', avatar: '🦊', level: 3, winRate: '68%', botAccuracy: 0.70, titleVi: 'Chiến Binh Trí Tuệ', titleEn: 'Mind Warrior', isBot: true },
+  { id: 'rival-3', name: 'Thảo Nguyên', school: 'TH Nguyễn Du (TP.HCM)', avatar: '🐰', level: 4, winRate: '75%', botAccuracy: 0.78, titleVi: 'Dũng Sĩ Tinh Anh', titleEn: 'Valiant Champion', isBot: true },
+  { id: 'rival-4', name: 'Hoàng Bách', school: 'TH Đinh Tiên Hoàng (Hải Phòng)', avatar: '🐯', level: 5, winRate: '82%', botAccuracy: 0.85, titleVi: 'Cao Thủ Đấu Trường', titleEn: 'Arena Master', isBot: true },
+  { id: 'rival-5', name: 'Gia Hân', school: 'TH Châu Văn Liêm (Cần Thơ)', avatar: '🐼', level: 6, winRate: '88%', botAccuracy: 0.90, titleVi: 'Đại Sư Trí Tuệ', titleEn: 'Grand Master', isBot: true },
+  { id: 'rival-6', name: 'Tuấn Kiệt', school: 'TH Ngô Mây (Bình Định)', avatar: '🦅', level: 7, winRate: '94%', botAccuracy: 0.95, titleVi: 'Tông Sư Bất Bại', titleEn: 'Supreme Grandmaster', isBot: true },
 ];
 
 export function calculateDuelResult({ userScore = 0, rivalScore = 0, victoryBonus = 100 }) {
@@ -1271,14 +1271,14 @@ export function saveUserArenaProfile(profile) {
 
 export function getNationalLeaderboard(currentUserProfile = null) {
   const baseContestants = [
-    { name: 'Tuấn Kiệt', school: 'TH Ngô Mây (Bình Định)', avatar: '🦅', xp: 7420, level: 7, wins: 54 },
-    { name: 'Gia Hân', school: 'TH Châu Văn Liêm (Cần Thơ)', avatar: '🐼', xp: 4850, level: 6, wins: 42 },
-    { name: 'Hoàng Bách', school: 'TH Đinh Tiên Hoàng (Hải Phòng)', avatar: '🐯', xp: 2950, level: 5, wins: 33 },
-    { name: 'Thảo Nguyên', school: 'TH Nguyễn Du (TP.HCM)', avatar: '🐰', xp: 1650, level: 4, wins: 24 },
-    { name: 'Bảo Nam', school: 'TH Chu Văn An (Hà Nội)', avatar: '🦊', xp: 920, level: 3, wins: 15 },
-    { name: 'Minh Khôi', school: 'TH Lê Quý Đôn (Đà Nẵng)', avatar: '🦁', xp: 480, level: 2, wins: 8 },
-    { name: 'Khánh An', school: 'TH Phan Chu Trinh (Huế)', avatar: '🦄', xp: 320, level: 2, wins: 5 },
-    { name: 'Hải Đăng', school: 'TH Lý Tự Trọng (Nha Trang)', avatar: '🐬', xp: 190, level: 1, wins: 3 },
+    { name: 'Tuấn Kiệt', school: 'TH Ngô Mây (Bình Định)', avatar: '🦅', xp: 7420, level: 7, wins: 54, isBot: true },
+    { name: 'Gia Hân', school: 'TH Châu Văn Liêm (Cần Thơ)', avatar: '🐼', xp: 4850, level: 6, wins: 42, isBot: true },
+    { name: 'Hoàng Bách', school: 'TH Đinh Tiên Hoàng (Hải Phòng)', avatar: '🐯', xp: 2950, level: 5, wins: 33, isBot: true },
+    { name: 'Thảo Nguyên', school: 'TH Nguyễn Du (TP.HCM)', avatar: '🐰', xp: 1650, level: 4, wins: 24, isBot: true },
+    { name: 'Bảo Nam', school: 'TH Chu Văn An (Hà Nội)', avatar: '🦊', xp: 920, level: 3, wins: 15, isBot: true },
+    { name: 'Minh Khôi', school: 'TH Lê Quý Đôn (Đà Nẵng)', avatar: '🦁', xp: 480, level: 2, wins: 8, isBot: true },
+    { name: 'Khánh An', school: 'TH Phan Chu Trinh (Huế)', avatar: '🦄', xp: 320, level: 2, wins: 5, isBot: true },
+    { name: 'Hải Đăng', school: 'TH Lý Tự Trọng (Nha Trang)', avatar: '🐬', xp: 190, level: 1, wins: 3, isBot: true },
   ];
 
   let list = baseContestants.map((c) => ({

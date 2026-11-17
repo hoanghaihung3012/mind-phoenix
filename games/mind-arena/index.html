@@ -153,20 +153,34 @@
 
       <!-- SCREEN 2: RIVAL SELECTION (FOR DUEL MODE) -->
       <section id="screen-rival-select" hidden>
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 14px;">
           <div>
             <h2 style="font: 800 24px 'Baloo 2', sans-serif; color: #0f172a;">Chọn Đối Thủ Thách Đấu 1v1</h2>
-            <p style="font-size: 14px; color: #64748b;">Chọn một đấu sĩ ngang tài để so tài hoặc sử dụng tính năng ghép nhanh.</p>
+            <p style="font-size: 14px; color: #64748b;">Mời bạn học thật đang online hoặc rèn luyện cùng các đối thủ BOT hệ thống.</p>
           </div>
-          <div style="display: flex; gap: 10px;">
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn-primary" id="btn-create-room" type="button" style="background: #2563eb;">
+              <span>🔗 Mời Bạn Bè Qua Link</span>
+            </button>
             <button class="btn-primary" id="btn-auto-match" type="button" style="background: #ea580c;">
-              <span>⚡ Ghép Nhanh Ngẫu Nhiên</span>
+              <span>⚡ Ghép Nhanh</span>
             </button>
             <button class="btn-secondary" data-action="hub" type="button">
               <span>← Trở về Hub</span>
             </button>
           </div>
         </div>
+
+        <!-- Sub-tabs: Người Thật Online vs BOT Luyện Tập -->
+        <div class="rival-tabs">
+          <button class="rival-tab-btn active" id="tab-rivals-human" type="button">
+            <span>🟢 Người Thật Online (<span id="human-online-count">0</span>)</span>
+          </button>
+          <button class="rival-tab-btn" id="tab-rivals-bot" type="button">
+            <span>🤖 Đối Thủ BOT Luyện Tập (6)</span>
+          </button>
+        </div>
+
         <div class="rivals-grid" id="rivals-grid"></div>
       </section>
 
@@ -308,6 +322,41 @@
         </div>
         <ul class="leaderboard-list" id="national-leaderboard-list"></ul>
       </section>
+
+      <!-- CHALLENGE INVITATION POPUP MODAL -->
+      <div id="challenge-modal-backdrop" class="challenge-modal-backdrop" hidden>
+        <div class="challenge-modal">
+          <div class="challenge-avatar-big" id="ch-modal-avatar">⚔️</div>
+          <h2 style="font: 800 22px 'Baloo 2', sans-serif; color: #0f172a; margin-bottom: 8px;">Lời Mời Thách Đấu!</h2>
+          <p id="ch-modal-text" style="font-size: 14.5px; color: #475569; margin-bottom: 24px;">Đấu sĩ đang mời bạn vào trận đấu đối kháng 1v1.</p>
+          <div style="display: flex; gap: 12px; justify-content: center;">
+            <button class="btn-primary" id="btn-accept-challenge" type="button" style="background: #16a34a; padding: 12px 24px;">
+              <span>Chấp Nhận ⚔️</span>
+            </button>
+            <button class="btn-secondary" id="btn-decline-challenge" type="button" style="padding: 12px 20px;">
+              <span>Từ Chối</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SHARE ROOM MODAL -->
+      <div id="room-modal-backdrop" class="challenge-modal-backdrop" hidden>
+        <div class="challenge-modal">
+          <div class="challenge-avatar-big">🔗</div>
+          <h2 style="font: 800 22px 'Baloo 2', sans-serif; color: #0f172a; margin-bottom: 8px;">Tạo Phòng Mời Bạn Bè</h2>
+          <p style="font-size: 14px; color: #64748b; margin-bottom: 16px;">Gửi liên kết này cho bạn bè qua Zalo, Messenger hoặc Discord để cùng thi đấu 1v1:</p>
+          <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+            <input type="text" id="room-invite-link-input" readonly style="flex: 1; padding: 10px 14px; border: 2px solid #cbd5e1; border-radius: 12px; font-weight: 700; font-size: 13px;">
+            <button class="btn-primary" id="btn-copy-room-link" type="button" style="padding: 10px 16px;">
+              <span>Sao Chép</span>
+            </button>
+          </div>
+          <button class="btn-secondary" id="btn-close-room-modal" type="button" style="width: 100%;">
+            <span>Đóng</span>
+          </button>
+        </div>
+      </div>
     </main>
 
     <footer style="margin-top: 48px; text-align: center; font-size: 13.5px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 24px;">
