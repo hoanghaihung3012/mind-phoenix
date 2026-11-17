@@ -151,10 +151,65 @@ export class AuthManager {
     window.dispatchEvent(new CustomEvent('mindphoenix-auth-change', { detail: { user: null, token: null } }));
   }
 
+  async refreshUser() {
+    if (!this.token) return null;
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${this.token}`,
+        },
+      });
+      const json = await res.json();
+      if (json.success && json.data) {
+        this.user = { ...this.user, ...json.data };
+        localStorage.setItem(USER_KEY, JSON.stringify(this.user));
+        this.updateNavUI();
+        window.dispatchEvent(new CustomEvent('mindphoenix-auth-change', { detail: { user: this.user, token: this.token } }));
+        return this.user;
+      }
+    } catch {
+      // ignore
+    }
+    return null;
+  }
+
+  async recordArenaScore(xpGained, { won = false, lost = false } = {}) {
+    if (!this.user || !this.user.id) return null;
+    try {
+      const res = await fetch(`${API_BASE_URL}/arena/record-score`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: this.user.id,
+          xpGained: Number(xpGained) || 0,
+          won: Boolean(won),
+          lost: Boolean(lost),
+        }),
+      });
+      const json = await res.json();
+      if (json.success && json.data?.user) {
+        this.user = {
+          ...this.user,
+          ...json.data.user,
+        };
+        localStorage.setItem(USER_KEY, JSON.stringify(this.user));
+        this.updateNavUI();
+        window.dispatchEvent(new CustomEvent('mindphoenix-auth-change', { detail: { user: this.user, token: this.token } }));
+        return this.user;
+      }
+    } catch (err) {
+      console.warn('Could not record arena score:', err);
+    }
+    return null;
+  }
+
   initUI(containerId = 'nav-auth-container') {
     this.container = document.getElementById(containerId);
     this.renderModal();
     this.updateNavUI();
+    if (this.isLoggedIn()) {
+      this.refreshUser();
+    }
 
     // Listen to global language change if available
     window.addEventListener('mp-lang-change', (e) => {
@@ -169,10 +224,13 @@ export class AuthManager {
 
     if (this.isLoggedIn()) {
       const initial = (this.user.name || 'U').charAt(0).toUpperCase();
+      const level = this.user.arenaLevel || 1;
+      const xp = this.user.arenaXp || 0;
       this.container.innerHTML = `
         <div class="nav-user-profile">
           <div class="nav-user-avatar">${initial}</div>
           <span class="nav-user-name">${this.user.name}</span>
+          <span class="nav-user-level-badge">Lv.${level} • ${xp} XP</span>
           <button type="button" class="nav-logout-btn" id="btn-logout" title="${this.t.logout}">${this.t.logout}</button>
         </div>
       `;

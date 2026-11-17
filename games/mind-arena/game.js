@@ -171,6 +171,18 @@ function checkAuthAndRender() {
   if (auth.isLoggedIn()) {
     currentUser = auth.user;
     currentProfile = getUserArenaProfile(currentUser.email || currentUser.id, currentUser.name);
+
+    if (typeof currentUser.arenaXp === 'number') {
+      currentProfile.xp = Math.max(currentProfile.xp || 0, currentUser.arenaXp);
+    }
+    if (typeof currentUser.duelWins === 'number') {
+      currentProfile.duelWins = Math.max(currentProfile.duelWins || 0, currentUser.duelWins);
+    }
+    if (typeof currentUser.duelLosses === 'number') {
+      currentProfile.duelLosses = Math.max(currentProfile.duelLosses || 0, currentUser.duelLosses);
+    }
+    saveUserArenaProfile(currentProfile);
+
     showScreen(screenHub);
     renderProfileCard();
     renderModeCards();
@@ -803,11 +815,21 @@ function showFloorClearScreen() {
   };
 }
 
-function finishTowerMode() {
+async function finishTowerMode() {
   audio.playVictory();
   currentProfile.xp += towerScoreAccumulator;
   currentProfile.towerFloorsCleared += 5;
   saveUserArenaProfile(currentProfile);
+
+  // Persist score and level progressively into database
+  if (auth.isLoggedIn()) {
+    auth.recordArenaScore(towerScoreAccumulator, { won: true, lost: false }).then((updated) => {
+      if (updated) {
+        currentProfile.xp = updated.arenaXp;
+        saveUserArenaProfile(currentProfile);
+      }
+    });
+  }
 
   showFinalResultScreen({
     mode: 'tower',
@@ -822,14 +844,17 @@ function finishTowerMode() {
 }
 
 // --- DUEL FINISH (THẮNG ĐƯỢC ĐIỂM, THUA KO ĐƯỢC GÌ) ---
-function finishDuelMode() {
+async function finishDuelMode() {
   const duelResult = calculateDuelResult({
     userScore: duelUserScore,
     rivalScore: duelRivalScore,
     victoryBonus: 100,
   });
 
-  if (duelResult.isWinner) {
+  const won = duelResult.isWinner;
+  const lost = !duelResult.isWinner && !duelResult.isDraw;
+
+  if (won) {
     audio.playVictory();
     currentProfile.duelWins++;
     currentProfile.xp += duelResult.pointsAwarded;
@@ -842,6 +867,18 @@ function finishDuelMode() {
   }
 
   saveUserArenaProfile(currentProfile);
+
+  // Persist score and duel wins/losses progressively into database
+  if (auth.isLoggedIn()) {
+    auth.recordArenaScore(duelResult.pointsAwarded, { won, lost }).then((updated) => {
+      if (updated) {
+        currentProfile.xp = updated.arenaXp;
+        currentProfile.duelWins = updated.duelWins;
+        currentProfile.duelLosses = updated.duelLosses;
+        saveUserArenaProfile(currentProfile);
+      }
+    });
+  }
 
   showFinalResultScreen({
     mode: 'duel',
@@ -880,10 +917,56 @@ function showFinalResultScreen({ titleVi, titleEn, subtitleVi, subtitleEn, score
 }
 
 // --- LEADERBOARD SCREEN WITH BOT & HUMAN LABELS ---
-function showLeaderboardScreen() {
+async function showLeaderboardScreen() {
   showScreen(screenLeaderboard);
-  const board = getNationalLeaderboard(currentProfile);
+  // Show local/default leaderboard immediately
+  renderLeaderboardItems(getNationalLeaderboard(currentProfile));
+
+  // Fetch live database leaderboard
+  try {
+    const res = await fetch(`${API_BASE_URL}/arena/leaderboard?limit=20`);
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+      const dbRanks = json.data.map((u, idx) => ({
+        rank: idx + 1,
+        id: u.id,
+        name: u.name,
+        school: u.school || 'Mind Phoenix Member',
+        avatar: u.avatar || '👑',
+        level: u.level || 1,
+        xp: u.xp || 0,
+        wins: u.duelWins || 0,
+        isUser: currentUser && (u.id === currentUser.id || u.name === currentUser.name),
+        isBot: false,
+      }));
+
+      // If current user is not in top ranks returned, append them
+      const userInList = dbRanks.some((r) => r.isUser);
+      if (!userInList && currentUser) {
+        const userLevel = calculatePlayerLevel(currentProfile.xp).level;
+        dbRanks.push({
+          rank: dbRanks.length + 1,
+          name: currentProfile.name,
+          school: currentProfile.school || 'Mind Phoenix Member',
+          avatar: currentProfile.avatar || '👑',
+          level: userLevel,
+          xp: currentProfile.xp,
+          wins: currentProfile.duelWins || 0,
+          isUser: true,
+          isBot: false,
+        });
+      }
+
+      renderLeaderboardItems(dbRanks);
+    }
+  } catch (err) {
+    console.warn('Could not load online leaderboard, fallback to local:', err);
+  }
+}
+
+function renderLeaderboardItems(board) {
   const listEl = document.getElementById('national-leaderboard-list');
+  if (!listEl) return;
 
   listEl.innerHTML = board.map((item) => {
     let typeBadgeHtml = '';
