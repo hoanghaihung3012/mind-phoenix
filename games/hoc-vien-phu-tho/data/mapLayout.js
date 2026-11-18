@@ -1,12 +1,12 @@
-/** Bố cục bản đồ Trường Tiểu học Phú Thọ (tọa độ thế giới mở rộng 3200 x 2300, giãn cách các tòa nhà). */
+/** Bố cục bản đồ Trường Tiểu học Phú Thọ (tọa độ thế giới mở rộng 4800 x 3450, siêu rộng và đại giãn cách). */
 
-export const WORLD = { width: 3200, height: 2300 };
+export const WORLD = { width: 4800, height: 3450 };
 /** Vùng nhân vật được phép đi lại (để lại dải trang trí phía trên và cổng trường phía dưới). */
-export const BOUNDS = { x: 40, y: 160, w: 3120, h: 1980 };
+export const BOUNDS = { x: 60, y: 180, w: 4680, h: 3050 };
 /** Kích thước nửa chân của nhân vật dùng để tính va chạm. */
 export const PLAYER_HALF = { w: 12, h: 7 };
-export const SPAWN = { x: 1600, y: 2020 };
-export const INTERACT_RADIUS = 110;
+export const SPAWN = { x: 2400, y: 3050 };
+export const INTERACT_RADIUS = 120;
 
 /**
  * Các công trình. (cx, baseY) là điểm giữa cạnh dưới; (ix, iy) là điểm tương tác ngay trước cửa.
@@ -16,92 +16,92 @@ export const BUILDINGS = [
   {
     zone: "library",
     texture: "bld-library",
-    cx: 460,
-    baseY: 680,
+    cx: 650,
+    baseY: 850,
     w: 320,
     h: 240,
-    ix: 460,
-    iy: 750,
+    ix: 650,
+    iy: 930,
   },
   {
     zone: "grand",
     texture: "bld-grand",
-    cx: 1600,
-    baseY: 680,
+    cx: 2400,
+    baseY: 850,
     w: 420,
     h: 290,
-    ix: 1600,
-    iy: 750,
+    ix: 2400,
+    iy: 930,
   },
   {
     zone: "literature",
     texture: "bld-literature",
-    cx: 2740,
-    baseY: 680,
+    cx: 4150,
+    baseY: 850,
     w: 320,
     h: 240,
-    ix: 2740,
-    iy: 750,
+    ix: 4150,
+    iy: 930,
   },
   {
     zone: "spelling",
     texture: "bld-spelling",
-    cx: 440,
-    baseY: 1440,
+    cx: 620,
+    baseY: 2050,
     w: 280,
     h: 200,
-    ix: 440,
-    iy: 1510,
+    ix: 620,
+    iy: 2130,
   },
   {
     zone: "arena",
     texture: "bld-arena",
-    cx: 1600,
-    baseY: 1440,
+    cx: 2400,
+    baseY: 2050,
     w: 260,
     h: 210,
-    ix: 1600,
-    iy: 1510,
+    ix: 2400,
+    iy: 2130,
   },
   {
     zone: "idiom",
     texture: "bld-idiom",
-    cx: 2760,
-    baseY: 1440,
+    cx: 4180,
+    baseY: 2050,
     w: 280,
     h: 200,
-    ix: 2760,
-    iy: 1510,
+    ix: 4180,
+    iy: 2130,
   },
   {
     zone: "pets",
     texture: "bld-pets",
-    cx: 400,
-    baseY: 1980,
+    cx: 550,
+    baseY: 2950,
     w: 190,
     h: 190,
-    ix: 400,
-    iy: 2040,
+    ix: 550,
+    iy: 3030,
   },
   {
     zone: "math",
     texture: "bld-math",
-    cx: 2220,
-    baseY: 1980,
+    cx: 3350,
+    baseY: 2950,
     w: 190,
     h: 190,
-    ix: 2220,
-    iy: 2040,
+    ix: 3350,
+    iy: 3030,
   },
   {
     zone: "shop",
     texture: "bld-shop",
-    cx: 2800,
-    baseY: 1980,
+    cx: 4200,
+    baseY: 2950,
     w: 210,
     h: 200,
-    ix: 2800,
-    iy: 2040,
+    ix: 4200,
+    iy: 3030,
   },
 ];
 
@@ -109,78 +109,78 @@ export const BUILDINGS = [
 export const BOARD = {
   zone: "missions",
   texture: "prop-board",
-  x: 980,
-  baseY: 1930,
+  x: 1450,
+  baseY: 2900,
   w: 90,
   h: 100,
-  ix: 980,
-  iy: 1990,
+  ix: 1450,
+  iy: 2970,
 };
 
 export const TREES = [
   // Hàng cây trên cùng
-  { x: 180, y: 400, v: 0 },
-  { x: 740, y: 350, v: 1 },
-  { x: 1080, y: 320, v: 0 },
-  { x: 1360, y: 350, v: 1 },
-  { x: 1840, y: 350, v: 0 },
-  { x: 2120, y: 320, v: 1 },
-  { x: 2460, y: 350, v: 0 },
-  { x: 3020, y: 400, v: 1 },
+  { x: 250, y: 480, v: 0 },
+  { x: 1100, y: 420, v: 1 },
+  { x: 1600, y: 390, v: 0 },
+  { x: 2050, y: 420, v: 1 },
+  { x: 2750, y: 420, v: 0 },
+  { x: 3200, y: 390, v: 1 },
+  { x: 3700, y: 420, v: 0 },
+  { x: 4550, y: 480, v: 1 },
   // Hàng cây biên trái & phải
-  { x: 140, y: 880, v: 1 },
-  { x: 140, y: 1320, v: 0 },
-  { x: 140, y: 1750, v: 1 },
-  { x: 3060, y: 880, v: 0 },
-  { x: 3060, y: 1320, v: 1 },
-  { x: 3060, y: 1750, v: 0 },
+  { x: 180, y: 1250, v: 1 },
+  { x: 180, y: 1900, v: 0 },
+  { x: 180, y: 2550, v: 1 },
+  { x: 4620, y: 1250, v: 0 },
+  { x: 4620, y: 1900, v: 1 },
+  { x: 4620, y: 2550, v: 0 },
   // Cây trong các khoảng sân rộng giữa các tòa nhà
-  { x: 760, y: 920, v: 0 },
-  { x: 1320, y: 920, v: 1 },
-  { x: 1880, y: 920, v: 0 },
-  { x: 2440, y: 920, v: 1 },
-  { x: 740, y: 1260, v: 1 },
-  { x: 1300, y: 1260, v: 0 },
-  { x: 1900, y: 1260, v: 1 },
-  { x: 2460, y: 1260, v: 0 },
+  { x: 1100, y: 1300, v: 0 },
+  { x: 1950, y: 1300, v: 1 },
+  { x: 2850, y: 1300, v: 0 },
+  { x: 3700, y: 1300, v: 1 },
+  { x: 1100, y: 1750, v: 1 },
+  { x: 1950, y: 1750, v: 0 },
+  { x: 2850, y: 1750, v: 1 },
+  { x: 3700, y: 1750, v: 0 },
   // Sân trước và gần cổng
-  { x: 700, y: 1800, v: 0 },
-  { x: 1260, y: 1800, v: 1 },
-  { x: 1940, y: 1800, v: 0 },
-  { x: 2520, y: 1800, v: 1 },
-  { x: 1320, y: 2120, v: 1 },
-  { x: 1880, y: 2120, v: 0 },
+  { x: 1050, y: 2650, v: 0 },
+  { x: 1900, y: 2650, v: 1 },
+  { x: 2900, y: 2650, v: 0 },
+  { x: 3750, y: 2650, v: 1 },
+  { x: 1950, y: 3150, v: 1 },
+  { x: 2850, y: 3150, v: 0 },
 ];
 
 export const BENCHES = [
-  { x: 740, y: 790 },
-  { x: 2460, y: 790 },
-  { x: 1340, y: 820 },
-  { x: 1860, y: 820 },
-  { x: 1020, y: 1280 },
-  { x: 2180, y: 1280 },
-  { x: 1280, y: 1550 },
-  { x: 1920, y: 1550 },
-  { x: 680, y: 2010 },
-  { x: 2520, y: 2010 },
+  { x: 1100, y: 1000 },
+  { x: 3700, y: 1000 },
+  { x: 2000, y: 1050 },
+  { x: 2800, y: 1050 },
+  { x: 1450, y: 1750 },
+  { x: 3350, y: 1750 },
+  { x: 1900, y: 2200 },
+  { x: 2900, y: 2200 },
+  { x: 1000, y: 2980 },
+  { x: 3800, y: 2980 },
 ];
 
 export const FLOWER_BEDS = [
-  { x: 680, y: 790, w: 120 },
-  { x: 2520, y: 790, w: 120 },
-  { x: 1600, y: 830, w: 140 },
-  { x: 1020, y: 1350, w: 100 },
-  { x: 2180, y: 1350, w: 100 },
-  { x: 1600, y: 1680, w: 120 },
-  { x: 1280, y: 2010, w: 90 },
-  { x: 1920, y: 2010, w: 90 },
+  { x: 1000, y: 1000, w: 120 },
+  { x: 3800, y: 1000, w: 120 },
+  { x: 2400, y: 1050, w: 140 },
+  { x: 1450, y: 1850, w: 120 },
+  { x: 3350, y: 1850, w: 120 },
+  { x: 2400, y: 2400, w: 140 },
+  { x: 1900, y: 2980, w: 100 },
+  { x: 2900, y: 2980, w: 100 },
 ];
 
-export const FLAGPOLE = { x: 1020, y: 1100 };
-export const POND = { x: 2180, y: 1100, rx: 130, ry: 80 };
+export const FLAGPOLE = { x: 1450, y: 1500 };
+export const POND = { x: 3350, y: 1500, rx: 180, ry: 110 };
 
 /** Ổ khóa và nhãn của từng khu vực nằm cao hơn cửa một đoạn. */
-export const GATE = { x: 1600, y: 2300 };
+export const GATE = { x: 2400, y: 3450 };
 
 function buildingRect(b) {
   return {

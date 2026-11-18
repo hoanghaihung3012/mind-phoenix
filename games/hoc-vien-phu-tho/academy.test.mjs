@@ -121,8 +121,8 @@ test('isSpecialZoneUnlocked accurately evaluates unlocking conditions', () => {
 });
 
 test('checkProximityPOI detects locations when near and ignores when far', () => {
-  // Near the flagpole (1020, 1100)
-  const hit = checkProximityPOI(1020, 1100);
+  // Near the flagpole (1450, 1500)
+  const hit = checkProximityPOI(1450, 1500);
   assert.ok(hit);
   assert.equal(hit.poi.id, 'flagpole');
 

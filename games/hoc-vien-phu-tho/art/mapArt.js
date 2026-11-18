@@ -329,26 +329,26 @@ function pathRects() {
   const rects = [
     // 3 Đại lộ ngang kết nối toàn trường:
     // Đại lộ phía trước hàng 1 (Thư viện - Đại hội - Ngữ văn)
-    { x: 240, y: 720, w: 2720, h: 70 },
+    { x: 350, y: 890, w: 4100, h: 80 },
     // Đại lộ trung tâm phía trước hàng 2 (Chính tả - Đấu trường - Thành ngữ)
-    { x: 240, y: 1480, w: 2720, h: 70 },
+    { x: 350, y: 2090, w: 4100, h: 80 },
     // Đại lộ sân trước phía trước hàng 3 (Thú cưng - Bảng NV - Cổng - Vườn toán - Cửa hàng)
-    { x: 240, y: 2010, w: 2720, h: 80 },
+    { x: 350, y: 2990, w: 4100, h: 90 },
 
     // 5 Trục đường dọc chính:
     // Trục chính trung tâm (Đại hội -> Đấu trường -> Cổng chính)
-    { x: 1550, y: 720, w: 100, h: 1560 },
+    { x: 2340, y: 890, w: 120, h: 2510 },
     // Trục phía Tây (Thư viện -> Chính tả -> Thú cưng)
-    { x: 400, y: 720, w: 80, h: 1370 },
+    { x: 580, y: 890, w: 90, h: 2190 },
     // Trục phía Đông (Ngữ văn -> Thành ngữ -> Cửa hàng)
-    { x: 2720, y: 720, w: 80, h: 1370 },
+    { x: 4120, y: 890, w: 90, h: 2190 },
     // Trục cột cờ kết nối hàng 1 & hàng 2
-    { x: 980, y: 720, w: 80, h: 830 },
+    { x: 1405, y: 890, w: 90, h: 1280 },
     // Trục hồ sen kết nối hàng 1 & hàng 2
-    { x: 2140, y: 720, w: 80, h: 830 },
+    { x: 3305, y: 890, w: 90, h: 1280 },
 
     // Đường dạo ngang qua quảng trường cột cờ & hồ sen
-    { x: 980, y: 1065, w: 1240, h: 70 },
+    { x: 1405, y: 1460, w: 1990, h: 80 },
   ];
   return rects;
 }
@@ -378,7 +378,7 @@ function worldBackground(scene) {
       rr(g, W - 20, y, 16, 22, 4, 0xf3efe6, INK, 2);
     }
     for (let x = 0; x < W; x += 28) {
-      if (x > (GATE.x - 180) && x < (GATE.x + 180)) continue;
+      if (x > (GATE.x - 200) && x < (GATE.x + 200)) continue;
       rr(g, x, H - 52, 18, 40, 4, 0xf3efe6, INK, 2);
     }
     // Đường đi lát đá
@@ -395,8 +395,8 @@ function worldBackground(scene) {
         g.lineBetween(x, r.y + 6, x, r.y + r.h - 6);
     }
     // Sân cột cờ và hồ nước
-    ell(g, FLAGPOLE.x, FLAGPOLE.y - 10, 300, 170, STONE_EDGE, null, 0, 1);
-    ell(g, FLAGPOLE.x, FLAGPOLE.y - 10, 284, 154, 0xf1e9d4, null, 0, 1);
+    ell(g, FLAGPOLE.x, FLAGPOLE.y - 10, 380, 220, STONE_EDGE, null, 0, 1);
+    ell(g, FLAGPOLE.x, FLAGPOLE.y - 10, 364, 204, 0xf1e9d4, null, 0, 1);
     pondRim(g, POND.x, POND.y, POND.rx, POND.ry);
     // Cỏ và hoa nhỏ rải rác ở những chỗ không có đường
     const paths = pathRects();
@@ -408,12 +408,12 @@ function worldBackground(scene) {
           y > r.y - 12 &&
           y < r.y + r.h + 12,
       );
-    for (let i = 0; i < 480; i++) {
+    for (let i = 0; i < 680; i++) {
       const x = 30 + rng() * (W - 60);
       const y = 110 + rng() * (H - 200);
       if (!free(x, y)) continue;
       if (Math.hypot((x - POND.x) / (POND.rx + 15), (y - POND.y) / (POND.ry + 15)) < 1) continue;
-      if (Math.hypot((x - FLAGPOLE.x) / 160, (y - (FLAGPOLE.y - 10)) / 95) < 1) continue;
+      if (Math.hypot((x - FLAGPOLE.x) / 200, (y - (FLAGPOLE.y - 10)) / 120) < 1) continue;
       if (rng() < 0.55) {
         line(g, x - 4, y, x, y - 8, 0x58b947, 2.5);
         line(g, x + 4, y, x, y - 8, 0x58b947, 2.5);
