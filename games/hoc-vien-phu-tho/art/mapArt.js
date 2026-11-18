@@ -416,17 +416,47 @@ function gate(scene) {
 }
 
 function pondRim(g, cx, cy, rx, ry) {
+  // Bờ kè đá hồ sen
   ell(g, cx, cy, rx * 2 + 16, ry * 2 + 14, 0xcfd6df, INK, 4);
+  // Mặt nước hồ trong xanh
   ell(g, cx, cy, rx * 2, ry * 2, 0x6ec6ff, INK, 3);
   ell(g, cx - 12, cy - 8, rx * 1.2, ry * 0.7, 0x9fdcff, null, 0, 0.8);
+
+  // Đàn cá bơi lội dưới làn nước
+  circ(g, cx - 55, cy - 18, 8, 0xff793f, null, 0);
+  circ(g, cx - 44, cy - 18, 5, 0xffb142, null, 0);
+  circ(g, cx + 55, cy + 16, 9, 0xff5252, null, 0);
+  circ(g, cx + 67, cy + 16, 6, 0xff793f, null, 0);
+  circ(g, cx - 15, cy + 32, 7, 0xffb142, null, 0);
+  circ(g, cx - 5, cy + 32, 4, 0xff793f, null, 0);
+
+  // Cầu tàu / bến gỗ câu cá Phú Thọ
+  rr(g, cx - 34, cy + ry - 22, 68, 48, 4, 0x854d0e, INK, 3);
+  for (let py = cy + ry - 16; py <= cy + ry + 18; py += 10) {
+    line(g, cx - 32, py, cx + 32, py, 0x583101, 2);
+  }
+  // Hai cọc gỗ neo bờ
+  rr(g, cx - 32, cy + ry - 25, 8, 14, 2, 0x583101, INK, 2);
+  rr(g, cx + 24, cy + ry - 25, 8, 14, 2, 0x583101, INK, 2);
+
+  // Biển hiệu gỗ "Bến Câu Cá"
+  rr(g, cx + 42, cy + ry + 6, 6, 26, 2, 0x713f12, INK, 2);
+  rr(g, cx + 24, cy + ry - 8, 42, 20, 4, 0xfde047, INK, 2);
+  circ(g, cx + 45, cy + ry + 2, 3.5, 0x0284c7, null, 0);
+
+  // Lá sen và hoa sen hồng nở
   for (const [dx, dy, r] of [
-    [28, 12, 9],
-    [-34, 6, 8],
-    [6, -18, 7],
+    [32, 12, 10],
+    [-38, 6, 9],
+    [8, -22, 8],
+    [-70, 18, 9],
+    [75, -15, 11]
   ]) {
     circ(g, cx + dx, cy + dy, r, 0x58b947, INK, 2);
   }
-  circ(g, cx + 28, cy + 10, 3, 0xff8fab, null, 0);
+  circ(g, cx + 32, cy + 10, 3.5, 0xff8fab, null, 0);
+  circ(g, cx - 70, cy + 16, 3, 0xff8fab, null, 0);
+  circ(g, cx + 75, cy - 17, 4, 0xff8fab, null, 0);
 }
 
 function pathRects() {

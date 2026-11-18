@@ -540,6 +540,79 @@
     </div>
   </div>
 
+  <!-- MODAL: Hồ Cá Học Viện Phú Thọ (Fishing Minigame - Gold Miner Style) -->
+  <div id="fishingModal" class="modal-overlay hidden">
+    <div class="modal-card fishing-modal-card">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 28px;">🎣</span>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <h2 style="margin: 0; font-size: 19px;">Hồ Cá Học Viện Phú Thọ</h2>
+              <span class="fishing-badge-free">Chơi Vui • Không Tính Điểm Level</span>
+            </div>
+            <p style="margin: 2px 0 0; font-size: 12px; color: #64748b;">Buông cần câu cá kiểu đào vàng! Câu cá to, cá nhỏ, tôm càng xanh và cua biển ngộ nghĩnh.</p>
+          </div>
+        </div>
+        <button class="modal-close" id="closeFishingModal">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding: 12px 16px 16px;">
+        <!-- Top bar scoreboard -->
+        <div class="fishing-scoreboard">
+          <div class="fishing-stat-box">
+            <span class="fishing-stat-label">Điểm số</span>
+            <span class="fishing-stat-val" id="fishingScore" style="color: #0284c7;">0</span>
+          </div>
+          <div class="fishing-stat-box">
+            <span class="fishing-stat-label">Đã câu được</span>
+            <span class="fishing-stat-val"><span id="fishingCount">0</span> con</span>
+          </div>
+          <div class="fishing-stat-box">
+            <span class="fishing-stat-label">Chuỗi trúng</span>
+            <span class="fishing-stat-val" id="fishingStreak" style="color: #ea580c;">0</span>
+          </div>
+          <div class="fishing-stat-box">
+            <span class="fishing-stat-label">Thời gian</span>
+            <span class="fishing-stat-val" id="fishingTimer" style="color: #15803d; font-size: 15px;">Tự do ♾️</span>
+          </div>
+          <div class="fishing-actions">
+            <button id="fishingCastBtn" class="fishing-cast-btn" title="Thả móc câu xuống nước">🎣 Thả Móc Câu</button>
+            <button id="fishingModeBtn" class="fishing-ctrl-btn" title="Chuyển chế độ câu cá">⏱️ Chế độ: 60 Giây</button>
+            <button id="fishingResetBtn" class="fishing-ctrl-btn" title="Bắt đầu lại">🔄 Câu lại</button>
+          </div>
+        </div>
+
+        <!-- Fishing Canvas Container -->
+        <div class="fishing-canvas-container">
+          <canvas id="fishingCanvas" width="760" height="440"></canvas>
+
+          <!-- Result Overlay for 60s timed round -->
+          <div id="fishingResultOverlay" class="fishing-result-overlay hidden">
+            <div class="fishing-result-box">
+              <div style="font-size: 52px; margin-bottom: 6px;">🎣🐟🦐🦀✨</div>
+              <h3 id="fishingResultTitle" style="color:#0f172a; margin: 0 0 4px; font-size: 22px;">Kết Thúc Buổi Câu Cá!</h3>
+              <div id="fishingResultScore" style="font-size: 28px; font-weight: 800; color: #0284c7; margin: 8px 0;">320 Điểm (8 Con)</div>
+              <p id="fishingResultDesc" style="color:#64748b; font-size: 13.5px; margin: 0 0 16px;">Kỹ năng buông cần chuẩn xác của một cần thủ nhí cừ khôi!</p>
+              <div class="fishing-free-note">
+                ✨ Trò chơi rèn luyện sự khéo léo & kiên nhẫn - Điểm số không ảnh hưởng đến Cấp độ (Level) học viện của bạn.
+              </div>
+              <div style="display: flex; gap: 10px; justify-content: center; margin-top: 16px;">
+                <button id="fishingPlayAgainBtn" class="btn primary-btn">Câu Vòng Mới 🎣</button>
+                <button id="fishingExitBtn" class="btn" style="background:#e2e8f0; color:#334155;">Rời Hồ Cá 🏃</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footnote reminder -->
+        <div class="fishing-footer-hint">
+          <span>💡 <strong>Hướng dẫn:</strong> Móc câu lắc qua lắc lại. Nhấp chuột, chạm màn hình, bấm <strong>[Phím Cách / Mũi tên xuống]</strong> hoặc nút <strong>Thả Móc Câu</strong> để thả móc! Cá nhỏ kéo nhanh, cá to & rương kho báu kéo nặng hơn.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: Leaderboard -->
   <div id="leaderboardModal" class="modal-overlay hidden">
     <div class="modal-card">

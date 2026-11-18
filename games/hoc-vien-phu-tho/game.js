@@ -25,6 +25,7 @@ import {
 } from './academy.mjs';
 import { MINIGAME_DATA } from './minigames.mjs';
 import { SoccerMinigame } from './soccer.js';
+import { FishingMinigame } from './fishing.js';
 import {
   buildAllTextures,
   TEXTURES,
@@ -60,6 +61,7 @@ export const BUILDING_SIGN_NAMES = {
   shop: 'CỬA HÀNG',
   arcade: 'KHU TRÒ CHƠI',
   soccer: 'SÂN BÓNG ĐÁ',
+  pond: 'HỒ CÁ PHÚ THỌ',
 };
 
 export const ARCADE_GAMES = [
@@ -148,6 +150,7 @@ class AcademyGame {
 
     // Soccer Minigame & Campus Football
     this.soccerGame = null;
+    this.fishingGame = null;
     this.campusBall = { x: 3350, y: 2020, vx: 0, vy: 0, r: 12, rot: 0 };
 
     // Network
@@ -468,6 +471,50 @@ class AcademyGame {
     const soccerExitBtn = document.getElementById('soccerExitBtn');
     if (soccerExitBtn) {
       soccerExitBtn.addEventListener('click', () => this.closeSoccerModal());
+    }
+
+    // Fishing Pond Minigame Modal (Gold Miner Style)
+    const closeFishingModal = document.getElementById('closeFishingModal');
+    if (closeFishingModal) {
+      closeFishingModal.addEventListener('click', () => this.closeFishingModal());
+    }
+    const fishingModeBtn = document.getElementById('fishingModeBtn');
+    if (fishingModeBtn) {
+      fishingModeBtn.addEventListener('click', () => {
+        if (!this.fishingGame) return;
+        const newMode = this.fishingGame.mode === 'free' ? 'timed' : 'free';
+        this.fishingGame.setMode(newMode);
+        fishingModeBtn.textContent = newMode === 'free' ? '⏱️ Chế độ: 60 Giây' : '♾️ Chế độ: Tự do';
+        this.sound.playClick();
+      });
+    }
+    const fishingResetBtn = document.getElementById('fishingResetBtn');
+    if (fishingResetBtn) {
+      fishingResetBtn.addEventListener('click', () => {
+        if (this.fishingGame) this.fishingGame.resetGame();
+        const resOverlay = document.getElementById('fishingResultOverlay');
+        if (resOverlay) resOverlay.classList.add('hidden');
+        this.sound.playClick();
+      });
+    }
+    const fishingCastBtn = document.getElementById('fishingCastBtn');
+    if (fishingCastBtn) {
+      fishingCastBtn.addEventListener('click', () => {
+        if (this.fishingGame) this.fishingGame.dropHook();
+      });
+    }
+    const fishingPlayAgainBtn = document.getElementById('fishingPlayAgainBtn');
+    if (fishingPlayAgainBtn) {
+      fishingPlayAgainBtn.addEventListener('click', () => {
+        const resOverlay = document.getElementById('fishingResultOverlay');
+        if (resOverlay) resOverlay.classList.add('hidden');
+        if (this.fishingGame) this.fishingGame.resetGame();
+        this.sound.playClick();
+      });
+    }
+    const fishingExitBtn = document.getElementById('fishingExitBtn');
+    if (fishingExitBtn) {
+      fishingExitBtn.addEventListener('click', () => this.closeFishingModal());
     }
 
     // Chat Minimize & Expand Toggle
@@ -901,7 +948,9 @@ class AcademyGame {
       let pinColor = '#2563eb';
       if (poi.category === 'special_zone') pinColor = '#dc2626';
       else if (poi.panelType === 'arcade') pinColor = '#8b5cf6';
-      else if (poi.panelType === 'soccer' || poi.category === 'sports') pinColor = '#10b981';
+      else if (poi.panelType === 'soccer') pinColor = '#10b981';
+      else if (poi.panelType === 'fishing' || poi.id === 'pond') pinColor = '#0284c7';
+      else if (poi.category === 'sports') pinColor = '#10b981';
       else if (poi.category === 'panel') pinColor = '#16a34a';
       else if (poi.category === 'landmark' || poi.category === 'social') pinColor = '#f59e0b';
 
@@ -1054,7 +1103,9 @@ class AcademyGame {
       let categoryLabel = 'Trạm Học Tập';
       if (poi.category === 'special_zone') categoryLabel = 'Đại Hội Tri Thức (Đỉnh cao)';
       else if (poi.panelType === 'arcade') categoryLabel = 'Khu Giải Trí Miễn Phí';
-      else if (poi.panelType === 'soccer' || poi.category === 'sports') categoryLabel = 'Sân Đá Banh Thể Thao (Chơi Vui)';
+      else if (poi.panelType === 'soccer') categoryLabel = 'Sân Đá Banh Thể Thao (Chơi Vui)';
+      else if (poi.panelType === 'fishing' || poi.id === 'pond') categoryLabel = 'Hồ Cá Giải Trí (Chơi Vui)';
+      else if (poi.category === 'sports') categoryLabel = 'Sân Vận Động Thể Thao';
       else if (poi.category === 'panel') categoryLabel = 'Tiện Ích Học Đường';
       else if (poi.category === 'landmark' || poi.category === 'social') categoryLabel = 'Cảnh Quan Phú Thọ';
 
@@ -1070,7 +1121,7 @@ class AcademyGame {
           <div class="station-desc">${poi.desc || ''}</div>
           <div class="station-bottom">
             <div class="station-reward">
-              ${(poi.panelType === 'soccer' || poi.category === 'sports') ? '⚽ Chơi vui rèn luyện • Không tính điểm level' : (poi.rewardCoins ? `🪙 +${poi.rewardCoins} Xu | ⭐ +${poi.rewardXP || 0} XP` : (unlocked ? '✨ Tự do khám phá' : '🔒 Cần Cấp 3 hoặc 60⭐'))}
+              ${(poi.panelType === 'soccer') ? '⚽ Chơi vui rèn luyện • Không tính điểm level' : (poi.panelType === 'fishing' || poi.id === 'pond') ? '🎣 Chơi vui câu cá • Không tính điểm level' : (poi.rewardCoins ? `🪙 +${poi.rewardCoins} Xu | ⭐ +${poi.rewardXP || 0} XP` : (unlocked ? '✨ Tự do khám phá' : '🔒 Cần Cấp 3 hoặc 60⭐'))}
             </div>
             <button type="button" class="station-goto-btn" data-id="${poi.id}">🚶 Đi đến đây</button>
           </div>
@@ -1488,13 +1539,49 @@ class AcademyGame {
         this.openArcadeModal();
       } else if (poi.panelType === 'soccer') {
         this.openSoccerModal();
+      } else if (poi.panelType === 'fishing' || poi.id === 'pond') {
+        this.openFishingModal();
       }
+    } else if (poi.panelType === 'fishing' || poi.id === 'pond') {
+      this.openFishingModal();
     } else if (poi.category === 'sports' || poi.panelType === 'soccer') {
       this.openSoccerModal();
     } else if (poi.category === 'landmark' || poi.category === 'welcome' || poi.category === 'social') {
       this.showSpeechBubble(this.player.id, `Đang ở ${poi.name}: ${poi.desc}`, 5000);
       this.sound.playClick();
     }
+  }
+
+  openFishingModal() {
+    const modal = document.getElementById('fishingModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+
+    const resOverlay = document.getElementById('fishingResultOverlay');
+    if (resOverlay) resOverlay.classList.add('hidden');
+
+    const canvas = document.getElementById('fishingCanvas');
+    if (!this.fishingGame && canvas) {
+      this.fishingGame = new FishingMinigame({
+        canvas,
+        sound: this.sound,
+        onClose: () => this.closeFishingModal()
+      });
+    }
+
+    if (this.fishingGame) {
+      this.fishingGame.start();
+    }
+    this.sound.playClick();
+  }
+
+  closeFishingModal() {
+    const modal = document.getElementById('fishingModal');
+    if (modal) modal.classList.add('hidden');
+    if (this.fishingGame) {
+      this.fishingGame.stop();
+    }
+    this.sound.playClick();
   }
 
   openSoccerModal() {

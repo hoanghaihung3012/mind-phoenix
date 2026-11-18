@@ -167,14 +167,15 @@ export const POI_LOCATIONS = [
   },
   {
     id: 'pond',
-    name: 'Hồ Hoa Sen Phú Thọ',
-    nameEn: 'Phu Tho Lotus Pond',
+    name: 'Hồ Cá Học Viện Phú Thọ',
+    nameEn: 'Phu Tho Academy Fishing Pond',
     x: 3350,
     y: 1500,
-    radius: 140,
-    icon: '🐟',
-    category: 'social',
-    desc: 'Hồ sen trong lành rợp bóng mát, đàn cá tung tăng dưới ánh nắng sân trường.',
+    radius: 170,
+    icon: '🎣',
+    category: 'sports',
+    panelType: 'fishing',
+    desc: 'Hồ cá Phú Thọ rợp bóng sen ngát hương - Thỏa sức buông cần câu cá, tôm, cua giải trí vui nhộn (chơi vui không tính điểm level)!',
   },
   {
     id: 'library',
@@ -774,6 +775,64 @@ export class SoundController {
         gain.connect(ctx.destination);
         osc.start(now + 0.2);
         osc.stop(now + 0.85);
+      });
+    } catch (_) {}
+  }
+
+  playCast() {
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(450, now);
+      osc.frequency.exponentialRampToValueAtTime(120, now + 0.18);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.22);
+    } catch (_) {}
+  }
+
+  playSplash() {
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(260, now);
+      osc.frequency.exponentialRampToValueAtTime(80, now + 0.15);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.2);
+    } catch (_) {}
+  }
+
+  playCatch() {
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      [587.33, 880, 1174.66].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+        gain.gain.setValueAtTime(0.1, now + idx * 0.06);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.15);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.06);
+        osc.stop(now + idx * 0.06 + 0.16);
       });
     } catch (_) {}
   }

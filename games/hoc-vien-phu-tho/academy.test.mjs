@@ -378,3 +378,91 @@ test('SoccerMinigame keeper moves steadily and score is awarded when shot misses
   assert.equal(game.goals, 1, 'Shot hitting keeper must be saved (goals unchanged)');
   assert.equal(game.keeper.state, 'catch');
 });
+
+test('fishing pond POI is registered with fishing icon and panelType', () => {
+  const pond = POI_LOCATIONS.find(p => p.id === 'pond');
+  assert.ok(pond, 'Hồ Cá Học Viện (pond) must be registered in POI_LOCATIONS');
+  assert.equal(pond.icon, '🎣');
+  assert.equal(pond.panelType, 'fishing');
+  assert.ok(pond.x > 0 && pond.y > 0);
+  assert.ok(pond.radius >= 140);
+});
+
+test('FishingMinigame operates purely for fun without affecting player XP or level', async () => {
+  const { FishingMinigame } = await import('./fishing.js');
+  const player = createDefaultPlayer({ xp: 50, level: 1, points: 10 });
+  const initialXP = player.xp;
+  const initialLevel = player.level;
+  const initialPoints = player.points;
+
+  const game = new FishingMinigame();
+  assert.equal(game.mode, 'free');
+  assert.equal(game.score, 0);
+  assert.equal(game.caughtCount, 0);
+
+  // Drop hook and catch a creature
+  game.dropHook();
+  assert.equal(game.hook.state, 'shooting');
+
+  // Verify player XP and level are 100% untouched
+  assert.equal(player.xp, initialXP, 'Fishing game must not add XP');
+  assert.equal(player.level, initialLevel, 'Fishing game must not change level');
+  assert.equal(player.points, initialPoints, 'Fishing game must not change honor stars');
+
+  // Switch to timed mode
+  game.setMode('timed');
+  assert.equal(game.mode, 'timed');
+  assert.equal(game.score, 0);
+});
+
+test('FishingMinigame hook swings, extends, catches fish/shrimp/crab and reels with weight physics', async () => {
+  const { FishingMinigame } = await import('./fishing.js');
+  const game = new FishingMinigame();
+
+  // 1. Hook swings back and forth like a pendulum
+  assert.equal(game.hook.state, 'swinging');
+  const initialAngle = game.hook.angle;
+  game.update(0.1);
+  assert.notEqual(game.hook.angle, initialAngle, 'Hook angle should update over time while swinging');
+
+  // 2. Drop hook => extends outward
+  game.hook.angle = 0; // Thả thẳng đứng xuống
+  game.dropHook();
+  assert.equal(game.hook.state, 'shooting');
+  const prevLength = game.hook.length;
+  game.update(0.1);
+  assert.ok(game.hook.length > prevLength, 'Hook length should increase when shooting');
+
+  // 3. Collision detection: Place a fish right in the hook path
+  const targetFish = {
+    id: 'test_fish',
+    type: 'fish_small',
+    name: 'Cá Nhỏ Test',
+    x: game.origin.x, // 380
+    y: game.origin.y + 120,
+    r: 15,
+    weight: 1.0,
+    score: 25,
+    hooked: false
+  };
+  game.creatures.push(targetFish);
+  game.hook.length = 115; // Ngay sát con cá
+
+  game.update(0.05); // Hook tip đi vào tọa độ (380, 55 + 115 + shootSpeed * dt)
+  assert.equal(game.hook.state, 'reeling', 'Hook should switch to reeling upon hitting a creature');
+  assert.equal(game.hook.hookedItem, targetFish, 'Hooked item should be the target fish');
+  assert.equal(targetFish.hooked, true);
+
+  // 4. Weight mechanics: heavier creatures reel in slower
+  const lightItemSpeed = game.hook.baseReelSpeed / 1.0;
+  const heavyItemSpeed = game.hook.baseReelSpeed / 4.6; // Cá chép vàng to
+  assert.ok(lightItemSpeed > heavyItemSpeed, 'Light creatures must reel in faster than heavy creatures');
+
+  // 5. Reel all the way back to dock
+  game.hook.length = game.hook.restLength + 5;
+  game.update(0.1); // Length <= restLength
+  assert.equal(game.hook.state, 'swinging', 'Hook should reset to swinging after returning to dock');
+  assert.equal(game.caughtCount, 1, 'Caught count should increment');
+  assert.equal(game.score, 25, 'Score should increase by creature score value');
+});
+
