@@ -1,0 +1,106 @@
+{
+  "skins": [
+    {
+      "id": "default-student",
+      "name": "Đồng phục xanh nhạt",
+      "description": "Áo xanh nhạt, quần hoặc váy xanh đậm.",
+      "price": 0,
+      "style": { "shirt": "#8fd3ff", "bottom": "#2f4b9b", "accessory": "none" }
+    },
+    {
+      "id": "explorer",
+      "name": "Nhà thám hiểm",
+      "description": "Mũ thám hiểm và áo gi-lê xanh lá.",
+      "price": 150,
+      "style": {
+        "shirt": "#c9b27a",
+        "bottom": "#6b5b3a",
+        "accessory": "explorer"
+      }
+    },
+    {
+      "id": "scholar",
+      "name": "Học giả",
+      "description": "Mũ cử nhân và nơ bướm thông thái.",
+      "price": 300,
+      "style": {
+        "shirt": "#f2efe6",
+        "bottom": "#3b3b5c",
+        "accessory": "scholar"
+      }
+    },
+    {
+      "id": "inventor",
+      "name": "Nhà phát minh",
+      "description": "Áo choàng trắng và kính bảo hộ sáng chế.",
+      "price": 500,
+      "style": {
+        "shirt": "#ffffff",
+        "bottom": "#546e7a",
+        "accessory": "inventor"
+      }
+    },
+    {
+      "id": "leader",
+      "name": "Thủ lĩnh Học viện",
+      "description": "Dải lụa vàng và áo choàng đỏ. Chỉ mở khi hoàn thành Đại hội Tri thức.",
+      "price": 0,
+      "unlock": "finalChallenge",
+      "style": {
+        "shirt": "#fff1a8",
+        "bottom": "#b3261e",
+        "accessory": "leader"
+      }
+    }
+  ],
+  "bagColors": [
+    { "id": "red", "name": "Đỏ", "color": "#e4572e", "price": 0 },
+    { "id": "blue", "name": "Xanh dương", "color": "#3a7bd5", "price": 0 },
+    { "id": "green", "name": "Xanh lá", "color": "#2fa56b", "price": 0 },
+    { "id": "purple", "name": "Tím", "color": "#8e5bd0", "price": 40 },
+    { "id": "pink", "name": "Hồng", "color": "#f27bb0", "price": 40 },
+    { "id": "orange", "name": "Cam", "color": "#f28c28", "price": 40 }
+  ],
+  "shoeColors": [
+    { "id": "white", "name": "Trắng", "color": "#ffffff", "price": 0 },
+    { "id": "black", "name": "Đen", "color": "#333a45", "price": 0 },
+    { "id": "red", "name": "Đỏ", "color": "#d94a3a", "price": 0 },
+    { "id": "pink", "name": "Hồng", "color": "#f78fb9", "price": 50 },
+    { "id": "yellow", "name": "Vàng", "color": "#f5c518", "price": 50 },
+    { "id": "mint", "name": "Xanh bạc hà", "color": "#5ed1b1", "price": 50 }
+  ],
+  "effects": [
+    {
+      "id": "none",
+      "name": "Không hiệu ứng",
+      "description": "Đi bộ bình thường.",
+      "price": 0
+    },
+    {
+      "id": "sparkle",
+      "name": "Đường sao lấp lánh",
+      "description": "Những ngôi sao nhỏ rơi theo bước chân.",
+      "price": 80
+    },
+    {
+      "id": "leaves",
+      "name": "Lá xanh bay bay",
+      "description": "Lá xanh nhẹ nhàng bay quanh con.",
+      "price": 100
+    },
+    {
+      "id": "bubbles",
+      "name": "Bong bóng xà phòng",
+      "description": "Bong bóng nhỏ bay lên sau mỗi bước.",
+      "price": 120
+    }
+  ],
+  "hairColors": [
+    { "id": 0, "name": "Đen", "color": "#2b2b33" },
+    { "id": 1, "name": "Nâu đậm", "color": "#5b3a29" },
+    { "id": 2, "name": "Nâu sáng", "color": "#a0612f" },
+    { "id": 3, "name": "Vàng", "color": "#e8c15b" },
+    { "id": 4, "name": "Đỏ nâu", "color": "#b5412c" },
+    { "id": 5, "name": "Xám bạc", "color": "#9aa3ad" }
+  ]
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "id": "spelling-master",
+    "name": "Bậc thầy Chính tả",
+    "description": "Trả lời đúng 20 câu chính tả.",
+    "icon": "pencil",
+    "color": "#e4572e",
+    "coinReward": 25,
+    "condition": {
+      "type": "correctCategory",
+      "categories": ["chinh-ta"],
+      "target": 20
+    }
+  },
+  {
+    "id": "vocab-explorer",
+    "name": "Nhà thám hiểm Từ vựng",
+    "description": "Trả lời đúng 20 câu từ vựng.",
+    "icon": "book",
+    "color": "#1e6fd9",
+    "coinReward": 25,
+    "condition": {
+      "type": "correctCategory",
+      "categories": ["dong-trai-nghia", "nghia-tu"],
+      "target": 20
+    }
+  },
+  {
+    "id": "sentence-builder",
+    "name": "Người xây câu",
+    "description": "Hoàn thành 10 thử thách ghép câu.",
+    "icon": "blocks",
+    "color": "#8e5bd0",
+    "coinReward": 25,
+    "condition": { "type": "sentencesBuilt", "target": 10 }
+  },
+  {
+    "id": "idiom-sage",
+    "name": "Người hiểu Thành ngữ",
+    "description": "Hoàn thành 10 câu thành ngữ.",
+    "icon": "scroll",
+    "color": "#c97a00",
+    "coinReward": 25,
+    "condition": { "type": "idiomsDone", "target": 10 }
+  },
+  {
+    "id": "perfect-streak",
+    "name": "Chuỗi hoàn hảo",
+    "description": "Đạt combo 10.",
+    "icon": "flame",
+    "color": "#e07b00",
+    "coinReward": 30,
+    "condition": { "type": "highestCombo", "target": 10 }
+  },
+  {
+    "id": "diligent-learner",
+    "name": "Người học chăm chỉ",
+    "description": "Hoàn thành 10 nhiệm vụ.",
+    "icon": "clipboard",
+    "color": "#2e9e5b",
+    "coinReward": 30,
+    "condition": { "type": "missionsCompleted", "target": 10 }
+  },
+  {
+    "id": "collector",
+    "name": "Người sưu tập",
+    "description": "Sở hữu 3 skin hoặc 3 thú cưng.",
+    "icon": "gem",
+    "color": "#d6409f",
+    "coinReward": 30,
+    "condition": { "type": "collection", "target": 3 }
+  },
+  {
+    "id": "honor",
+    "name": "Huy hiệu Danh dự",
+    "description": "Hoàn thành Đại hội Tri thức.",
+    "icon": "trophy",
+    "color": "#f2a900",
+    "coinReward": 50,
+    "condition": { "type": "finalChallenge" }
+  }
+]

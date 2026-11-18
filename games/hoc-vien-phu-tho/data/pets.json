@@ -1,0 +1,26 @@
+[
+  {
+    "id": "duck",
+    "name": "Vịt",
+    "description": "Chú vịt vàng lạch bạch dễ thương.",
+    "price": 0
+  },
+  {
+    "id": "dog",
+    "name": "Chó",
+    "description": "Chú chó nhỏ trung thành, hay vẫy đuôi.",
+    "price": 100
+  },
+  {
+    "id": "chicken",
+    "name": "Gà",
+    "description": "Cô gà con lông vàng, mào đỏ xinh xắn.",
+    "price": 150
+  },
+  {
+    "id": "rabbit",
+    "name": "Thỏ",
+    "description": "Chú thỏ trắng tai dài, nhảy rất nhẹ nhàng.",
+    "price": 200
+  }
+]

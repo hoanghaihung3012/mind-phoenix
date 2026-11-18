@@ -1,0 +1,75 @@
+[
+  {
+    "id": "library",
+    "name": "Thư viện Từ vựng",
+    "game": "Truy tìm kho báu từ vựng",
+    "scene": "TreasureVocabularyScene",
+    "requirements": {}
+  },
+  {
+    "id": "spelling",
+    "name": "Khu Chính tả",
+    "game": "Bắn bong bóng chính tả",
+    "scene": "SpellingBalloonScene",
+    "requirements": {}
+  },
+  {
+    "id": "literature",
+    "name": "Nhà Ngữ văn",
+    "game": "Ghép câu hoàn chỉnh",
+    "scene": "SentenceBuilderScene",
+    "requirements": {}
+  },
+  {
+    "id": "idiom",
+    "name": "Quảng trường Thành ngữ",
+    "game": "Mở ô chữ thành ngữ",
+    "scene": "IdiomPuzzleScene",
+    "requirements": {}
+  },
+  {
+    "id": "math",
+    "name": "Vườn Toán học",
+    "game": "Bắn bong bóng toán học",
+    "scene": "MathBalloonScene",
+    "requirements": {}
+  },
+  {
+    "id": "arena",
+    "name": "Phòng Thử thách",
+    "game": "Đấu trường 60 giây",
+    "scene": "SpeedChallengeScene",
+    "requirements": { "minLevel": 3 }
+  },
+  {
+    "id": "grand",
+    "name": "Đại hội Tri thức",
+    "game": "Đại hội Tri thức",
+    "scene": "FinalChallengeScene",
+    "requirements": { "minLevel": 5, "minBadges": 3, "minCorrect": 20 }
+  },
+  {
+    "id": "shop",
+    "name": "Cửa hàng Học viện",
+    "game": "Cửa hàng",
+    "scene": "ShopScene",
+    "panel": true,
+    "requirements": {}
+  },
+  {
+    "id": "pets",
+    "name": "Khu thú cưng",
+    "game": "Thú cưng",
+    "scene": "PetScene",
+    "panel": true,
+    "requirements": {}
+  },
+  {
+    "id": "missions",
+    "name": "Bảng nhiệm vụ",
+    "game": "Nhiệm vụ",
+    "scene": "MissionScene",
+    "panel": true,
+    "requirements": {}
+  }
+]

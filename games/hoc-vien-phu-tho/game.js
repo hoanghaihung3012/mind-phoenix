@@ -20,12 +20,37 @@ import {
   clamp
 } from './academy.mjs';
 import { MINIGAME_DATA } from './minigames.mjs';
+import {
+  buildAllTextures,
+  TEXTURES,
+  PLATE_INFO,
+  drawCharacter,
+  drawPet,
+  SKIN_STYLES,
+  TEACHER_STYLE,
+  CanvasGraphics,
+} from './art/index.js';
+import {
+  BUILDINGS,
+  TREES,
+  BENCHES,
+  FLOWER_BEDS,
+  FLAGPOLE,
+  BOARD,
+  GATE,
+  WORLD,
+  BOUNDS,
+  OBSTACLES,
+} from './data/mapLayout.js';
 
 class AcademyGame {
   constructor() {
     this.canvas = document.getElementById('gameCanvas');
     this.ctx = this.canvas.getContext('2d');
     this.sound = new SoundController();
+
+    // Generate high-resolution procedural textures from phutho art
+    buildAllTextures();
 
     const saved = this.loadLocalPlayer();
     this.player = createDefaultPlayer(saved);
@@ -961,411 +986,224 @@ class AcademyGame {
     ctx.save();
     ctx.translate(-this.camera.x, -this.camera.y);
 
-    // 1. Grand Campus World
-    this.renderCampus(ctx);
+    // 1. School campus background (paths, cobblestones, flagpole plaza, lotus pond)
+    if (TEXTURES['map-bg']) {
+      ctx.drawImage(TEXTURES['map-bg'], 0, 0);
+    } else {
+      ctx.fillStyle = '#9ae6b4';
+      ctx.fillRect(0, 0, MAP_CONFIG.width, MAP_CONFIG.height);
+    }
 
-    // 2. Click Ripples
+    // 2. Click ripples on the ground
     this.renderRipples(ctx);
 
-    // 3. Render Entities (Characters, Pets, NPCs sorted by Y depth)
-    const renderList = [
-      { type: 'local', y: this.player.y, entity: this.player, petPos: this.playerPetPos },
-      ...this.npcs.map(n => ({ type: 'npc', y: n.y, entity: n, petPos: n.petPos })),
-      ...Array.from(this.remotePlayers.values()).map(p => ({ type: 'remote', y: p.y, entity: p })),
-    ];
-    renderList.sort((a, b) => a.y - b.y);
+    // 3. Depth-sorted world scene (all buildings, props, students, pets sorted by Y depth)
+    const renderList = [];
 
-    for (const item of renderList) {
-      if (item.type === 'local') {
-        this.renderCharacterChibi(ctx, this.player, true);
-        if (this.player.pet && this.player.pet !== 'none') {
-          this.renderPet(ctx, this.playerPetPos.x, this.playerPetPos.y, this.player.pet, this.playerPetPos.animFrame);
+    // Buildings
+    for (const b of BUILDINGS) {
+      renderList.push({
+        y: b.baseY,
+        draw: (c) => {
+          const img = TEXTURES[b.texture];
+          if (img) c.drawImage(img, b.cx - b.w / 2, b.baseY - b.h);
+          const plate = PLATE_INFO[b.texture];
+          if (plate) {
+            c.save();
+            c.font = b.zone === 'grand' ? 'bold 18px "Baloo 2", "Nunito", sans-serif' : 'bold 14px "Baloo 2", "Nunito", sans-serif';
+            c.textAlign = 'center';
+            c.textBaseline = 'middle';
+            c.fillStyle = '#1558b0';
+            const poi = POI_LOCATIONS.find(p => p.id === b.zone);
+            const label = b.zone === 'grand' ? 'TRƯỜNG TIỂU HỌC PHÚ THỌ' : (poi?.name || b.zone).toUpperCase();
+            c.fillText(label, b.cx - b.w / 2 + plate.x, b.baseY - b.h + plate.y);
+            c.restore();
+          }
+          if (b.zone === 'grand') {
+            const unlocked = isSpecialZoneUnlocked(this.player);
+            if (!unlocked) {
+              const pulse = Math.sin(performance.now() / 320) * 4;
+              c.save();
+              c.font = '28px sans-serif';
+              c.textAlign = 'center';
+              c.fillText('🔒', b.cx, b.baseY - 70 + pulse);
+              c.fillStyle = '#dc2626';
+              c.font = 'bold 12px "Nunito", sans-serif';
+              c.fillText('Cần Cấp 3 hoặc 60 ⭐', b.cx, b.baseY - 45 + pulse);
+              c.restore();
+            }
+          }
         }
-      } else if (item.type === 'npc') {
-        this.renderCharacterChibi(ctx, item.entity, false, true);
-        if (item.entity.pet && item.entity.pet !== 'none') {
-          this.renderPet(ctx, item.entity.petPos.x, item.entity.petPos.y, item.entity.pet, item.entity.petPos.animFrame);
+      });
+    }
+
+    // Trees
+    for (const t of TREES) {
+      renderList.push({
+        y: t.y,
+        draw: (c) => {
+          const img = TEXTURES['prop-tree-' + t.v];
+          if (img) c.drawImage(img, t.x - img.width / 2, t.y - img.height * 0.97);
         }
-      } else if (item.type === 'remote') {
-        this.renderCharacterChibi(ctx, item.entity, false, false);
+      });
+    }
+
+    // Benches
+    for (const b of BENCHES) {
+      renderList.push({
+        y: b.y,
+        draw: (c) => {
+          const img = TEXTURES['prop-bench'];
+          if (img) c.drawImage(img, b.x - img.width / 2, b.y - img.height * 0.95);
+        }
+      });
+    }
+
+    // Flower beds
+    for (const f of FLOWER_BEDS) {
+      renderList.push({
+        y: f.y,
+        draw: (c) => {
+          const img = TEXTURES['prop-bed-' + f.w];
+          if (img) c.drawImage(img, f.x - img.width / 2, f.y - img.height);
+        }
+      });
+    }
+
+    // Flagpole
+    renderList.push({
+      y: FLAGPOLE.y + 3,
+      draw: (c) => {
+        const img = TEXTURES['prop-flag'];
+        if (img) c.drawImage(img, FLAGPOLE.x - 56, FLAGPOLE.y + 3 - img.height * 0.97);
+      }
+    });
+
+    // Board
+    renderList.push({
+      y: BOARD.baseY,
+      draw: (c) => {
+        const img = TEXTURES['prop-board'];
+        if (img) c.drawImage(img, BOARD.x - BOARD.w / 2, BOARD.baseY - img.height * 0.94);
+        c.save();
+        c.fillStyle = '#fff9e6';
+        c.strokeStyle = '#1f2a44';
+        c.lineWidth = 2;
+        c.beginPath();
+        c.roundRect(BOARD.x - 65, BOARD.baseY - BOARD.h - 14, 130, 24, 12);
+        c.fill();
+        c.stroke();
+        c.font = 'bold 12px "Nunito", sans-serif';
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.fillStyle = '#1f2a44';
+        c.fillText('BẢNG NHIỆM VỤ', BOARD.x, BOARD.baseY - BOARD.h - 2);
+        c.restore();
+      }
+    });
+
+    // Gate
+    renderList.push({
+      y: GATE.y,
+      draw: (c) => {
+        const img = TEXTURES['prop-gate'];
+        if (img) c.drawImage(img, GATE.x - 210, GATE.y - 170);
+        const gp = PLATE_INFO['prop-gate'];
+        if (gp) {
+          c.save();
+          c.font = 'bold 16px "Baloo 2", "Nunito", sans-serif';
+          c.textAlign = 'center';
+          c.textBaseline = 'middle';
+          c.fillStyle = '#1558b0';
+          c.fillText('TRƯỜNG TIỂU HỌC PHÚ THỌ', GATE.x - 165 + gp.x, GATE.y - 140 + gp.y);
+          c.restore();
+        }
+      }
+    });
+
+    // Local player
+    renderList.push({
+      y: this.player.y,
+      draw: (c) => {
+        this.renderCharacterChibi(c, this.player, true);
+      }
+    });
+    if (this.player.pet && this.player.pet !== 'none') {
+      renderList.push({
+        y: this.playerPetPos.y,
+        draw: (c) => {
+          this.renderPet(c, this.playerPetPos.x, this.playerPetPos.y, this.player.pet, this.playerPetPos.animFrame);
+        }
+      });
+    }
+
+    // NPCs
+    for (const npc of this.npcs) {
+      renderList.push({
+        y: npc.y,
+        draw: (c) => {
+          this.renderCharacterChibi(c, npc, false, true);
+        }
+      });
+      if (npc.pet && npc.pet !== 'none') {
+        renderList.push({
+          y: npc.petPos.y,
+          draw: (c) => {
+            this.renderPet(c, npc.petPos.x, npc.petPos.y, npc.pet, npc.petPos.animFrame);
+          }
+        });
       }
     }
 
-    // 4. Speech Bubbles
+    // Remote players
+    for (const [_, rp] of this.remotePlayers.entries()) {
+      renderList.push({
+        y: rp.y,
+        draw: (c) => {
+          this.renderCharacterChibi(c, rp, false, false);
+        }
+      });
+    }
+
+    // Sort all by depth y
+    renderList.sort((a, b) => a.y - b.y);
+
+    for (const item of renderList) {
+      item.draw(ctx);
+    }
+
+    // 4. Floating POI Interaction Prompts
+    if (this.activePOI) {
+      const poi = this.activePOI;
+      const floatY = Math.sin(performance.now() / 260) * 6;
+      ctx.save();
+      ctx.translate(poi.x, poi.y - 60 + floatY);
+      ctx.fillStyle = 'rgba(2, 132, 199, 0.92)';
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(-100, -18, 200, 36, 18);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 13px "Nunito", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(poi.icon + ' ' + poi.name, 0, 0);
+      ctx.restore();
+    }
+
+    // 5. Speech bubbles
     this.renderSpeechBubbles(ctx);
 
     ctx.restore();
   }
 
-  renderCampus(ctx) {
-    // Lush green ground with subtle grass tufts
-    ctx.fillStyle = '#a7f3d0'; // fresh lawn
-    ctx.fillRect(0, 0, MAP_CONFIG.width, MAP_CONFIG.height);
-
-    // Diagonal grass stripes
-    ctx.fillStyle = '#9ae6b4';
-    for (let y = 0; y < MAP_CONFIG.height; y += 140) {
-      ctx.fillRect(0, y, MAP_CONFIG.width, 70);
-    }
-
-    // Grand Avenue & Pathways (Warm Paved Marble & Brick)
-    ctx.fillStyle = '#fef3c7'; // warm stone
-    ctx.strokeStyle = '#fde68a';
-    ctx.lineWidth = 5;
-
-    // Main Avenue (from Gate at 1100, 1380 to Grand Hall at 1100, 440)
-    ctx.fillRect(1000, 360, 200, 1100);
-    ctx.strokeRect(1000, 360, 200, 1100);
-
-    // Crossway 1 (Connecting Library and Literature Wing)
-    ctx.fillRect(300, 480, 1600, 110);
-    ctx.strokeRect(300, 480, 1600, 110);
-
-    // Crossway 2 (Connecting Spelling and Idiom Plaza)
-    ctx.fillRect(300, 920, 1600, 100);
-    ctx.strokeRect(300, 920, 1600, 100);
-
-    // Crossway 3 (Connecting Sports Field and Math Garden)
-    ctx.fillRect(400, 1220, 1400, 90);
-    ctx.strokeRect(400, 1220, 1400, 90);
-
-    // Decorative Red Phoenix Trees (Cây hoa phượng vĩ đỏ rực rỡ)
-    this.drawPhoenixTree(ctx, 320, 380);
-    this.drawPhoenixTree(ctx, 1880, 380);
-    this.drawPhoenixTree(ctx, 320, 820);
-    this.drawPhoenixTree(ctx, 1880, 820);
-    this.drawPhoenixTree(ctx, 740, 1340);
-    this.drawPhoenixTree(ctx, 1460, 1340);
-
-    // Bàng xanh rợp bóng
-    this.drawAlmondTree(ctx, 840, 480);
-    this.drawAlmondTree(ctx, 1360, 480);
-    this.drawAlmondTree(ctx, 840, 920);
-    this.drawAlmondTree(ctx, 1360, 920);
-
-    // Benches (Ghế đá sân trường)
-    this.drawBench(ctx, 940, 720);
-    this.drawBench(ctx, 1260, 720);
-    this.drawBench(ctx, 940, 1100);
-    this.drawBench(ctx, 1260, 1100);
-
-    // Draw POIs
-    for (const poi of POI_LOCATIONS) {
-      this.renderPOI(ctx, poi);
-    }
-  }
-
-  drawPhoenixTree(ctx, x, y) {
-    // Thân cây phượng
-    ctx.fillStyle = '#78350f';
-    ctx.fillRect(x - 8, y, 16, 50);
-
-    // Tán lá phượng đỏ rực rỡ
-    ctx.fillStyle = '#dc2626'; // hoa đỏ
-    ctx.beginPath();
-    ctx.arc(x, y - 10, 34, 0, Math.PI * 2);
-    ctx.arc(x - 22, y, 26, 0, Math.PI * 2);
-    ctx.arc(x + 22, y, 26, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Điểm xuyết lá xanh
-    ctx.fillStyle = '#16a34a';
-    ctx.beginPath();
-    ctx.arc(x - 12, y - 20, 12, 0, Math.PI * 2);
-    ctx.arc(x + 14, y - 8, 12, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  drawAlmondTree(ctx, x, y) {
-    // Thân cây bàng
-    ctx.fillStyle = '#451a03';
-    ctx.fillRect(x - 10, y, 20, 55);
-
-    // Tán cây bàng tầng tầng lớp lớp xanh mướt
-    ctx.fillStyle = '#15803d';
-    ctx.beginPath();
-    ctx.ellipse(x, y - 24, 46, 28, 0, 0, Math.PI * 2);
-    ctx.ellipse(x, y - 48, 36, 22, 0, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  drawBench(ctx, x, y) {
-    ctx.fillStyle = '#cbd5e1';
-    ctx.fillRect(x - 25, y - 8, 50, 14);
-    ctx.fillStyle = '#64748b';
-    ctx.fillRect(x - 20, y + 6, 8, 10);
-    ctx.fillRect(x + 12, y + 6, 8, 10);
-  }
-
-  renderPOI(ctx, poi) {
-    ctx.save();
-    ctx.translate(poi.x, poi.y);
-
-    if (poi.id === 'gate') {
-      // CỔNG TRƯỜNG TIỂU HỌC PHÚ THỌ
-      // Trụ đá hoa cương
-      ctx.fillStyle = '#dc2626';
-      ctx.fillRect(-170, -40, 340, 28);
-
-      // Trụ cổng
-      ctx.fillStyle = '#f59e0b';
-      ctx.fillRect(-180, -40, 36, 90);
-      ctx.fillRect(144, -40, 36, 90);
-
-      // Mái ngói cong đỏ
-      ctx.fillStyle = '#b91c1c';
-      ctx.beginPath();
-      ctx.moveTo(-190, -40);
-      ctx.lineTo(0, -65);
-      ctx.lineTo(190, -40);
-      ctx.lineTo(170, -32);
-      ctx.lineTo(0, -55);
-      ctx.lineTo(-170, -32);
-      ctx.closePath();
-      ctx.fill();
-
-      // Bảng tên trường mạ vàng
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 18px "Nunito", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('TRƯỜNG TIỂU HỌC PHÚ THỌ', 0, -20);
-
-      this.drawMiniFlag(ctx, -165, -55);
-      this.drawMiniFlag(ctx, 165, -55);
-    } else if (poi.id === 'flagpole') {
-      // CỘT CỜ TAM CẤP
-      ctx.fillStyle = '#e2e8f0';
-      ctx.beginPath();
-      ctx.arc(0, 0, 48, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#94a3b8';
-      ctx.lineWidth = 4;
-      ctx.stroke();
-
-      ctx.strokeStyle = '#334155';
-      ctx.lineWidth = 5;
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(0, -95);
-      ctx.stroke();
-
-      const wave = Math.sin(performance.now() / 240) * 5;
-      ctx.fillStyle = '#dc2626';
-      ctx.beginPath();
-      ctx.moveTo(0, -95);
-      ctx.lineTo(46, -90 + wave);
-      ctx.lineTo(46, -65 + wave);
-      ctx.lineTo(0, -70);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.fillStyle = '#facc15';
-      ctx.font = '16px sans-serif';
-      ctx.fillText('★', 18, -75 + wave);
-    } else if (poi.id === 'fountain') {
-      // ĐÀI PHUN NƯỚC BỒ CÂU TRẮNG
-      ctx.fillStyle = '#67e8f9';
-      ctx.beginPath();
-      ctx.arc(0, 0, 56, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#06b6d4';
-      ctx.lineWidth = 6;
-      ctx.stroke();
-
-      const spray = Math.sin(performance.now() / 180) * 8;
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(0, -12 + spray, 12, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.font = '26px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('🕊️', 0, 6);
-    } else if (poi.id === 'pond') {
-      // HỒ CÁ KOI & HOA SÚNG
-      ctx.fillStyle = '#38bdf8';
-      ctx.beginPath();
-      ctx.ellipse(0, 0, 65, 42, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#0284c7';
-      ctx.lineWidth = 4;
-      ctx.stroke();
-
-      // Hoa súng
-      ctx.font = '20px sans-serif';
-      ctx.fillText('🪷', -22, -8);
-      ctx.fillText('🪷', 24, 12);
-      ctx.fillText('🐟', -8, 16);
-      ctx.fillText('🐠', 14, -14);
-    } else if (poi.id === 'grand') {
-      // ĐẠI HỘI TRI THỨC (GRAND HALL)
-      const unlocked = isSpecialZoneUnlocked(this.player);
-      const pulse = Math.sin(performance.now() / 280) * 8;
-
-      // Aura lộng lẫy
-      const grad = ctx.createRadialGradient(0, -30, 40, 0, -30, 150 + pulse);
-      grad.addColorStop(0, unlocked ? 'rgba(250, 204, 21, 0.65)' : 'rgba(148, 163, 184, 0.45)');
-      grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(0, -30, 150 + pulse, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Thảm đỏ lối vào
-      ctx.fillStyle = '#dc2626';
-      ctx.fillRect(-35, 30, 70, 70);
-
-      // Tòa nhà Tân Cổ Điển hoành tráng
-      this.drawGrandPalace(ctx, -160, -130, 320, 200, unlocked);
-    } else if (poi.id === 'library') {
-      this.drawSchoolBuilding(ctx, -130, -90, 260, 180, '#38bdf8', '#0284c7', 'THƯ VIỆN TỪ VỰNG 📚');
-    } else if (poi.id === 'literature') {
-      this.drawSchoolBuilding(ctx, -130, -90, 260, 180, '#a855f7', '#7e22ce', 'NHÀ NGỮ VĂN 📜');
-    } else if (poi.id === 'spelling') {
-      this.drawSchoolBuilding(ctx, -120, -80, 240, 160, '#fb923c', '#c2410c', 'KHU CHÍNH TẢ ✏️');
-    } else if (poi.id === 'idiom') {
-      this.drawSchoolBuilding(ctx, -120, -80, 240, 160, '#facc15', '#a16207', 'QUẢNG TRƯỜNG THÀNH NGỮ 🧩');
-    } else if (poi.id === 'math') {
-      this.drawSchoolBuilding(ctx, -120, -80, 240, 160, '#4ade80', '#15803d', 'VƯỜN TOÁN HỌC 🧮');
-    } else if (poi.id === 'arena') {
-      this.drawSchoolBuilding(ctx, -110, -75, 220, 150, '#f43f5e', '#be123c', 'ĐẤU TRƯỜNG 60S ⚡');
-    } else if (poi.id === 'sports') {
-      // SÂN BÓNG ĐÁ CỎ XANH
-      ctx.fillStyle = '#16a34a';
-      ctx.fillRect(-140, -80, 280, 160);
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 4;
-      ctx.strokeRect(-140, -80, 280, 160);
-
-      ctx.beginPath();
-      ctx.moveTo(0, -80);
-      ctx.lineTo(0, 80);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(0, 0, 32, 0, Math.PI * 2);
-      ctx.stroke();
-
-      ctx.strokeRect(-140, -30, 25, 60);
-      ctx.strokeRect(115, -30, 25, 60);
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 14px "Nunito", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('SÂN BÓNG PHÚ THỌ ⚽', 0, -55);
-    } else if (poi.id === 'missions') {
-      // BẢNG NHIỆM VỤ GỖ
-      ctx.fillStyle = '#854d0e';
-      ctx.fillRect(-45, -45, 90, 70);
-      ctx.fillStyle = '#fef08a';
-      ctx.fillRect(-40, -40, 80, 60);
-      ctx.fillStyle = '#713f12';
-      ctx.font = 'bold 12px "Nunito", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('NHIỆM VỤ 📋', 0, -20);
-      ctx.fillText('HẰNG NGÀY', 0, -4);
-    } else if (poi.id === 'shop') {
-      this.drawSchoolBuilding(ctx, -100, -70, 200, 140, '#ec4899', '#be185d', 'CỬA HÀNG 🛍️');
-    } else if (poi.id === 'pets') {
-      this.drawSchoolBuilding(ctx, -100, -70, 200, 140, '#f59e0b', '#b45309', 'KHU THÚ CƯNG 🐾');
-    }
-
-    // Active indicator
-    if (this.activePOI && this.activePOI.id === poi.id) {
-      ctx.strokeStyle = '#f59e0b';
-      ctx.lineWidth = 4;
-      ctx.setLineDash([8, 8]);
-      ctx.beginPath();
-      ctx.arc(0, 0, poi.radius, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.setLineDash([]);
-    }
-
-    ctx.restore();
-  }
-
-  drawGrandPalace(ctx, x, y, w, h, unlocked) {
-    // Mái vòm hoàng gia (Golden Dome)
-    ctx.fillStyle = unlocked ? '#eab308' : '#64748b';
-    ctx.beginPath();
-    ctx.arc(x + w / 2, y + 10, 65, Math.PI, 0);
-    ctx.fill();
-    ctx.strokeStyle = '#334155';
-    ctx.lineWidth = 4;
-    ctx.stroke();
-
-    // Thân cung điện
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(x, y + 10, w, h - 10);
-    ctx.strokeRect(x, y + 10, w, h - 10);
-
-    // 6 Cột trụ La Mã đồ sộ
-    ctx.fillStyle = '#e2e8f0';
-    for (let i = 0; i < 6; i++) {
-      const colX = x + 25 + i * ((w - 50) / 5);
-      ctx.fillRect(colX - 8, y + 15, 16, h - 35);
-      ctx.strokeRect(colX - 8, y + 15, 16, h - 35);
-    }
-
-    // Cổng vòm lớn
-    ctx.fillStyle = unlocked ? '#fef08a' : '#334155';
-    ctx.beginPath();
-    ctx.arc(x + w / 2, y + h - 50, 36, Math.PI, 0);
-    ctx.lineTo(x + w / 2 + 36, y + h);
-    ctx.lineTo(x + w / 2 - 36, y + h);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Bảng tên ĐẠI HỘI TRI THỨC
-    ctx.fillStyle = '#b45309';
-    ctx.font = 'bold 15px "Nunito", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('ĐẠI HỘI TRI THỨC 👑', x + w / 2, y + 5);
-
-    // Biển trạng thái
-    ctx.fillStyle = unlocked ? '#15803d' : '#991b1b';
-    ctx.font = 'bold 13px "Nunito", sans-serif';
-    ctx.fillText(unlocked ? '✨ ĐÃ MỞ KHÓA ✨' : '🔒 CẦN CẤP 3 HOẶC 60 SAO', x + w / 2, y + h + 24);
-  }
-
-  drawSchoolBuilding(ctx, x, y, w, h, roofColor, wallColor, label) {
-    ctx.fillStyle = roofColor;
-    ctx.fillRect(x, y, w, 35);
-    ctx.strokeStyle = wallColor;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(x, y, w, 35);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(x + 10, y + 35, w - 20, h - 35);
-    ctx.strokeRect(x + 10, y + 35, w - 20, h - 35);
-
-    ctx.fillStyle = wallColor;
-    ctx.fillRect(x + w / 2 - 25, y + h - 45, 50, 45);
-
-    ctx.fillStyle = '#bae6fd';
-    ctx.fillRect(x + 22, y + 50, 32, 28);
-    ctx.fillRect(x + w - 54, y + 50, 32, 28);
-
-    ctx.fillStyle = '#0f172a';
-    ctx.font = 'bold 13px "Nunito", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(label, x + w / 2, y + 24);
-  }
-
-  drawMiniFlag(ctx, x, y) {
-    ctx.fillStyle = '#475569';
-    ctx.fillRect(x - 2, y, 4, 30);
-    ctx.fillStyle = '#dc2626';
-    ctx.fillRect(x + 2, y, 22, 14);
-    ctx.fillStyle = '#facc15';
-    ctx.font = '10px sans-serif';
-    ctx.fillText('★', x + 9, y + 11);
-  }
-
   renderRipples(ctx) {
     for (const r of this.clickRipples) {
       ctx.save();
-      ctx.strokeStyle = `rgba(245, 158, 11, ${r.alpha})`;
+      ctx.strokeStyle = 'rgba(245, 158, 11, ' + r.alpha + ')';
       ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
@@ -1374,429 +1212,95 @@ class AcademyGame {
     }
   }
 
-  /**
-   * VẼ NHÂN VẬT CHIBI SIÊU XỊN (Cao ~96px)
-   * Tỉ lệ chibi anime, mắt to long lanh, tóc bồng bềnh, khăn quàng đỏ tung bay, balo 3D, áo choàng thủ lĩnh!
-   */
   renderCharacterChibi(ctx, char, isLocal = false, isNpc = false) {
     ctx.save();
     ctx.translate(char.x, char.y);
 
-    const bob = char.moving ? Math.sin(char.animFrame) * 4 : (isNpc ? Math.sin(performance.now() / 420 + (char.bobOffset || 0)) * 2 : 0);
-    const swing = char.moving ? Math.sin(char.animFrame) : 0;
     const isGirl = char.character === 'girl';
-    const isSide = char.direction === 'left' || char.direction === 'right';
-    const isBack = char.direction === 'up';
+    const isMoving = Boolean(char.moving);
+    const pose = char.cheering ? 'cheer' : (isMoving ? 'walk' : 'idle');
+    const dir = char.direction || 'down';
+    const side = dir === 'left' || dir === 'right';
 
-    // Đổ bóng mềm dưới chân
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-    ctx.beginPath();
-    ctx.ellipse(0, 8, 22, 9, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    const skinColor = this.getSkinColor(char.skin);
-    const outfitDef = CUSTOMIZATION_OPTIONS.outfits.find(o => o.id === char.outfit) || CUSTOMIZATION_OPTIONS.outfits[0];
-    const bagDef = CUSTOMIZATION_OPTIONS.bagColors.find(b => b.id === char.bagColor) || CUSTOMIZATION_OPTIONS.bagColors[0];
-
-    // 1. Áo Choàng Thủ Lĩnh (Nếu là trang phục Leader)
-    if (outfitDef.accessory === 'leader') {
-      const capeWave = char.moving ? Math.sin(char.animFrame) * 8 : Math.sin(performance.now() / 300) * 4;
-      ctx.fillStyle = '#dc2626';
-      ctx.beginPath();
-      ctx.moveTo(-16, -45 + bob);
-      ctx.lineTo(-24 - capeWave, 2 + bob);
-      ctx.lineTo(24 + capeWave, 2 + bob);
-      ctx.lineTo(16, -45 + bob);
-      ctx.closePath();
-      ctx.fill();
+    if (dir === 'left') {
+      ctx.scale(-1, 1);
     }
 
-    // 2. Chân & Giày
-    const legOffset = swing * 6;
-    ctx.fillStyle = isGirl ? skinColor : outfitDef.bottom;
-    // Chân trái & phải
-    ctx.fillRect(-10, -10 + bob + legOffset, 7, 16);
-    ctx.fillRect(3, -10 + bob - legOffset, 7, 16);
+    const phase = char.animFrame || (performance.now() * 0.0125);
+    const t = performance.now() / 1000;
 
-    // Giày thể thao trắng viền đen
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(-12, 4 + bob + legOffset, 11, 8);
-    ctx.fillRect(1, 4 + bob - legOffset, 11, 8);
+    const hairStyle = typeof char.hairStyle === 'number' ? char.hairStyle : (isGirl ? 2 : 0);
+    const hairColor = typeof char.hairColor === 'number' ? char.hairColor : 0;
+    const bagColor = char.bagColor || 'red';
+    const shoeColor = char.shoeColor || 'white';
+    const skinId = char.skinId || char.outfit || 'default-student';
+    const style = SKIN_STYLES[skinId] || SKIN_STYLES['default-student'] || { shirt: '#8fd3ff', bottom: '#2f4b9b', accessory: 'none' };
 
-    // 3. Thân / Trang phục
-    ctx.fillStyle = outfitDef.shirt;
-    ctx.beginPath();
-    ctx.roundRect(-16, -46 + bob, 32, 38, [6, 6, 4, 4]);
-    ctx.fill();
-    ctx.strokeStyle = '#1e293b';
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
+    const g = new CanvasGraphics(ctx);
+    drawCharacter(g, {
+      avatar: {
+        character: isGirl ? 'girl' : 'boy',
+        hairStyle,
+        hairColor,
+        bagColor,
+        shoeColor,
+      },
+      style,
+      dir: side ? 'side' : dir,
+      pose,
+      phase,
+      t,
+    });
 
-    // Quần / Váy
-    ctx.fillStyle = outfitDef.bottom;
-    if (isGirl) {
-      // Váy xòe xếp ly xinh xắn
-      ctx.beginPath();
-      ctx.moveTo(-17, -22 + bob);
-      ctx.lineTo(17, -22 + bob);
-      ctx.lineTo(20, -10 + bob);
-      ctx.lineTo(-20, -10 + bob);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-    } else {
-      // Quần soóc / âu
-      ctx.fillRect(-16, -20 + bob, 32, 12);
-      ctx.strokeRect(-16, -20 + bob, 32, 12);
-    }
+    ctx.restore();
 
-    // 4. Balo 3D đeo sau lưng
-    if (isBack) {
-      ctx.fillStyle = bagDef.color;
-      ctx.beginPath();
-      ctx.roundRect(-14, -48 + bob, 28, 28, 6);
-      ctx.fill();
-      ctx.stroke();
-      // Khóa kéo
-      ctx.fillStyle = '#facc15';
-      ctx.fillRect(-3, -36 + bob, 6, 4);
-    } else if (isSide) {
-      ctx.fillStyle = bagDef.color;
-      ctx.beginPath();
-      ctx.roundRect(-18, -48 + bob, 12, 26, 4);
-      ctx.fill();
-      ctx.stroke();
-    }
+    // Render name badge above head
+    this.renderPlayerBadge(ctx, char, isLocal, isNpc);
+  }
 
-    // 5. Khăn Quàng Đỏ Phú Thọ (Tung bay phấp phới)
-    if (outfitDef.scarf && !isBack) {
-      const scarfFlutter = char.moving ? Math.sin(char.animFrame * 1.5) * 5 : 0;
-      ctx.fillStyle = outfitDef.scarf;
-      // Cổ khăn
-      ctx.beginPath();
-      ctx.moveTo(-10, -44 + bob);
-      ctx.lineTo(0, -32 + bob);
-      ctx.lineTo(10, -44 + bob);
-      ctx.closePath();
-      ctx.fill();
-      // 2 Dải khăn rủ xuống
-      ctx.beginPath();
-      ctx.moveTo(-2, -32 + bob);
-      ctx.lineTo(-8 + scarfFlutter, -16 + bob);
-      ctx.lineTo(0, -18 + bob);
-      ctx.lineTo(6 + scarfFlutter, -16 + bob);
-      ctx.closePath();
-      ctx.fill();
-    }
+  renderPlayerBadge(ctx, char, isLocal = false, isNpc = false) {
+    ctx.save();
+    ctx.translate(char.x, char.y - 105);
 
-    // 6. Tay & Cánh tay vung vẩy
-    ctx.fillStyle = outfitDef.shirt;
-    const armSwing = swing * 8;
-    ctx.fillRect(-22, -44 + bob - armSwing, 7, 20);
-    ctx.fillRect(15, -44 + bob + armSwing, 7, 20);
-    // Bàn tay
-    ctx.fillStyle = skinColor;
-    ctx.beginPath();
-    ctx.arc(-18.5, -24 + bob - armSwing, 4, 0, Math.PI * 2);
-    ctx.arc(18.5, -24 + bob + armSwing, 4, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 7. Đầu chibi tròn trĩnh
-    const headY = -66 + bob;
-    ctx.fillStyle = skinColor;
-    ctx.beginPath();
-    ctx.arc(0, headY, 20, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#1e293b';
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
-
-    // 8. Tóc (Render Hair)
-    this.renderChibiHair(ctx, char.hair, char.hairColor, headY, isBack, isSide, isGirl);
-
-    // 9. Khuôn mặt mắt to anime lấp lánh (nếu không nhìn sau)
-    if (!isBack) {
-      this.renderAnimeEyes(ctx, headY, char.direction, isGirl);
-    }
-
-    // 10. Mũ / Phụ kiện
-    this.renderAccessory(ctx, char.accessory, outfitDef.accessory, headY);
-
-    // 11. Bảng tên & Trường học phía trên đầu
     ctx.font = 'bold 12px "Nunito", sans-serif';
     ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
 
-    const tagText = `[${char.school}] ${char.name}`;
+    const tagText = isNpc ? char.name : '[' + char.school + '] ' + char.name;
     const tagWidth = ctx.measureText(tagText).width + 16;
 
-    ctx.fillStyle = isLocal ? 'rgba(2, 132, 199, 0.9)' : 'rgba(15, 23, 42, 0.8)';
+    ctx.fillStyle = isLocal ? 'rgba(2, 132, 199, 0.9)' : (isNpc ? 'rgba(22, 101, 52, 0.85)' : 'rgba(15, 23, 42, 0.8)');
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.roundRect(-tagWidth / 2, headY - 36, tagWidth, 20, 10);
+    ctx.roundRect(-tagWidth / 2, -10, tagWidth, 20, 10);
     ctx.fill();
+    ctx.stroke();
 
     ctx.fillStyle = isLocal ? '#fef08a' : '#ffffff';
-    ctx.fillText(tagText, 0, headY - 22);
+    ctx.fillText(tagText, 0, 0);
 
     ctx.restore();
   }
 
-  renderChibiHair(ctx, hairStyle, hairColor, headY, isBack, isSide, isGirl) {
-    ctx.fillStyle = hairColor || '#1f1f1f';
-
-    if (isBack) {
-      ctx.beginPath();
-      ctx.arc(0, headY, 21, 0, Math.PI * 2);
-      ctx.fill();
-      if (hairStyle === 'twintail') {
-        ctx.beginPath();
-        ctx.ellipse(-24, headY - 4, 8, 18, -0.3, 0, Math.PI * 2);
-        ctx.ellipse(24, headY - 4, 8, 18, 0.3, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (hairStyle === 'ponytail') {
-        ctx.beginPath();
-        ctx.ellipse(-16, headY - 12, 10, 22, -0.5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      return;
-    }
-
-    // Tóc mái trước
-    ctx.beginPath();
-    ctx.arc(0, headY, 21.5, Math.PI, Math.PI * 2);
-    ctx.fill();
-
-    if (hairStyle === 'twintail') {
-      // 2 chùm tóc cột cao hai bên kèm nơ
-      ctx.beginPath();
-      ctx.ellipse(-22, headY - 6, 8, 18, -0.3, 0, Math.PI * 2);
-      ctx.ellipse(22, headY - 6, 8, 18, 0.3, 0, Math.PI * 2);
-      ctx.fill();
-      // Nơ đỏ
-      ctx.fillStyle = '#ef4444';
-      ctx.fillRect(-24, headY - 14, 6, 6);
-      ctx.fillRect(18, headY - 14, 6, 6);
-    } else if (hairStyle === 'ponytail') {
-      ctx.beginPath();
-      ctx.ellipse(-20, headY - 8, 9, 20, -0.4, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (hairStyle === 'spiky') {
-      // Tóc vuốt nhọn cá tính
-      ctx.beginPath();
-      ctx.moveTo(-14, headY - 18);
-      ctx.lineTo(-7, headY - 29);
-      ctx.lineTo(0, headY - 20);
-      ctx.lineTo(8, headY - 30);
-      ctx.lineTo(15, headY - 18);
-      ctx.fill();
-    } else {
-      // Tóc mái vòm tự nhiên
-      ctx.beginPath();
-      ctx.arc(0, headY - 4, 18, Math.PI * 0.9, Math.PI * 2.1);
-      ctx.fill();
-    }
-
-    // Vệt bóng tóc bóng mượt (Hair highlight sheen)
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
-    ctx.beginPath();
-    ctx.ellipse(0, headY - 14, 12, 3, 0, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  renderAnimeEyes(ctx, headY, direction, isGirl) {
-    const eyeY = headY + 3;
-
-    // Má hồng phấn dễ thương
-    ctx.fillStyle = 'rgba(244, 114, 182, 0.6)';
-    ctx.beginPath();
-    ctx.arc(-11, eyeY + 8, 4.5, 0, Math.PI * 2);
-    ctx.arc(11, eyeY + 8, 4.5, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Mắt to anime long lanh
-    const drawEye = (x) => {
-      // Tròng đen
-      ctx.fillStyle = '#0f172a';
-      ctx.beginPath();
-      ctx.ellipse(x, eyeY, 4, 6.5, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Đốm bắt sáng to (Sparkle 1)
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(x - 1.2, eyeY - 2.5, 1.8, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Đốm bắt sáng nhỏ (Sparkle 2)
-      ctx.beginPath();
-      ctx.arc(x + 1.2, eyeY + 2, 1, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Hàng mi mắt trên
-      ctx.strokeStyle = '#0f172a';
-      ctx.lineWidth = 1.6;
-      ctx.beginPath();
-      ctx.arc(x, eyeY - 4, 5, Math.PI * 1.1, Math.PI * 1.9);
-      ctx.stroke();
-    };
-
-    if (direction === 'left') {
-      drawEye(-6);
-    } else if (direction === 'right') {
-      drawEye(6);
-    } else {
-      drawEye(-7);
-      drawEye(7);
-
-      // Nụ cười rạng rỡ
-      ctx.strokeStyle = '#be123c';
-      ctx.lineWidth = 1.8;
-      ctx.beginPath();
-      ctx.arc(0, eyeY + 6, 4, 0.2, Math.PI - 0.2);
-      ctx.stroke();
-    }
-  }
-
-  renderAccessory(ctx, accessory, outfitAcc, headY) {
-    if (outfitAcc === 'scholar') {
-      // Mũ cử nhân tú tài
-      ctx.fillStyle = '#1e1b4b';
-      ctx.beginPath();
-      ctx.moveTo(0, headY - 34);
-      ctx.lineTo(26, headY - 24);
-      ctx.lineTo(0, headY - 14);
-      ctx.lineTo(-26, headY - 24);
-      ctx.closePath();
-      ctx.fill();
-      // Tua rua vàng
-      ctx.strokeStyle = '#facc15';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(0, headY - 24);
-      ctx.lineTo(18, headY - 18);
-      ctx.stroke();
-    } else if (outfitAcc === 'explorer') {
-      // Mũ thám hiểm tai bèo
-      ctx.fillStyle = '#b45309';
-      ctx.beginPath();
-      ctx.arc(0, headY - 18, 26, Math.PI, 0);
-      ctx.fill();
-    } else if (outfitAcc === 'inventor') {
-      // Kính bảo hộ trên trán
-      ctx.fillStyle = '#38bdf8';
-      ctx.strokeStyle = '#334155';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(-16, headY - 22, 12, 8);
-      ctx.strokeRect(4, headY - 22, 12, 8);
-      ctx.fillRect(-16, headY - 22, 12, 8);
-      ctx.fillRect(4, headY - 22, 12, 8);
-    }
-
-    if (accessory === 'glasses') {
-      ctx.strokeStyle = '#0f172a';
-      ctx.lineWidth = 1.8;
-      ctx.strokeRect(-12, headY - 1, 9, 8);
-      ctx.strokeRect(3, headY - 1, 9, 8);
-      ctx.beginPath();
-      ctx.moveTo(-3, headY + 3);
-      ctx.lineTo(3, headY + 3);
-      ctx.stroke();
-    } else if (accessory === 'star_pin') {
-      ctx.fillStyle = '#facc15';
-      ctx.font = '13px sans-serif';
-      ctx.fillText('⭐', 12, headY + 28);
-    }
-  }
-
-  /**
-   * VẼ THÚ CƯNG THEO SAU (Pet Follower)
-   */
   renderPet(ctx, x, y, petId, animFrame = 0) {
+    if (!petId || petId === 'none') return;
+    const kind = (petId === 'cat' ? 'dog' : petId);
     ctx.save();
     ctx.translate(x, y);
 
-    const bob = Math.sin(animFrame) * 3;
-
-    // Bóng thú cưng
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+    // Subtle shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
     ctx.beginPath();
-    ctx.ellipse(0, 4, 12, 5, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 2, 13, 5, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    if (petId === 'duck') {
-      // Vịt vàng con 🐥
-      ctx.fillStyle = '#facc15';
-      ctx.beginPath();
-      ctx.ellipse(0, -8 + bob, 14, 10, 0, 0, Math.PI * 2);
-      ctx.fill();
-      // Đầu
-      ctx.beginPath();
-      ctx.arc(8, -18 + bob, 8, 0, Math.PI * 2);
-      ctx.fill();
-      // Mỏ cam
-      ctx.fillStyle = '#ea580c';
-      ctx.fillRect(14, -18 + bob, 6, 4);
-      // Mắt
-      ctx.fillStyle = '#0f172a';
-      ctx.beginPath();
-      ctx.arc(10, -20 + bob, 1.5, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (petId === 'dog') {
-      // Cún con 🐶
-      ctx.fillStyle = '#d97706';
-      ctx.beginPath();
-      ctx.ellipse(0, -10 + bob, 15, 11, 0, 0, Math.PI * 2);
-      ctx.fill();
-      // Đầu & Tai
-      ctx.beginPath();
-      ctx.arc(10, -18 + bob, 9, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#92400e';
-      ctx.beginPath();
-      ctx.ellipse(6, -23 + bob, 4, 8, -0.3, 0, Math.PI * 2);
-      ctx.fill();
-      // Mũi đen
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(17, -18 + bob, 3, 3);
-    } else if (petId === 'rabbit') {
-      // Thỏ trắng 🐰
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.ellipse(0, -10 + bob, 13, 10, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(8, -17 + bob, 8, 0, Math.PI * 2);
-      ctx.fill();
-      // Tai dài
-      ctx.beginPath();
-      ctx.ellipse(6, -28 + bob, 3, 9, 0, 0, Math.PI * 2);
-      ctx.ellipse(10, -28 + bob, 3, 9, 0.2, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (petId === 'cat') {
-      // Mèo con 🐱
-      ctx.fillStyle = '#f97316';
-      ctx.beginPath();
-      ctx.ellipse(0, -10 + bob, 14, 10, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(8, -17 + bob, 8, 0, Math.PI * 2);
-      ctx.fill();
-      // Tai tam giác
-      ctx.beginPath();
-      ctx.moveTo(4, -23 + bob);
-      ctx.lineTo(8, -29 + bob);
-      ctx.lineTo(12, -23 + bob);
-      ctx.fill();
-    } else {
-      // Gà con 🐣
-      ctx.fillStyle = '#fef08a';
-      ctx.beginPath();
-      ctx.arc(0, -12 + bob, 10, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#dc2626';
-      ctx.fillRect(-2, -24 + bob, 4, 4); // mào đỏ
-      ctx.fillStyle = '#ea580c';
-      ctx.fillRect(8, -13 + bob, 4, 3); // mỏ
-    }
+    // Hopping bounce
+    const hop = Math.abs(Math.sin(animFrame * 2)) * 4;
+    ctx.translate(0, -hop);
+
+    const g = new CanvasGraphics(ctx);
+    drawPet(g, kind);
 
     ctx.restore();
   }

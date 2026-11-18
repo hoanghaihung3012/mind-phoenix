@@ -121,8 +121,8 @@ test('isSpecialZoneUnlocked accurately evaluates unlocking conditions', () => {
 });
 
 test('checkProximityPOI detects locations when near and ignores when far', () => {
-  // Near the flagpole (880, 920)
-  const hit = checkProximityPOI(880, 920);
+  // Near the flagpole (535, 650)
+  const hit = checkProximityPOI(535, 650);
   assert.ok(hit);
   assert.equal(hit.poi.id, 'flagpole');
 
@@ -163,5 +163,44 @@ test('DEFAULT_NPCS contains welcoming students with pets and speech messages', (
     assert.ok(npc.school);
     assert.ok(npc.pet, `${npc.id} must have a follower pet`);
     assert.ok(Array.isArray(npc.messages) && npc.messages.length > 0);
+  }
+});
+
+test('Phu Tho procedural textures and character/pet art render flawlessly', async () => {
+  class MockContext {
+    fillStyle = ''; strokeStyle = ''; lineWidth = 1; lineCap = ''; lineJoin = '';
+    beginPath() {} moveTo() {} lineTo() {} closePath() {} fill() {} stroke() {}
+    fillRect() {} strokeRect() {} arc() {} ellipse() {} roundRect() {}
+    clearRect() {} save() {} restore() {} translate() {} rotate() {} scale() {}
+    drawImage() {}
+  }
+  global.document = {
+    createElement: () => ({ width: 100, height: 100, getContext: () => new MockContext() })
+  };
+
+  const { buildAllTextures, drawCharacter, drawPet, CanvasGraphics, TEXTURES, PLATE_INFO } = await import('./art/index.js');
+  const textures = buildAllTextures();
+  assert.ok(Object.keys(textures).length >= 50, 'Must generate full set of procedural textures');
+  assert.ok(textures['map-bg'], 'map-bg must be generated');
+  assert.ok(textures['bld-grand'], 'bld-grand must be generated');
+  assert.ok(textures['prop-gate'], 'prop-gate must be generated');
+  assert.ok(PLATE_INFO['bld-grand'], 'PLATE_INFO for bld-grand must be present');
+
+  const g = new CanvasGraphics(new MockContext());
+
+  // Test character drawing across multiple configurations
+  const testCases = [
+    { avatar: { character: 'boy', hairStyle: 0, hairColor: 0, bagColor: 'blue', shoeColor: 'white' }, style: { shirt: '#8fd3ff', bottom: '#2f4b9b', accessory: 'none' }, dir: 'down', pose: 'idle' },
+    { avatar: { character: 'girl', hairStyle: 2, hairColor: 1, bagColor: 'red', shoeColor: 'pink' }, style: { shirt: '#fff1a8', bottom: '#b3261e', accessory: 'leader' }, dir: 'side', pose: 'walk' },
+    { avatar: { character: 'boy', hairStyle: 1, hairColor: 2, bagColor: 'green', shoeColor: 'black' }, style: { shirt: '#c9b27a', bottom: '#6b5b3a', accessory: 'explorer' }, dir: 'up', pose: 'cheer' },
+  ];
+
+  for (const tc of testCases) {
+    drawCharacter(g, tc);
+  }
+
+  // Test all pets
+  for (const pet of ['duck', 'dog', 'chicken', 'rabbit']) {
+    drawPet(g, pet);
   }
 });
