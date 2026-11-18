@@ -10,7 +10,7 @@ import {
   starPoints,
 } from "./draw.js";
 import { drawIconShape } from "./icons.js";
-import { BUILDINGS, FLOWER_BEDS, POND, WORLD } from "../data/mapLayout.js";
+import { BUILDINGS, FLOWER_BEDS, POND, WORLD, FLAGPOLE, GATE } from "../data/mapLayout.js";
 import { mulberry32 } from "../utils/randomUtils.js";
 
 /** Vị trí tấm bảng tên (tâm và kích thước) bên trong texture của từng công trình. */
@@ -327,13 +327,13 @@ function pondRim(g, cx, cy, rx, ry) {
 
 function pathRects() {
   const rects = [
-    { x: 120, y: 436, w: 1360, h: 44 },
-    { x: 120, y: 786, w: 1360, h: 44 },
-    { x: 120, y: 1012, w: 1360, h: 50 },
-    { x: 770, y: 436, w: 60, h: 724 },
-    { x: 238, y: 436, w: 44, h: 626 },
-    { x: 1310, y: 436, w: 44, h: 626 },
-    { x: 440, y: 470, w: 720, h: 310 },
+    { x: 168, y: 610, w: 1904, h: 62 },
+    { x: 168, y: 1100, w: 1904, h: 62 },
+    { x: 168, y: 1417, w: 1904, h: 70 },
+    { x: 1078, y: 610, w: 84, h: 1014 },
+    { x: 333, y: 610, w: 62, h: 876 },
+    { x: 1834, y: 610, w: 62, h: 876 },
+    { x: 616, y: 658, w: 1008, h: 434 },
   ];
   return rects;
 }
@@ -363,7 +363,7 @@ function worldBackground(scene) {
       rr(g, W - 20, y, 16, 22, 4, 0xf3efe6, INK, 2);
     }
     for (let x = 0; x < W; x += 28) {
-      if (x > 690 && x < 910) continue;
+      if (x > (GATE.x - 160) && x < (GATE.x + 160)) continue;
       rr(g, x, H - 52, 18, 40, 4, 0xf3efe6, INK, 2);
     }
     // Đường đi lát đá
@@ -380,8 +380,8 @@ function worldBackground(scene) {
         g.lineBetween(x, r.y + 6, x, r.y + r.h - 6);
     }
     // Sân cột cờ và hồ nước
-    ell(g, 535, 640, 190, 110, STONE_EDGE, null, 0, 1);
-    ell(g, 535, 640, 180, 100, 0xf1e9d4, null, 0, 1);
+    ell(g, FLAGPOLE.x, FLAGPOLE.y - 10, 260, 150, STONE_EDGE, null, 0, 1);
+    ell(g, FLAGPOLE.x, FLAGPOLE.y - 10, 246, 136, 0xf1e9d4, null, 0, 1);
     pondRim(g, POND.x, POND.y, POND.rx, POND.ry);
     // Cỏ và hoa nhỏ rải rác ở những chỗ không có đường
     const paths = pathRects();

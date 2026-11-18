@@ -912,8 +912,13 @@ class AcademyGame {
       }
     }
 
-    this.player.x = clamp(this.player.x, 60, MAP_CONFIG.width - 60);
-    this.player.y = clamp(this.player.y, 60, MAP_CONFIG.height - 60);
+    const minX = MAP_CONFIG.bounds ? MAP_CONFIG.bounds.x : 60;
+    const maxX = MAP_CONFIG.bounds ? MAP_CONFIG.bounds.x + MAP_CONFIG.bounds.w : MAP_CONFIG.width - 60;
+    const minY = MAP_CONFIG.bounds ? MAP_CONFIG.bounds.y : 160;
+    const maxY = MAP_CONFIG.bounds ? MAP_CONFIG.bounds.y + MAP_CONFIG.bounds.h : MAP_CONFIG.height - 80;
+
+    this.player.x = clamp(this.player.x, minX, maxX);
+    this.player.y = clamp(this.player.y, minY, maxY);
 
     if (this.player.moving) {
       this.player.animFrame += dt * 9;
