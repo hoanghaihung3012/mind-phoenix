@@ -490,6 +490,15 @@ export function generateMapTextures(scene) {
       deco: "calc",
       windows: 1,
     },
+    arcade: {
+      roofH: 58,
+      wall: 0xfff3c4,
+      base: 0xffd54f,
+      roof: 0xe65100,
+      door: 0x311b92,
+      deco: "sparkle",
+      windows: 2,
+    },
   };
   for (const b of BUILDINGS) {
     if (b.zone === "grand") grandHall(scene, b.texture, b.w, b.h);

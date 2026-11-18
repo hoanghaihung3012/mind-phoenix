@@ -54,6 +54,16 @@ export const BUILDINGS = [
     iy: 2130,
   },
   {
+    zone: "arcade",
+    texture: "bld-arcade",
+    cx: 1450,
+    baseY: 2050,
+    w: 280,
+    h: 210,
+    ix: 1450,
+    iy: 2130,
+  },
+  {
     zone: "arena",
     texture: "bld-arena",
     cx: 2400,

@@ -8,6 +8,7 @@ import {
   MAP_CONFIG,
   POI_LOCATIONS,
   DEFAULT_NPCS,
+  CAMPUS_NPCS,
   CUSTOMIZATION_OPTIONS,
   PET_CONFIGS,
   DAILY_MISSIONS,
@@ -53,7 +54,26 @@ export const BUILDING_SIGN_NAMES = {
   math: 'VƯỜN TOÁN HỌC',
   pets: 'KHU THÚ CƯNG',
   shop: 'CỬA HÀNG',
+  arcade: 'KHU TRÒ CHƠI',
 };
+
+export const ARCADE_GAMES = [
+  { id: 'apple-catch', title: 'Hứng Táo Vui Nhộn', icon: '🍎', category: 'action', badge: 'Phản xạ', desc: 'Di chuyển giỏ hứng táo chín mọng, né sâu bọ và giải đố nhanh!' },
+  { id: 'breakout', title: 'Đập Gạch Vượt Ải', icon: '🧱', category: 'action', badge: 'Phản xạ', desc: 'Điều khiển thanh trượt đập vỡ các khối gạch tri thức thần kỳ!' },
+  { id: 'duck-race', title: 'Đua Vịt Tri Thức', icon: '🦆', category: 'logic', badge: 'Thi đấu', desc: 'Cuộc đua vịt hồi hộp, giải đố để đưa chú vịt của bạn về đích!' },
+  { id: 'code-the-bot', title: 'Lập Trình Robot', icon: '🤖', category: 'logic', badge: 'Tư duy', desc: 'Kéo thả câu lệnh lập trình dẫn chú robot vượt chướng ngại vật!' },
+  { id: 'math-chain', title: 'Nối Chuỗi Toán Học', icon: '🧮', category: 'math', badge: 'Toán học', desc: 'Khám phá chuỗi phép tính kỳ diệu và tìm ra quy luật con số!' },
+  { id: 'math-challenge', title: 'Thử Thách Tính Nhẩm', icon: '⚡', category: 'math', badge: 'Toán học', desc: 'Tính nhẩm siêu tốc trong 60 giây và chinh phục điểm số kỷ lục!' },
+  { id: 'memory-safari', title: 'Lật Thẻ Trí Nhớ', icon: '🦁', category: 'logic', badge: 'Trí nhớ', desc: 'Lật tìm các cặp hình con vật đáng yêu trong khu rừng kỳ thú!' },
+  { id: 'noi-tu', title: 'Đấu Trường Nối Từ', icon: '🔤', category: 'viet', badge: 'Tiếng Việt', desc: 'Nối từ tiếng Việt tài tình, mở rộng vốn từ vựng phong phú!' },
+  { id: 'sentence-builder', title: 'Ghép Câu Hoàn Chỉnh', icon: '📝', category: 'viet', badge: 'Tiếng Việt', desc: 'Sắp xếp các khối từ thành câu văn chuẩn ngữ pháp tiếng Việt!' },
+  { id: 'shadow-puzzle', title: 'Ghép Bóng Đồ Vật', icon: '👤', category: 'logic', badge: 'Quan sát', desc: 'Nhận diện hình dáng và ghép đồ vật vào đúng bóng râm!' },
+  { id: 'sky-jump', title: 'Nhảy Cao Phiêu Lưu', icon: '🦘', category: 'action', badge: 'Phản xạ', desc: 'Nhảy qua các bậc thang mây bay lượn và thu thập ngôi sao may mắn!' },
+  { id: 'soi-chinh-ta', title: 'Soi Lỗi Chính Tả', icon: '🔍', category: 'viet', badge: 'Tiếng Việt', desc: 'Thử tài làm biên tập viên nhí, phát hiện và sửa lỗi chính tả!' },
+  { id: 'spell-quest', title: 'Hành Trình Ghép Chữ', icon: '🗺️', category: 'viet', badge: 'Tiếng Việt', desc: 'Điền chữ cái còn thiếu vào từ để hoàn thành câu đố học tập!' },
+  { id: 'vua-tieng-viet', title: 'Vua Tiếng Việt', icon: '👑', category: 'viet', badge: 'Tiếng Việt', desc: 'Đoán từ bí mật theo phong cách gameshow Vua Tiếng Việt lôi cuốn!' },
+  { id: 'word-pop', title: 'Bắn Bong Bóng Chữ', icon: '🎈', category: 'viet', badge: 'Ngôn ngữ', desc: 'Bắn vỡ bong bóng chữ theo đúng chủ đề từ vựng yêu cầu!' }
+];
 
 function drawFittedText(ctx, text, cx, cy, maxW, baseFontSize, fontFace, color, minFontSize = 8.5) {
   let size = baseFontSize;
@@ -84,17 +104,27 @@ class AcademyGame {
     // Follower Pet position
     this.playerPetPos = { x: this.player.x - 40, y: this.player.y, animFrame: 0 };
 
-    // Camera
+    // Camera (zoom 0.70 = map rendered 30% smaller)
     this.camera = {
-      x: this.player.x - window.innerWidth / 2,
-      y: this.player.y - window.innerHeight / 2,
+      zoom: 0.70,
+      x: this.player.x - (window.innerWidth / 0.70) / 2,
+      y: this.player.y - (window.innerHeight / 0.70) / 2,
     };
 
-    // NPCs
+    // Default student NPCs (legacy bots)
     this.npcs = DEFAULT_NPCS.map(n => ({
       ...n,
       petPos: { x: n.x - 35, y: n.y, animFrame: 0 },
       bobOffset: Math.random() * Math.PI * 2
+    }));
+
+    // Campus Staff NPCs (Thầy Hiệu Trưởng, Cô Giáo Mai, Bác Bảo Vệ, Bác Làm Vườn)
+    this.campusNpcs = (CAMPUS_NPCS || []).map(n => ({
+      ...n,
+      petPos: { x: n.x - 35, y: n.y, animFrame: 0 },
+      bobOffset: Math.random() * Math.PI * 2,
+      lastSpeakTime: performance.now() + Math.random() * 8000,
+      speakInterval: 18000 + Math.random() * 15000 // Nói định kỳ mỗi 18-33s
     }));
 
     // Other online players
@@ -213,8 +243,9 @@ class AcademyGame {
 
     this.canvas.addEventListener('mousedown', (e) => {
       const rect = this.canvas.getBoundingClientRect();
-      const clickWorldX = e.clientX - rect.left + this.camera.x;
-      const clickWorldY = e.clientY - rect.top + this.camera.y;
+      const zoom = this.camera.zoom || 0.70;
+      const clickWorldX = (e.clientX - rect.left) / zoom + this.camera.x;
+      const clickWorldY = (e.clientY - rect.top) / zoom + this.camera.y;
 
       const targetEntity = this.findEntityAt(clickWorldX, clickWorldY);
       if (targetEntity) {
@@ -232,8 +263,9 @@ class AcademyGame {
       if (e.touches.length > 0) {
         const touch = e.touches[0];
         const rect = this.canvas.getBoundingClientRect();
-        const clickWorldX = touch.clientX - rect.left + this.camera.x;
-        const clickWorldY = touch.clientY - rect.top + this.camera.y;
+        const zoom = this.camera.zoom || 0.70;
+        const clickWorldX = (touch.clientX - rect.left) / zoom + this.camera.x;
+        const clickWorldY = (touch.clientY - rect.top) / zoom + this.camera.y;
 
         const targetEntity = this.findEntityAt(clickWorldX, clickWorldY);
         if (targetEntity) {
@@ -250,7 +282,24 @@ class AcademyGame {
   }
 
   setupNPCBehavior() {
-    // Fake users removed: automated fake NPC messages disabled
+    // Nhân viên học viện (Thầy cô, Bác bảo vệ, Bác làm vườn) lâu lâu mới nói
+    this.npcSpeakTimer = setInterval(() => {
+      if (!this.campusNpcs || this.campusNpcs.length === 0) return;
+      const now = performance.now();
+      for (const npc of this.campusNpcs) {
+        if (now > (npc.lastSpeakTime || 0) + (npc.speakInterval || 22000)) {
+          const quotes = npc.quotes || [];
+          if (quotes.length > 0) {
+            const quote = quotes[Math.floor(Math.random() * quotes.length)];
+            this.showSpeechBubble(npc.id, quote, 6500);
+            this.addChatMessage(npc.name, npc.title || 'Học Viện Phú Thọ', quote, false, npc.role || '');
+          }
+          npc.lastSpeakTime = now;
+          npc.speakInterval = 18000 + Math.random() * 16000; // 18-34 giây sau mới nói tiếp
+          break; // Chỉ 1 người nói mỗi lượt để tự nhiên, không spam
+        }
+      }
+    }, 4000);
   }
 
   setupUI() {
@@ -353,6 +402,50 @@ class AcademyGame {
     }
     if (closeDirBtn && directoryModal) {
       closeDirBtn.addEventListener('click', () => directoryModal.classList.add('hidden'));
+    }
+
+    // Arcade Game Center Modal
+    const arcadeBtn = document.getElementById('arcadeBtn');
+    if (arcadeBtn) {
+      arcadeBtn.addEventListener('click', () => this.openArcadeModal());
+    }
+    const closeArcadeModal = document.getElementById('closeArcadeModal');
+    if (closeArcadeModal) {
+      closeArcadeModal.addEventListener('click', () => this.closeArcadeModal());
+    }
+    const arcadeBackToListBtn = document.getElementById('arcadeBackToListBtn');
+    if (arcadeBackToListBtn) {
+      arcadeBackToListBtn.addEventListener('click', () => this.backToArcadeList());
+    }
+
+    // Chat Minimize & Expand Toggle
+    const chatToggleBtn = document.getElementById('chatToggleBtn');
+    const chatContainer = document.getElementById('chatContainer');
+    const chatMinimizeBtn = document.getElementById('chatMinimizeBtn');
+    const chatUnreadBadge = document.getElementById('chatUnreadBadge');
+
+    if (chatToggleBtn && chatContainer) {
+      chatToggleBtn.addEventListener('click', () => {
+        chatContainer.classList.remove('collapsed');
+        chatToggleBtn.classList.add('hidden');
+        if (chatUnreadBadge) {
+          chatUnreadBadge.textContent = '0';
+          chatUnreadBadge.classList.add('hidden');
+        }
+        const input = document.getElementById('chatInput');
+        if (input) input.focus();
+        const box = document.getElementById('chatMessages');
+        if (box) box.scrollTop = box.scrollHeight;
+        this.sound.playClick();
+      });
+    }
+
+    if (chatMinimizeBtn && chatContainer) {
+      chatMinimizeBtn.addEventListener('click', () => {
+        chatContainer.classList.add('collapsed');
+        if (chatToggleBtn) chatToggleBtn.classList.remove('hidden');
+        this.sound.playClick();
+      });
     }
 
     // Leaderboard Modal
@@ -590,18 +683,30 @@ class AcademyGame {
     `).join('');
   }
 
-  addChatMessage(name, school, text, isSelf = false) {
+  addChatMessage(name, school, text, isSelf = false, role = '') {
     const box = document.getElementById('chatMessages');
     if (!box) return;
 
     const row = document.createElement('div');
     row.className = `chat-msg ${isSelf ? 'self' : ''}`;
-    row.innerHTML = `<span class="tag">[${this.escapeHtml(school)}]</span> <strong>${this.escapeHtml(name)}:</strong> ${this.escapeHtml(text)}`;
+    const tagClass = role ? `tag tag-${this.escapeHtml(role)}` : 'tag';
+    row.innerHTML = `<span class="${tagClass}">[${this.escapeHtml(school)}]</span> <strong>${this.escapeHtml(name)}:</strong> ${this.escapeHtml(text)}`;
     box.appendChild(row);
     box.scrollTop = box.scrollHeight;
 
     while (box.children.length > 50) {
       box.removeChild(box.firstChild);
+    }
+
+    // Nếu khung chat đang thu nhỏ, tăng số tin nhắn chưa đọc
+    const chatContainer = document.getElementById('chatContainer');
+    if (chatContainer && chatContainer.classList.contains('collapsed')) {
+      const badge = document.getElementById('chatUnreadBadge');
+      if (badge) {
+        const cur = parseInt(badge.textContent || '0', 10) || 0;
+        badge.textContent = cur + 1;
+        badge.classList.remove('hidden');
+      }
     }
   }
 
@@ -623,6 +728,13 @@ class AcademyGame {
   }
 
   findEntityAt(worldX, worldY) {
+    if (this.campusNpcs) {
+      for (const npc of this.campusNpcs) {
+        if (Math.hypot(worldX - npc.x, worldY - npc.y) < 42) {
+          return { type: 'campus_npc', data: npc };
+        }
+      }
+    }
     for (const npc of this.npcs) {
       if (Math.hypot(worldX - npc.x, worldY - npc.y) < 36) {
         return { type: 'npc', data: npc };
@@ -637,9 +749,18 @@ class AcademyGame {
   }
 
   openPlayerProfile(entity) {
+    const { data } = entity;
+    if (entity.type === 'campus_npc') {
+      const quotes = data.quotes || [];
+      const quote = quotes[Math.floor(Math.random() * quotes.length)] || 'Chào em!';
+      this.showSpeechBubble(data.id, quote, 6500);
+      this.addChatMessage(data.name, data.title || 'Học Viện Phú Thọ', quote, false, data.role || '');
+      this.sound.playClick();
+      return;
+    }
+
     const modal = document.getElementById('profileModal');
     if (!modal) return;
-    const { data } = entity;
 
     document.getElementById('profileName').textContent = data.name;
     document.getElementById('profileSchool').textContent = data.school;
@@ -725,11 +846,87 @@ class AcademyGame {
       } else if (poi.panelType === 'missions') {
         this.renderMissions();
         document.getElementById('missionModal').classList.remove('hidden');
+      } else if (poi.panelType === 'arcade') {
+        this.openArcadeModal();
       }
     } else if (poi.category === 'landmark' || poi.category === 'welcome' || poi.category === 'social' || poi.category === 'sports') {
       this.showSpeechBubble(this.player.id, `Đang ở ${poi.name}: ${poi.desc}`, 5000);
       this.sound.playClick();
     }
+  }
+
+  openArcadeModal() {
+    const modal = document.getElementById('arcadeModal');
+    if (!modal) return;
+    this.renderArcadeCatalog();
+    modal.classList.remove('hidden');
+    this.sound.playClick();
+  }
+
+  renderArcadeCatalog() {
+    const grid = document.getElementById('arcadeGameGrid');
+    const playerWrapper = document.getElementById('arcadePlayerWrapper');
+    if (!grid) return;
+
+    grid.classList.remove('hidden');
+    if (playerWrapper) playerWrapper.classList.add('hidden');
+
+    grid.innerHTML = ARCADE_GAMES.map(g => `
+      <div class="arcade-card">
+        <div class="arcade-card-top">
+          <div class="arcade-card-icon">${g.icon}</div>
+          <div class="arcade-card-info">
+            <h4>${g.title}</h4>
+            <span class="arcade-card-badge arcade-badge-${g.category}">${g.badge}</span>
+          </div>
+        </div>
+        <p class="arcade-card-desc">${g.desc}</p>
+        <button class="arcade-card-btn" data-game="${g.id}">Chơi Ngay 🎮</button>
+      </div>
+    `).join('');
+
+    grid.querySelectorAll('.arcade-card-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const gameId = btn.getAttribute('data-game');
+        this.playArcadeGame(gameId);
+      });
+    });
+  }
+
+  playArcadeGame(gameId) {
+    const game = ARCADE_GAMES.find(g => g.id === gameId);
+    if (!game) return;
+
+    const grid = document.getElementById('arcadeGameGrid');
+    const playerWrapper = document.getElementById('arcadePlayerWrapper');
+    const iframe = document.getElementById('arcadeIframe');
+    const titleEl = document.getElementById('arcadePlayingTitle');
+    const extLink = document.getElementById('arcadeOpenExternalLink');
+
+    if (grid) grid.classList.add('hidden');
+    if (playerWrapper) playerWrapper.classList.remove('hidden');
+    if (titleEl) titleEl.textContent = `${game.icon} ${game.title}`;
+    if (extLink) extLink.href = `../${game.id}/`;
+
+    if (iframe) {
+      iframe.src = `../${game.id}/`;
+    }
+    this.sound.playSuccess();
+  }
+
+  backToArcadeList() {
+    const iframe = document.getElementById('arcadeIframe');
+    if (iframe) iframe.src = 'about:blank';
+    this.renderArcadeCatalog();
+    this.sound.playClick();
+  }
+
+  closeArcadeModal() {
+    const modal = document.getElementById('arcadeModal');
+    if (modal) modal.classList.add('hidden');
+    const iframe = document.getElementById('arcadeIframe');
+    if (iframe) iframe.src = 'about:blank';
+    this.sound.playClick();
   }
 
   showSpecialLockedModal(poi) {
@@ -1077,13 +1274,16 @@ class AcademyGame {
       if (actionBtn) actionBtn.classList.add('hidden');
     }
 
-    // Camera follow (smooth lerp)
-    const targetCamX = this.player.x - this.canvas.width / 2;
-    const targetCamY = this.player.y - this.canvas.height / 2;
+    // Camera follow (smooth lerp, zoomed out 30% so camera.zoom = 0.70)
+    const zoom = this.camera.zoom || 0.70;
+    const viewW = this.canvas.width / zoom;
+    const viewH = this.canvas.height / zoom;
+    const targetCamX = this.player.x - viewW / 2;
+    const targetCamY = this.player.y - viewH / 2;
     this.camera.x += (targetCamX - this.camera.x) * 0.1;
     this.camera.y += (targetCamY - this.camera.y) * 0.1;
-    this.camera.x = clamp(this.camera.x, 0, Math.max(0, MAP_CONFIG.width - this.canvas.width));
-    this.camera.y = clamp(this.camera.y, 0, Math.max(0, MAP_CONFIG.height - this.canvas.height));
+    this.camera.x = clamp(this.camera.x, 0, Math.max(0, MAP_CONFIG.width - viewW));
+    this.camera.y = clamp(this.camera.y, 0, Math.max(0, MAP_CONFIG.height - viewH));
 
     // Ripples
     for (let i = this.clickRipples.length - 1; i >= 0; i--) {
@@ -1100,7 +1300,9 @@ class AcademyGame {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+    const zoom = this.camera.zoom || 0.70;
     ctx.save();
+    ctx.scale(zoom, zoom);
     ctx.translate(-this.camera.x, -this.camera.y);
 
     // 1. School campus background (paths, cobblestones, flagpole plaza, lotus pond)
@@ -1282,7 +1484,19 @@ class AcademyGame {
       });
     }
 
-    // NPCs
+    // Campus Staff NPCs (Thầy Hiệu Trưởng, Cô Giáo Mai, Bác Bảo Vệ, Bác Làm Vườn)
+    if (this.campusNpcs) {
+      for (const npc of this.campusNpcs) {
+        renderList.push({
+          y: npc.y,
+          draw: (c) => {
+            this.renderCharacterChibi(c, npc, false, true);
+          }
+        });
+      }
+    }
+
+    // Default student NPCs
     for (const npc of this.npcs) {
       renderList.push({
         y: npc.y,
@@ -1396,7 +1610,7 @@ class AcademyGame {
     const bagColor = char.bagColor || 'red';
     const shoeColor = char.shoeColor || 'white';
     const skinId = char.skinId || char.outfit || 'default-student';
-    const style = SKIN_STYLES[skinId] || SKIN_STYLES['default-student'] || { shirt: '#8fd3ff', bottom: '#2f4b9b', accessory: 'none' };
+    const style = char.style || SKIN_STYLES[skinId] || SKIN_STYLES['default-student'] || { shirt: '#8fd3ff', bottom: '#2f4b9b', accessory: 'none' };
 
     const g = new CanvasGraphics(ctx);
     drawCharacter(g, {
@@ -1428,10 +1642,20 @@ class AcademyGame {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    const tagText = isNpc ? char.name : '[' + char.school + '] ' + char.name;
+    const tagText = isNpc ? (char.title ? `[${char.title}] ${char.name}` : char.name) : '[' + char.school + '] ' + char.name;
     const tagWidth = ctx.measureText(tagText).width + 16;
 
-    ctx.fillStyle = isLocal ? 'rgba(2, 132, 199, 0.9)' : (isNpc ? 'rgba(22, 101, 52, 0.85)' : 'rgba(15, 23, 42, 0.8)');
+    let bg = 'rgba(15, 23, 42, 0.8)';
+    if (isLocal) {
+      bg = 'rgba(2, 132, 199, 0.9)';
+    } else if (isNpc) {
+      if (char.role === 'teacher') bg = 'rgba(109, 40, 217, 0.92)';
+      else if (char.role === 'guard') bg = 'rgba(30, 64, 175, 0.92)';
+      else if (char.role === 'gardener') bg = 'rgba(21, 128, 61, 0.92)';
+      else bg = 'rgba(22, 101, 52, 0.85)';
+    }
+
+    ctx.fillStyle = bg;
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
@@ -1485,9 +1709,13 @@ class AcademyGame {
       if (entityId === this.player.id) {
         target = this.player;
       } else {
-        const npc = this.npcs.find(n => n.id === entityId);
-        if (npc) target = npc;
-        else target = this.remotePlayers.get(entityId);
+        const campusNpc = this.campusNpcs ? this.campusNpcs.find(n => n.id === entityId) : null;
+        if (campusNpc) target = campusNpc;
+        else {
+          const npc = this.npcs.find(n => n.id === entityId);
+          if (npc) target = npc;
+          else target = this.remotePlayers.get(entityId);
+        }
       }
 
       if (!target) continue;

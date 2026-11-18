@@ -227,6 +227,18 @@ export const POI_LOCATIONS = [
     rewardXP: 30,
   },
   {
+    id: 'arcade',
+    name: 'Khu Trò Chơi Miễn Phí',
+    nameEn: 'Free Games Arcade',
+    x: 1450,
+    y: 2130,
+    radius: 140,
+    icon: '🎮',
+    category: 'panel',
+    panelType: 'arcade',
+    desc: 'Khu vui chơi giải trí miễn phí: Thỏa thích trải nghiệm các trò chơi hấp dẫn và bổ ích!',
+  },
+  {
     id: 'arena',
     name: 'Đấu Trường Thử Thách 60s',
     nameEn: 'Speed Challenge Arena',
@@ -319,6 +331,106 @@ export const DAILY_MISSIONS = [
 
 // Fake users removed: only real online players interact in the academy world
 export const DEFAULT_NPCS = [];
+
+// Nhân vật cán bộ, giáo viên và nhân viên học viện Phú Thọ
+export const CAMPUS_NPCS = [
+  {
+    id: 'npc_principal',
+    name: 'Thầy Hiệu Trưởng',
+    title: 'Hiệu Trưởng Học Viện',
+    role: 'teacher',
+    character: 'boy',
+    skin: 'warm',
+    hairStyle: 0,
+    hairColor: 0,
+    bagColor: 'blue',
+    shoeColor: 'black',
+    accessory: 'glasses',
+    outfit: 'scholar',
+    style: { shirt: '#f8fafc', bottom: '#1e3a8a', accessory: 'scholar' },
+    x: 2150,
+    y: 1020,
+    quotes: [
+      'Chào các em! Hãy luôn chăm ngoan, học giỏi và yêu thương bạn bè nhé!',
+      'Trường Tiểu học Phú Thọ luôn tự hào về sự nỗ lực rèn luyện của các em!',
+      'Tri thức là đôi cánh đưa các em bay cao và vươn xa tới những ước mơ!',
+      'Mỗi ngày đến trường là một ngày vui và tích lũy thêm nhiều điều bổ ích.',
+      'Các em đã thử sức với bài toán hóc búa ở Vườn toán học hôm nay chưa?'
+    ]
+  },
+  {
+    id: 'npc_teacher_mai',
+    name: 'Cô Giáo Mai',
+    title: 'Giáo Viên Chủ Nhiệm',
+    role: 'teacher',
+    character: 'girl',
+    skin: 'fair',
+    hairStyle: 2,
+    hairColor: 1,
+    bagColor: 'purple',
+    shoeColor: 'pink',
+    accessory: 'glasses',
+    outfit: 'teacher',
+    style: { shirt: '#f48fb1', bottom: '#7e57c2', accessory: 'teacher' },
+    x: 1350,
+    y: 1450,
+    quotes: [
+      'Nét chữ là nết người, các em nhớ viết bài thật cẩn thận và nắn nót nhé!',
+      'Thư viện từ vựng có rất nhiều cuốn sách hay đang chờ các em khám phá đấy!',
+      'Khi gặp bài tập khó, hãy bình tĩnh suy nghĩ và đừng ngần ngại hỏi thầy cô nha.',
+      'Chào em! Hôm nay em có một nụ cười thật tươi và rạng rỡ!',
+      'Luyện tập chính tả mỗi ngày sẽ giúp các em nói và viết tiếng Việt thật chuẩn.'
+    ]
+  },
+  {
+    id: 'npc_guard_nam',
+    name: 'Bác Bảo Vệ',
+    title: 'Bảo Vệ Học Viện',
+    role: 'guard',
+    character: 'boy',
+    skin: 'tan',
+    hairStyle: 0,
+    hairColor: 0,
+    bagColor: 'blue',
+    shoeColor: 'black',
+    accessory: 'headband',
+    outfit: 'sport',
+    style: { shirt: '#2563eb', bottom: '#1e293b', accessory: 'none' },
+    x: 2280,
+    y: 3200,
+    quotes: [
+      'Chào cháu! Đi đứng cẩn thận, vào trường nhớ chấp hành tốt nội quy nhé!',
+      'Cổng trường Phú Thọ luôn rộng mở đón chào các cháu học sinh thân yêu.',
+      'Tan học nhớ đợi người thân đón, không được tự ý đi theo người lạ nhé!',
+      'Bác bảo vệ chúc các cháu một ngày học tập thật nhiều điểm mười!',
+      'Khuôn viên trường an toàn, sạch đẹp là nhờ sự chung tay giữ gìn của tất cả chúng ta.'
+    ]
+  },
+  {
+    id: 'npc_gardener_ba',
+    name: 'Bác Làm Vườn',
+    title: 'Người Chăm Sóc Cây Xanh',
+    role: 'gardener',
+    character: 'boy',
+    skin: 'tan',
+    hairStyle: 1,
+    hairColor: 1,
+    bagColor: 'green',
+    shoeColor: 'brown',
+    accessory: 'none',
+    outfit: 'explorer',
+    style: { shirt: '#16a34a', bottom: '#713f12', accessory: 'explorer' },
+    x: 3200,
+    y: 1550,
+    quotes: [
+      'Những búp sen đang nở rộ thơm ngát cả sân trường Phú Thọ này các cháu!',
+      'Cây xanh cho bóng mát và không khí trong lành, các cháu nhớ không ngắt hoa bẻ cành nhé!',
+      'Bác vừa tưới nước cho luống hoa cúc và hàng phượng vĩ đỏ thắm đấy!',
+      'Mỗi mầm cây được các cháu chăm sóc sẽ lớn lên thành bóng râm che mát mai sau.',
+      'Học tập xong ra bờ hồ hít thở không khí thiên nhiên cho mắt được nghỉ ngơi nhé em!'
+    ]
+  }
+];
 
 export function calculateLevel(xp = 0) {
   // Level threshold: 50 XP per level

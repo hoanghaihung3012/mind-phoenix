@@ -42,6 +42,7 @@
     </div>
 
     <div class="hud-right">
+      <button class="hud-btn" id="arcadeBtn">🎮 Khu Trò Chơi</button>
       <button class="hud-btn" id="shopBtn">🛍️ Cửa Hàng</button>
       <button class="hud-btn" id="petBtn">🐾 Thú Cưng</button>
       <button class="hud-btn" id="missionBtn">📋 Nhiệm Vụ</button>
@@ -60,11 +61,21 @@
   <!-- Touch Action Button for Mobile / Tablet -->
   <button id="actionBtn" class="action-btn-mobile hidden">Vào Trạm</button>
 
+  <!-- Floating Chat Toggle Button (when minimized) -->
+  <button id="chatToggleBtn" class="chat-toggle-btn" aria-label="Mở khung trò chuyện">
+    <span class="chat-toggle-icon">💬</span>
+    <span class="chat-toggle-text">Trò chuyện</span>
+    <span id="chatUnreadBadge" class="chat-unread-badge hidden">0</span>
+  </button>
+
   <!-- Chat System (Bottom Left) -->
-  <div class="chat-container">
+  <div class="chat-container collapsed" id="chatContainer">
     <div class="chat-header">
-      <span>💬 Trò chuyện sân trường</span>
-      <span id="onlineCountBadge" style="font-size: 11px; font-weight: 700; color: #16a34a;">🟢 1 người chơi online</span>
+      <div class="chat-header-title">
+        <span>💬 Trò chuyện sân trường</span>
+        <span id="onlineCountBadge" style="font-size: 11px; font-weight: 700; color: #16a34a;">🟢 1 online</span>
+      </div>
+      <button class="chat-minimize-btn" id="chatMinimizeBtn" title="Thu nhỏ khung chat">✕</button>
     </div>
     <div class="chat-messages" id="chatMessages">
       <div class="chat-msg">
@@ -303,9 +314,42 @@
           <div style="padding: 10px; background: #fff1f2; border-radius: 12px; border: 1px solid #fecdd3;">
             <strong>⚡ Đấu Trường 60s</strong>: Đấu trường tốc độ dồn dập (+35 Xu).
           </div>
+          <div style="padding: 10px; background: #eff6ff; border-radius: 12px; border: 1px solid #bfdbfe;">
+            <strong>🎮 Khu Trò Chơi Miễn Phí</strong>: Thỏa thích chơi 15+ trò chơi học tập và giải đố (Hứng táo, Đập gạch, Đua vịt, Lập trình...).
+          </div>
           <div style="padding: 10px; background: #fdf2f8; border-radius: 12px; border: 1px solid #fbcfe8;">
             <strong>🛍️ Cửa Hàng & 🐾 Khu Thú Cưng</strong>: Mua sắm trang phục mới và nhận nuôi thú cưng đồng hành!
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Khu Trò Chơi Miễn Phí (Arcade Modal) -->
+  <div id="arcadeModal" class="modal-overlay hidden">
+    <div class="modal-card arcade-modal-card">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 24px;">🎮</span>
+          <div>
+            <h2 style="margin: 0; font-size: 19px;">Khu Trò Chơi Miễn Phí Phú Thọ</h2>
+            <p style="margin: 2px 0 0; font-size: 12px; color: #64748b;">Chơi miễn phí các trò chơi rèn luyện tư duy, ngôn ngữ và phản xạ!</p>
+          </div>
+        </div>
+        <button class="modal-close" id="closeArcadeModal">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 14px 18px 20px;">
+        <!-- Game grid catalog -->
+        <div id="arcadeGameGrid" class="arcade-grid"></div>
+
+        <!-- Embedded Game Player -->
+        <div id="arcadePlayerWrapper" class="arcade-player-wrapper hidden">
+          <div class="arcade-player-topbar">
+            <button id="arcadeBackToListBtn" class="arcade-nav-btn">← Chọn trò chơi khác</button>
+            <span id="arcadePlayingTitle" class="arcade-playing-title"></span>
+            <a id="arcadeOpenExternalLink" href="#" target="_blank" class="arcade-nav-btn">⛶ Mở tab mới</a>
+          </div>
+          <iframe id="arcadeIframe" class="arcade-iframe" src="about:blank" allow="autoplay"></iframe>
         </div>
       </div>
     </div>

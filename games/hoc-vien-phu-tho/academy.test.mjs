@@ -7,6 +7,7 @@ import {
   PET_CONFIGS,
   POI_LOCATIONS,
   DEFAULT_NPCS,
+  CAMPUS_NPCS,
   calculateLevel,
   createDefaultPlayer,
   isSpecialZoneUnlocked,
@@ -196,5 +197,52 @@ test('Phu Tho procedural textures and character/pet art render flawlessly', asyn
   // Test all pets
   for (const pet of ['duck', 'dog', 'chicken', 'rabbit']) {
     drawPet(g, pet);
+  }
+});
+
+test('CAMPUS_NPCS defines teachers, security guard, gardener with speech quotes', () => {
+  assert.ok(Array.isArray(CAMPUS_NPCS));
+  assert.ok(CAMPUS_NPCS.length >= 4, 'Must have at least 4 campus staff NPCs');
+
+  const principal = CAMPUS_NPCS.find(n => n.id === 'npc_principal');
+  assert.ok(principal, 'Thầy Hiệu Trưởng must exist');
+  assert.equal(principal.role, 'teacher');
+  assert.ok(Array.isArray(principal.quotes) && principal.quotes.length >= 3);
+
+  const teacherMai = CAMPUS_NPCS.find(n => n.id === 'npc_teacher_mai');
+  assert.ok(teacherMai, 'Cô Giáo Mai must exist');
+  assert.equal(teacherMai.role, 'teacher');
+  assert.ok(Array.isArray(teacherMai.quotes) && teacherMai.quotes.length >= 3);
+
+  const guard = CAMPUS_NPCS.find(n => n.id === 'npc_guard_nam');
+  assert.ok(guard, 'Bác Bảo Vệ must exist');
+  assert.equal(guard.role, 'guard');
+  assert.ok(Array.isArray(guard.quotes) && guard.quotes.length >= 3);
+
+  const gardener = CAMPUS_NPCS.find(n => n.id === 'npc_gardener_ba');
+  assert.ok(gardener, 'Bác Làm Vườn must exist');
+  assert.equal(gardener.role, 'gardener');
+  assert.ok(Array.isArray(gardener.quotes) && gardener.quotes.length >= 3);
+
+  for (const npc of CAMPUS_NPCS) {
+    assert.ok(npc.x > 0 && npc.x < MAP_CONFIG.width, `${npc.name} x coord out of bounds`);
+    assert.ok(npc.y > 0 && npc.y < MAP_CONFIG.height, `${npc.name} y coord out of bounds`);
+    assert.ok(npc.style, `${npc.name} must have a custom style definition`);
+  }
+});
+
+test('arcade POI is properly registered and accessible', () => {
+  const arcade = POI_LOCATIONS.find(p => p.id === 'arcade');
+  assert.ok(arcade, 'Khu Trò Chơi Miễn Phí (arcade) must be registered in POI_LOCATIONS');
+  assert.equal(arcade.panelType, 'arcade');
+  assert.ok(arcade.x > 0 && arcade.y > 0);
+  assert.ok(arcade.radius >= 100);
+});
+
+test('MINIGAME_DATA has expanded comprehensive question sets (>= 12 questions each)', () => {
+  const categories = ['vocabulary', 'spelling', 'literature', 'idiom', 'math', 'arena', 'grand'];
+  for (const cat of categories) {
+    const data = MINIGAME_DATA[cat];
+    assert.ok(data.questions.length >= 12, `${cat} should have at least 12 questions for variety (got ${data.questions.length})`);
   }
 });
