@@ -29,15 +29,24 @@
           <div class="player-sub">
             <span id="hudPlayerSchool">TH Phú Thọ</span>
             <span>•</span>
+            <span class="player-level" id="hudLevel">Cấp 1</span>
+            <span>•</span>
             <span class="player-points" id="hudPoints">0 ⭐</span>
+            <span>•</span>
+            <span class="player-coins" id="hudCoins">50 🪙</span>
+            <span>•</span>
+            <span class="pet-pill" id="hudPetBadge">🐥 Vịt Vàng</span>
           </div>
         </div>
       </div>
     </div>
 
     <div class="hud-right">
+      <button class="hud-btn" id="shopBtn">🛍️ Cửa Hàng</button>
+      <button class="hud-btn" id="petBtn">🐾 Thú Cưng</button>
+      <button class="hud-btn" id="missionBtn">📋 Nhiệm Vụ</button>
       <button class="hud-btn" id="customizeBtn">🎨 Trang Phục</button>
-      <button class="hud-btn" id="mapBtn">🗺️ Bản Đồ Trường</button>
+      <button class="hud-btn" id="mapBtn">🗺️ Bản Đồ</button>
       <button class="hud-btn" id="leaderboardBtn">🏆 Bảng Vàng</button>
       <button class="hud-btn" id="muteBtn">🔊 Âm thanh</button>
     </div>
@@ -101,9 +110,17 @@
         </div>
 
         <div class="form-group">
+          <label>Giới tính nhân vật</label>
+          <div class="choice-grid">
+            <label class="choice-item"><input type="radio" name="custom_character" value="boy" checked> 👦 Bạn Nam</label>
+            <label class="choice-item"><input type="radio" name="custom_character" value="girl"> 👧 Bạn Nữ</label>
+          </div>
+        </div>
+
+        <div class="form-group">
           <label>Màu da</label>
           <div class="choice-grid">
-            <label class="choice-item"><input type="radio" name="custom_skin" value="fair" checked> <span class="color-dot" style="background:#ffdfbf;"></span> Trắng hồng</label>
+            <label class="choice-item"><input type="radio" name="custom_skin" value="fair" checked> <span class="color-dot" style="background:#ffd9b8;"></span> Trắng hồng</label>
             <label class="choice-item"><input type="radio" name="custom_skin" value="warm"> <span class="color-dot" style="background:#f5c798;"></span> Tự nhiên</label>
             <label class="choice-item"><input type="radio" name="custom_skin" value="tan"> <span class="color-dot" style="background:#d89a64;"></span> Bánh mật</label>
             <label class="choice-item"><input type="radio" name="custom_skin" value="peach"> <span class="color-dot" style="background:#ffd2b0;"></span> Ấm áp</label>
@@ -113,11 +130,12 @@
         <div class="form-group">
           <label>Kiểu tóc</label>
           <div class="choice-grid">
-            <label class="choice-item"><input type="radio" name="custom_hair" value="short" checked> Tóc ngắn</label>
-            <label class="choice-item"><input type="radio" name="custom_hair" value="bob"> Tóc bob</label>
-            <label class="choice-item"><input type="radio" name="custom_hair" value="ponytail"> Đuôi ngựa</label>
-            <label class="choice-item"><input type="radio" name="custom_hair" value="curly"> Tóc xoăn</label>
-            <label class="choice-item"><input type="radio" name="custom_hair" value="spiky"> Tóc cá tính</label>
+            <label class="choice-item"><input type="radio" name="custom_hair" value="short" checked> Tóc ngắn gọn gàng</label>
+            <label class="choice-item"><input type="radio" name="custom_hair" value="spiky"> Tóc vuốt cá tính</label>
+            <label class="choice-item"><input type="radio" name="custom_hair" value="bob"> Tóc bob năng động</label>
+            <label class="choice-item"><input type="radio" name="custom_hair" value="ponytail"> Đuôi ngựa thắt nơ</label>
+            <label class="choice-item"><input type="radio" name="custom_hair" value="twintail"> Hai chùm cột cao</label>
+            <label class="choice-item"><input type="radio" name="custom_hair" value="curly"> Tóc xoăn bồng bềnh</label>
           </div>
         </div>
 
@@ -133,12 +151,14 @@
         </div>
 
         <div class="form-group">
-          <label>Trang phục</label>
+          <label>Màu Balo 3D</label>
           <div class="choice-grid">
-            <label class="choice-item"><input type="radio" name="custom_outfit" value="uniform" checked> 🔴 Đồng phục Phú Thọ (Khăn quàng đỏ)</label>
-            <label class="choice-item"><input type="radio" name="custom_outfit" value="sport"> ⚽ Thể dục năng động</label>
-            <label class="choice-item"><input type="radio" name="custom_outfit" value="scholar"> 🔬 Nhà khoa học nhí</label>
-            <label class="choice-item"><input type="radio" name="custom_outfit" value="flag"> 🇻🇳 Cờ đỏ sao vàng</label>
+            <label class="choice-item"><input type="radio" name="custom_bagColor" value="blue" checked> <span class="color-dot" style="background:#3a7bd5;"></span> Balo Xanh</label>
+            <label class="choice-item"><input type="radio" name="custom_bagColor" value="red"> <span class="color-dot" style="background:#e4572e;"></span> Balo Đỏ</label>
+            <label class="choice-item"><input type="radio" name="custom_bagColor" value="green"> <span class="color-dot" style="background:#2fa56b;"></span> Balo Xanh Lá</label>
+            <label class="choice-item"><input type="radio" name="custom_bagColor" value="purple"> <span class="color-dot" style="background:#8e5bd0;"></span> Balo Tím</label>
+            <label class="choice-item"><input type="radio" name="custom_bagColor" value="yellow"> <span class="color-dot" style="background:#f59e0b;"></span> Balo Vàng</label>
+            <label class="choice-item"><input type="radio" name="custom_bagColor" value="pink"> <span class="color-dot" style="background:#ec4899;"></span> Balo Hồng</label>
           </div>
         </div>
 
@@ -154,6 +174,47 @@
       </div>
       <div class="modal-footer">
         <button class="btn primary-btn" id="saveCustomBtn">Lưu & Xuất Hiện</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Cửa Hàng Học Viện (Shop) -->
+  <div id="shopModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>🛍️ Cửa Hàng Học Viện Phú Thọ</h2>
+        <button class="modal-close" id="closeShopModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="shopItemsContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Khu Thú Cưng (Pets) -->
+  <div id="petModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>🐾 Khu Thú Cưng Đồng Hành</h2>
+        <button class="modal-close" id="closePetModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: #64748b; margin-bottom: 14px; font-weight: 600;">Chọn một bạn thú cưng yêu thích để chạy theo sau bạn khắp trường học:</p>
+        <div id="petListContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Bảng Nhiệm Vụ (Missions) -->
+  <div id="missionModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>📋 Bảng Nhiệm Vụ Mỗi Ngày</h2>
+        <button class="modal-close" id="closeMissionModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: #64748b; margin-bottom: 12px; font-weight: 600;">Hoàn thành nhiệm vụ rèn luyện để nhận thêm Xu và điểm kinh nghiệm XP:</p>
+        <div id="missionList" style="display: flex; flex-direction: column; gap: 8px;"></div>
       </div>
     </div>
   </div>
@@ -176,7 +237,7 @@
   <div id="specialLockModal" class="modal-overlay hidden">
     <div class="modal-card">
       <div class="modal-header">
-        <h2>🔒 Tháp Học Giả Tinh Hoa Phú Thọ</h2>
+        <h2>🔒 Đại Hội Tri Thức Phú Thọ</h2>
         <button class="modal-close" id="closeLockBtn">✕</button>
       </div>
       <div class="modal-body">
@@ -196,8 +257,8 @@
         <button class="modal-close" id="closeProfileBtn">✕</button>
       </div>
       <div class="modal-body" style="text-align: center;">
-        <div style="font-size: 48px; margin-bottom: 8px;">🎓</div>
-        <h3 id="profileName" style="font-size: 18px; font-weight: 800;">Học sinh</h3>
+        <div style="font-size: 52px; margin-bottom: 8px;">🎓</div>
+        <h3 id="profileName" style="font-size: 19px; font-weight: 800;">Học sinh</h3>
         <p id="profileSchool" style="color: #64748b; font-weight: 700; margin-top: 4px;">Trường Tiểu Học Phú Thọ</p>
         <p id="profilePoints" style="margin-top: 8px; color: #d97706; font-weight: 800;">0 ⭐</p>
 
@@ -215,35 +276,35 @@
   <div id="directoryModal" class="modal-overlay hidden">
     <div class="modal-card">
       <div class="modal-header">
-        <h2>🗺️ Sơ Đồ Khuôn Viên Trường Phú Thọ</h2>
+        <h2>🗺️ Sơ Đồ Khuôn Viên Trường Tiểu Học Phú Thọ</h2>
         <button class="modal-close" id="closeDirBtn">✕</button>
       </div>
       <div class="modal-body">
         <div style="display: flex; flex-direction: column; gap: 10px;">
-          <div style="padding: 10px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
-            <strong>🏫 Cổng Trường & Trục Trung Tâm</strong>: Nơi học sinh mới bước vào trường và tụ họp.
-          </div>
-          <div style="padding: 10px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
-            <strong>🚩 Cột Cờ & Lễ Đài Danh Dự</strong>: Cờ Tổ quốc tung bay, nơi chào cờ và tổng kết sao điểm thi đua.
+          <div style="padding: 12px; background: #fffbeb; border-radius: 12px; border: 2px solid #f59e0b;">
+            <strong style="color: #b45309; font-size: 15px;">👑 ĐẠI HỘI TRI THỨC (Trung tâm đỉnh bản đồ)</strong>:
+            <p style="margin-top: 4px; font-size: 13px;">Cung điện Tân Cổ Điển nguy nga nhất trường. Cần Cấp 3 hoặc 60 Sao để mở khóa. Thử thách Olympic đỉnh cao, nhận 100 Xu và mở khóa Áo Choàng Thủ Lĩnh!</p>
           </div>
           <div style="padding: 10px; background: #f0fdf4; border-radius: 12px; border: 1px solid #bbf7d0;">
-            <strong>🧮 Tòa Nhà A (Bên Trái)</strong>: Đấu Trí Toán Học & Chuỗi Số Tính Nhẩm (+20 Sao).
+            <strong>📚 Thư Viện Từ Vựng (Nhà A)</strong>: Khám phá từ ghép, từ láy, từ đồng nghĩa và trái nghĩa (+25 Xu).
+          </div>
+          <div style="padding: 10px; background: #fff7ed; border-radius: 12px; border: 1px solid #fed7aa;">
+            <strong>✏️ Khu Chính Tả</strong>: Soi lỗi s/x, tr/ch, d/gi/r và thanh điệu hỏi ngã (+25 Xu).
+          </div>
+          <div style="padding: 10px; background: #faf5ff; border-radius: 12px; border: 1px solid #e9d5ff;">
+            <strong>📜 Nhà Ngữ Văn (Nhà B)</strong>: Ghép câu hoàn chỉnh, nhận diện chủ - vị ngữ và biện pháp tu từ (+25 Xu).
           </div>
           <div style="padding: 10px; background: #fefce8; border-radius: 12px; border: 1px solid #fef08a;">
-            <strong>📚 Thư Viện Tri Thức (Bên Phải)</strong>: Vua Tiếng Việt & Đố Ca Dao Tục Ngữ (+20 Sao).
-          </div>
-          <div style="padding: 10px; background: #ecfdf5; border-radius: 12px; border: 1px solid #a7f3d0;">
-            <strong>💻 Phòng Tin Học (Góc Dưới Trái)</strong>: Lập Trình Robot & Giải Mã Thuật Toán (+25 Sao).
+            <strong>🧩 Quảng Trường Thành Ngữ</strong>: Mở ô chữ thành ngữ tục ngữ và ca dao dân gian (+25 Xu).
           </div>
           <div style="padding: 10px; background: #f0fdf4; border-radius: 12px; border: 1px solid #bbf7d0;">
-            <strong>⚽ Sân Thể Thao (Góc Dưới Phải)</strong>: Sân bóng đá mini cỏ xanh và rèn luyện thể thao (+20 Sao).
+            <strong>🧮 Vườn Toán Học</strong>: Bắn bong bóng số học và chuỗi số quy luật (+25 Xu).
           </div>
-          <div style="padding: 10px; background: #f0fdf4; border-radius: 12px; border: 1px solid #bbf7d0;">
-            <strong>🍎 Vườn Sinh Thái & Hồ Cá Koi</strong>: Cây ăn quả râm mát và đố vui tự nhiên (+20 Sao).
+          <div style="padding: 10px; background: #fff1f2; border-radius: 12px; border: 1px solid #fecdd3;">
+            <strong>⚡ Đấu Trường 60s</strong>: Đấu trường tốc độ dồn dập (+35 Xu).
           </div>
-          <div style="padding: 12px; background: #fffbeb; border-radius: 12px; border: 2px solid #f59e0b;">
-            <strong style="color: #b45309;">👑 Tháp Học Giả Tinh Hoa Phú Thọ (Đỉnh Bản Đồ)</strong>:
-            <p style="margin-top: 4px; font-size: 13px;">Khu vực bí ẩn cần mở khóa (Đạt 50 Sao hoặc chinh phục 3 trạm). Thử thách Olympic tổng hợp, x2 điểm (+50 Sao) và trao danh hiệu Học Giả Tinh Hoa!</p>
+          <div style="padding: 10px; background: #fdf2f8; border-radius: 12px; border: 1px solid #fbcfe8;">
+            <strong>🛍️ Cửa Hàng & 🐾 Khu Thú Cưng</strong>: Mua sắm trang phục mới và nhận nuôi thú cưng đồng hành!
           </div>
         </div>
       </div>

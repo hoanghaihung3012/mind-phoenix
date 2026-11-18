@@ -1,6 +1,7 @@
 /**
  * Học Viện Phú Thọ (Phu Tho Academy) - Canvas Rendering & World Controller
- * Handles camera, procedural graphics, player animation, pathfinding, and interactive HUD.
+ * Bối cảnh trường học hoành tráng, nhân vật chibi xịn xò, thú cưng theo sau,
+ * hệ thống cửa hàng, bảng nhiệm vụ và đại hội tri thức.
  */
 
 import {
@@ -8,9 +9,12 @@ import {
   POI_LOCATIONS,
   DEFAULT_NPCS,
   CUSTOMIZATION_OPTIONS,
+  PET_CONFIGS,
+  DAILY_MISSIONS,
   createDefaultPlayer,
   checkProximityPOI,
   isSpecialZoneUnlocked,
+  calculateLevel,
   SoundController,
   AcademyNetworkManager,
   clamp
@@ -23,23 +27,22 @@ class AcademyGame {
     this.ctx = this.canvas.getContext('2d');
     this.sound = new SoundController();
 
-    // Load saved or default player
     const saved = this.loadLocalPlayer();
     this.player = createDefaultPlayer(saved);
+
+    // Follower Pet position
+    this.playerPetPos = { x: this.player.x - 40, y: this.player.y, animFrame: 0 };
 
     // Camera
     this.camera = {
       x: this.player.x - window.innerWidth / 2,
       y: this.player.y - window.innerHeight / 2,
-      targetX: this.player.x - window.innerWidth / 2,
-      targetY: this.player.y - window.innerHeight / 2,
     };
 
-    // World & NPCs
+    // NPCs
     this.npcs = DEFAULT_NPCS.map(n => ({
       ...n,
-      currentMessage: null,
-      messageTimeout: null,
+      petPos: { x: n.x - 35, y: n.y, animFrame: 0 },
       bobOffset: Math.random() * Math.PI * 2
     }));
 
@@ -47,22 +50,20 @@ class AcademyGame {
     this.remotePlayers = new Map();
 
     // Chat and speech bubbles
-    this.speechBubbles = new Map(); // id -> { text, expireAt }
+    this.speechBubbles = new Map();
 
-    // Particles & effects
+    // Particles & ripples
     this.clickRipples = [];
     this.particles = [];
 
     // Controls
     this.keys = {};
-    this.mouse = { down: false, worldX: 0, worldY: 0 };
     this.activePOI = null;
 
     // Network
     this.net = new AcademyNetworkManager(
       this.player,
       (remoteMap) => {
-        // Merge updates
         for (const [id, data] of remoteMap.entries()) {
           this.remotePlayers.set(id, data);
         }
@@ -77,16 +78,13 @@ class AcademyGame {
       }
     );
 
-    // Initialize UI and loop
     this.setupViewport();
     this.setupInputs();
     this.setupUI();
     this.setupNPCBehavior();
 
-    // Connect to WebSocket / Peer channel
     this.net.connect();
 
-    // Start loop
     this.lastTime = performance.now();
     requestAnimationFrame((t) => this.loop(t));
   }
@@ -105,14 +103,22 @@ class AcademyGame {
         id: this.player.id,
         name: this.player.name,
         school: this.player.school,
+        character: this.player.character,
         skin: this.player.skin,
         hair: this.player.hair,
         hairColor: this.player.hairColor,
         outfit: this.player.outfit,
+        bagColor: this.player.bagColor,
         accessory: this.player.accessory,
+        pet: this.player.pet,
+        coins: this.player.coins,
+        xp: this.player.xp,
+        level: this.player.level,
         points: this.player.points,
         clearedGames: this.player.clearedGames,
         specialUnlocked: this.player.specialUnlocked,
+        ownedSkins: this.player.ownedSkins,
+        ownedPets: this.player.ownedPets
       }));
     } catch (_) {}
   }
@@ -127,7 +133,6 @@ class AcademyGame {
   }
 
   setupInputs() {
-    // Keyboard
     window.addEventListener('keydown', (e) => {
       this.keys[e.key.toLowerCase()] = true;
       if (e.key === 'e' || e.key === 'E') {
@@ -138,13 +143,11 @@ class AcademyGame {
       this.keys[e.key.toLowerCase()] = false;
     });
 
-    // Mouse / Tap to move
     this.canvas.addEventListener('mousedown', (e) => {
       const rect = this.canvas.getBoundingClientRect();
       const clickWorldX = e.clientX - rect.left + this.camera.x;
       const clickWorldY = e.clientY - rect.top + this.camera.y;
 
-      // Check if clicked on a player or NPC
       const targetEntity = this.findEntityAt(clickWorldX, clickWorldY);
       if (targetEntity) {
         this.openPlayerProfile(targetEntity);
@@ -157,7 +160,6 @@ class AcademyGame {
       this.sound.playClick();
     });
 
-    // Touch support (tap to move)
     this.canvas.addEventListener('touchstart', (e) => {
       if (e.touches.length > 0) {
         const touch = e.touches[0];
@@ -180,21 +182,18 @@ class AcademyGame {
   }
 
   setupNPCBehavior() {
-    // NPCs periodically say helpful friendly things
     setInterval(() => {
       const npc = this.npcs[Math.floor(Math.random() * this.npcs.length)];
       if (npc && npc.messages && npc.messages.length > 0) {
         const msg = npc.messages[Math.floor(Math.random() * npc.messages.length)];
         this.showSpeechBubble(npc.id, msg, 7000);
       }
-    }, 8000);
+    }, 7500);
   }
 
   setupUI() {
-    // HUD Player Card & points
     this.updateHUD();
 
-    // Sound toggle
     const muteBtn = document.getElementById('muteBtn');
     if (muteBtn) {
       muteBtn.addEventListener('click', () => {
@@ -228,14 +227,84 @@ class AcademyGame {
           type: 'customization',
           name: this.player.name,
           school: this.player.school,
+          character: this.player.character,
           skin: this.player.skin,
           hair: this.player.hair,
           hairColor: this.player.hairColor,
           outfit: this.player.outfit,
-          accessory: this.player.accessory
+          bagColor: this.player.bagColor,
+          accessory: this.player.accessory,
+          pet: this.player.pet
         });
         this.sound.playSuccess();
       });
+    }
+
+    // Shop Modal
+    const shopBtn = document.getElementById('shopBtn');
+    const shopModal = document.getElementById('shopModal');
+    const closeShopBtn = document.getElementById('closeShopModal');
+    if (shopBtn && shopModal) {
+      shopBtn.addEventListener('click', () => {
+        this.renderShop();
+        shopModal.classList.remove('hidden');
+      });
+    }
+    if (closeShopBtn && shopModal) {
+      closeShopBtn.addEventListener('click', () => shopModal.classList.add('hidden'));
+    }
+
+    // Pet Sanctuary Modal
+    const petBtn = document.getElementById('petBtn');
+    const petModal = document.getElementById('petModal');
+    const closePetBtn = document.getElementById('closePetModal');
+    if (petBtn && petModal) {
+      petBtn.addEventListener('click', () => {
+        this.renderPets();
+        petModal.classList.remove('hidden');
+      });
+    }
+    if (closePetBtn && petModal) {
+      closePetBtn.addEventListener('click', () => petModal.classList.add('hidden'));
+    }
+
+    // Mission Board Modal
+    const missionBtn = document.getElementById('missionBtn');
+    const missionModal = document.getElementById('missionModal');
+    const closeMissionBtn = document.getElementById('closeMissionModal');
+    if (missionBtn && missionModal) {
+      missionBtn.addEventListener('click', () => {
+        this.renderMissions();
+        missionModal.classList.remove('hidden');
+      });
+    }
+    if (closeMissionBtn && missionModal) {
+      closeMissionBtn.addEventListener('click', () => missionModal.classList.add('hidden'));
+    }
+
+    // Map Directory Modal
+    const mapBtn = document.getElementById('mapBtn');
+    const directoryModal = document.getElementById('directoryModal');
+    const closeDirBtn = document.getElementById('closeDirBtn');
+    if (mapBtn && directoryModal) {
+      mapBtn.addEventListener('click', () => directoryModal.classList.remove('hidden'));
+    }
+    if (closeDirBtn && directoryModal) {
+      closeDirBtn.addEventListener('click', () => directoryModal.classList.add('hidden'));
+    }
+
+    // Leaderboard Modal
+    const leaderboardBtn = document.getElementById('leaderboardBtn');
+    const leaderboardModal = document.getElementById('leaderboardModal');
+    const closeLbBtn = document.getElementById('closeLbBtn');
+    if (leaderboardBtn && leaderboardModal) {
+      leaderboardBtn.addEventListener('click', () => {
+        this.renderLeaderboard();
+        leaderboardModal.classList.remove('hidden');
+      });
+    }
+    if (closeLbBtn && leaderboardModal) {
+      closeLbBtn.addEventListener('click', () => leaderboardModal.classList.add('hidden'));
     }
 
     // Chat form
@@ -255,7 +324,6 @@ class AcademyGame {
       });
     }
 
-    // Quick emoji bar
     document.querySelectorAll('.emoji-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const emoji = btn.getAttribute('data-emoji') || btn.textContent;
@@ -266,32 +334,6 @@ class AcademyGame {
       });
     });
 
-    // Minimap toggle
-    const mapBtn = document.getElementById('mapBtn');
-    const directoryModal = document.getElementById('directoryModal');
-    const closeDirBtn = document.getElementById('closeDirBtn');
-    if (mapBtn && directoryModal) {
-      mapBtn.addEventListener('click', () => directoryModal.classList.remove('hidden'));
-    }
-    if (closeDirBtn && directoryModal) {
-      closeDirBtn.addEventListener('click', () => directoryModal.classList.add('hidden'));
-    }
-
-    // Leaderboard button
-    const leaderboardBtn = document.getElementById('leaderboardBtn');
-    const leaderboardModal = document.getElementById('leaderboardModal');
-    const closeLbBtn = document.getElementById('closeLbBtn');
-    if (leaderboardBtn && leaderboardModal) {
-      leaderboardBtn.addEventListener('click', () => {
-        this.renderLeaderboard();
-        leaderboardModal.classList.remove('hidden');
-      });
-    }
-    if (closeLbBtn && leaderboardModal) {
-      closeLbBtn.addEventListener('click', () => leaderboardModal.classList.add('hidden'));
-    }
-
-    // Action button for mobile/touch
     const actionBtn = document.getElementById('actionBtn');
     if (actionBtn) {
       actionBtn.addEventListener('click', () => this.triggerPOIInteraction());
@@ -302,15 +344,29 @@ class AcademyGame {
     const nameEl = document.getElementById('hudPlayerName');
     const schoolEl = document.getElementById('hudPlayerSchool');
     const pointsEl = document.getElementById('hudPoints');
+    const coinsEl = document.getElementById('hudCoins');
+    const levelEl = document.getElementById('hudLevel');
     const badgeEl = document.getElementById('hudBadge');
+    const petBadge = document.getElementById('hudPetBadge');
+
+    const { level, currentLevelXP, maxLevelXP } = calculateLevel(this.player.xp || 0);
+    this.player.level = level;
 
     if (nameEl) nameEl.textContent = this.player.name;
     if (schoolEl) schoolEl.textContent = this.player.school;
-    if (pointsEl) pointsEl.textContent = `${this.player.points} ⭐`;
+    if (pointsEl) pointsEl.textContent = `${this.player.points || 0} ⭐`;
+    if (coinsEl) coinsEl.textContent = `${this.player.coins || 0} 🪙`;
+    if (levelEl) levelEl.textContent = `Cấp ${level} (${currentLevelXP}/${maxLevelXP} XP)`;
+
     if (badgeEl) {
       const unlocked = isSpecialZoneUnlocked(this.player);
-      badgeEl.textContent = unlocked ? '👑 Học Giả Tinh Hoa' : '🌱 Học Sinh Năng Động';
+      badgeEl.textContent = unlocked ? '👑 Thủ Lĩnh Học Viện' : '🌱 Học Sinh Năng Động';
       badgeEl.className = unlocked ? 'badge elite' : 'badge active';
+    }
+
+    if (petBadge) {
+      const petDef = PET_CONFIGS.find(p => p.id === this.player.pet);
+      petBadge.textContent = petDef ? `${petDef.icon} ${petDef.name}` : 'Không có pet';
     }
   }
 
@@ -320,8 +376,7 @@ class AcademyGame {
     if (nameInput) nameInput.value = this.player.name;
     if (schoolSelect) schoolSelect.value = this.player.school;
 
-    // Radios
-    ['skin', 'hair', 'hairColor', 'outfit', 'accessory'].forEach(prop => {
+    ['character', 'skin', 'hair', 'hairColor', 'outfit', 'bagColor', 'accessory', 'pet'].forEach(prop => {
       const current = this.player[prop];
       const radio = document.querySelector(`input[name="custom_${prop}"][value="${current}"]`);
       if (radio) radio.checked = true;
@@ -334,10 +389,139 @@ class AcademyGame {
     if (nameInput && nameInput.value.trim()) this.player.name = nameInput.value.trim().slice(0, 24);
     if (schoolSelect) this.player.school = schoolSelect.value;
 
-    ['skin', 'hair', 'hairColor', 'outfit', 'accessory'].forEach(prop => {
+    ['character', 'skin', 'hair', 'hairColor', 'outfit', 'bagColor', 'accessory', 'pet'].forEach(prop => {
       const checked = document.querySelector(`input[name="custom_${prop}"]:checked`);
       if (checked) this.player[prop] = checked.value;
     });
+  }
+
+  renderShop() {
+    const container = document.getElementById('shopItemsContainer');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div style="margin-bottom: 12px; font-weight: 800; font-size: 15px; color: #d97706;">
+        Ví của bạn: <strong>${this.player.coins || 0} 🪙 Xu</strong>
+      </div>
+      <div class="choice-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+        ${CUSTOMIZATION_OPTIONS.outfits.map(o => {
+          const owned = this.player.ownedSkins?.includes(o.id) || o.price === 0;
+          const equipped = this.player.outfit === o.id;
+          return `
+            <div class="shop-card ${equipped ? 'equipped' : ''}" style="padding: 12px; border: 2px solid ${equipped ? '#0284c7' : '#e2e8f0'}; border-radius: 14px; background: #fff;">
+              <div style="font-weight: 800; font-size: 14px;">${o.label}</div>
+              <div style="font-size: 12px; color: #64748b; margin: 4px 0;">${o.unlockRequirement || (o.price === 0 ? 'Miễn phí' : `${o.price} 🪙 Xu`)}</div>
+              ${equipped ? '<span style="color:#0284c7; font-weight:800; font-size:12px;">Đang mặc</span>' :
+                owned ? `<button class="btn secondary-btn equip-outfit-btn" data-id="${o.id}" style="padding:6px 12px; font-size:12px;">Mặc vào</button>` :
+                `<button class="btn primary-btn buy-outfit-btn" data-id="${o.id}" data-price="${o.price}" style="padding:6px 12px; font-size:12px;">Mua ngay</button>`}
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+
+    container.querySelectorAll('.equip-outfit-btn').forEach(btn => {
+      btn.onclick = () => {
+        this.player.outfit = btn.getAttribute('data-id');
+        this.savePlayerState();
+        this.updateHUD();
+        this.renderShop();
+        this.sound.playClick();
+      };
+    });
+
+    container.querySelectorAll('.buy-outfit-btn').forEach(btn => {
+      btn.onclick = () => {
+        const price = Number(btn.getAttribute('data-price'));
+        const id = btn.getAttribute('data-id');
+        if ((this.player.coins || 0) >= price) {
+          this.player.coins -= price;
+          this.player.ownedSkins = this.player.ownedSkins || ['default-student'];
+          this.player.ownedSkins.push(id);
+          this.player.outfit = id;
+          this.savePlayerState();
+          this.updateHUD();
+          this.renderShop();
+          this.sound.playSuccess();
+        } else {
+          alert('Bạn chưa đủ Xu! Hãy làm thêm bài đố ở các trạm để tích lũy Xu nhé!');
+        }
+      };
+    });
+  }
+
+  renderPets() {
+    const container = document.getElementById('petListContainer');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div style="margin-bottom: 12px; font-weight: 800; font-size: 15px; color: #d97706;">
+        Ví của bạn: <strong>${this.player.coins || 0} 🪙 Xu</strong>
+      </div>
+      <div class="choice-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+        ${PET_CONFIGS.map(p => {
+          const owned = this.player.ownedPets?.includes(p.id) || p.price === 0;
+          const equipped = this.player.pet === p.id;
+          return `
+            <div class="shop-card ${equipped ? 'equipped' : ''}" style="padding: 12px; border: 2px solid ${equipped ? '#16a34a' : '#e2e8f0'}; border-radius: 14px; background: #fff; text-align: center;">
+              <div style="font-size: 36px;">${p.icon}</div>
+              <div style="font-weight: 800; font-size: 15px; margin-top: 4px;">${p.name}</div>
+              <div style="font-size: 12px; color: #64748b; margin: 4px 0;">${p.desc}</div>
+              <div style="font-weight: 700; font-size: 13px; color: #b45309; margin-bottom: 8px;">${p.price === 0 ? 'Miễn phí' : `${p.price} 🪙`}</div>
+              ${equipped ? '<span style="color:#16a34a; font-weight:800; font-size:12px;">Đang dẫn theo</span>' :
+                owned ? `<button class="btn secondary-btn equip-pet-btn" data-id="${p.id}" style="padding:6px 12px; font-size:12px;">Chọn bạn này</button>` :
+                `<button class="btn primary-btn buy-pet-btn" data-id="${p.id}" data-price="${p.price}" style="padding:6px 12px; font-size:12px;">Nhận nuôi</button>`}
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+
+    container.querySelectorAll('.equip-pet-btn').forEach(btn => {
+      btn.onclick = () => {
+        this.player.pet = btn.getAttribute('data-id');
+        this.savePlayerState();
+        this.updateHUD();
+        this.renderPets();
+        this.sound.playClick();
+      };
+    });
+
+    container.querySelectorAll('.buy-pet-btn').forEach(btn => {
+      btn.onclick = () => {
+        const price = Number(btn.getAttribute('data-price'));
+        const id = btn.getAttribute('data-id');
+        if ((this.player.coins || 0) >= price) {
+          this.player.coins -= price;
+          this.player.ownedPets = this.player.ownedPets || ['duck'];
+          this.player.ownedPets.push(id);
+          this.player.pet = id;
+          this.savePlayerState();
+          this.updateHUD();
+          this.renderPets();
+          this.sound.playSuccess();
+        } else {
+          alert('Bạn chưa đủ Xu để nhận nuôi thú cưng này! Hãy vượt qua các trạm đố để nhận thêm Xu nhé!');
+        }
+      };
+    });
+  }
+
+  renderMissions() {
+    const list = document.getElementById('missionList');
+    if (!list) return;
+
+    list.innerHTML = DAILY_MISSIONS.map(m => `
+      <div style="padding: 12px; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-weight: 800; font-size: 14px; color: #1e293b;">${m.text}</div>
+          <div style="font-size: 12px; color: #b45309; margin-top: 2px;">Phần thưởng: +${m.rewardCoins} 🪙 Xu · +${m.rewardXP} XP</div>
+        </div>
+        <div style="font-weight: 800; font-size: 13px; color: #0284c7;">
+          ${this.player.clearedGames[m.category] ? '✔ Đã xong' : 'Chưa xong'}
+        </div>
+      </div>
+    `).join('');
   }
 
   addChatMessage(name, school, text, isSelf = false) {
@@ -350,13 +534,12 @@ class AcademyGame {
     box.appendChild(row);
     box.scrollTop = box.scrollHeight;
 
-    // Limit chat log
     while (box.children.length > 50) {
       box.removeChild(box.firstChild);
     }
   }
 
-  showSpeechBubble(entityId, text, duration = 6000) {
+  showSpeechBubble(entityId, text, duration = 6500) {
     this.speechBubbles.set(entityId, {
       text,
       expireAt: performance.now() + duration
@@ -374,15 +557,13 @@ class AcademyGame {
   }
 
   findEntityAt(worldX, worldY) {
-    // Check NPCs
     for (const npc of this.npcs) {
-      if (Math.hypot(worldX - npc.x, worldY - npc.y) < 32) {
+      if (Math.hypot(worldX - npc.x, worldY - npc.y) < 36) {
         return { type: 'npc', data: npc };
       }
     }
-    // Check remote players
     for (const [_, p] of this.remotePlayers.entries()) {
-      if (Math.hypot(worldX - p.x, worldY - p.y) < 32) {
+      if (Math.hypot(worldX - p.x, worldY - p.y) < 36) {
         return { type: 'remote_player', data: p };
       }
     }
@@ -396,9 +577,8 @@ class AcademyGame {
 
     document.getElementById('profileName').textContent = data.name;
     document.getElementById('profileSchool').textContent = data.school;
-    document.getElementById('profilePoints').textContent = `${data.points || 0} ⭐ Sao Danh Dự`;
+    document.getElementById('profilePoints').textContent = `${data.points || 0} ⭐ Sao · Cấp ${data.level || 1}`;
 
-    // Action buttons
     const emoteWave = document.getElementById('emoteWave');
     const emoteHeart = document.getElementById('emoteHeart');
     const emoteClap = document.getElementById('emoteClap');
@@ -440,11 +620,22 @@ class AcademyGame {
     } else if (poi.category === 'special_zone') {
       const unlocked = isSpecialZoneUnlocked(this.player);
       if (unlocked) {
-        this.openMinigame('olympiad', poi);
+        this.openMinigame('grand', poi);
       } else {
         this.showSpecialLockedModal(poi);
       }
-    } else if (poi.category === 'landmark' || poi.category === 'welcome' || poi.category === 'social') {
+    } else if (poi.category === 'panel') {
+      if (poi.panelType === 'shop') {
+        this.renderShop();
+        document.getElementById('shopModal').classList.remove('hidden');
+      } else if (poi.panelType === 'pets') {
+        this.renderPets();
+        document.getElementById('petModal').classList.remove('hidden');
+      } else if (poi.panelType === 'missions') {
+        this.renderMissions();
+        document.getElementById('missionModal').classList.remove('hidden');
+      }
+    } else if (poi.category === 'landmark' || poi.category === 'welcome' || poi.category === 'social' || poi.category === 'sports') {
       this.showSpeechBubble(this.player.id, `Đang ở ${poi.name}: ${poi.desc}`, 5000);
       this.sound.playClick();
     }
@@ -455,18 +646,20 @@ class AcademyGame {
     if (!modal) return;
     const reqText = document.getElementById('lockReqText');
     const curStars = this.player.points || 0;
+    const curLevel = this.player.level || 1;
     const completedCount = Object.keys(this.player.clearedGames || {}).length;
 
     if (reqText) {
       reqText.innerHTML = `
-        <div style="margin: 12px 0; text-align: left; background: #fffbeb; padding: 12px; border-radius: 12px; border: 1px solid #fde68a;">
-          <p><strong>Cổng Tháp Học Giả Tinh Hoa đang phong ấn phép thuật! 🔒</strong></p>
-          <p>Để mở khóa, bạn cần đạt 1 trong 2 điều kiện:</p>
-          <ul>
-            <li>⭐ Đạt tối thiểu <strong>50 Sao Danh Dự</strong> (Hiện có: <strong>${curStars}/50</strong>)</li>
-            <li>🎯 Hoặc hoàn thành thử thách ở <strong>3 trạm khác nhau</strong> (Hiện đạt: <strong>${completedCount}/3</strong>)</li>
+        <div style="margin: 12px 0; text-align: left; background: #fffbeb; padding: 14px; border-radius: 14px; border: 1.5px solid #fde68a;">
+          <h4 style="color:#b45309; margin-bottom: 8px;">Cổng Đại Hội Tri Thức đang phát sáng phong ấn! 🔒</h4>
+          <p>Tòa nhà Tân Cổ Điển này chỉ đón chào những học giả nhí xuất sắc nhất. Hãy đạt 1 trong 3 điều kiện sau để mở cổng:</p>
+          <ul style="margin: 8px 0 8px 20px; line-height: 1.6;">
+            <li>⭐ Đạt tối thiểu <strong>60 Sao Danh Dự</strong> (Hiện có: <strong>${curStars}/60</strong>)</li>
+            <li>🎓 Đạt <strong>Cấp độ 3</strong> (Hiện tại: <strong>Cấp ${curLevel}/3</strong>)</li>
+            <li>🎯 Hoàn thành thử thách ở <strong>3 trạm học tập</strong> (Hiện đạt: <strong>${completedCount}/3</strong>)</li>
           </ul>
-          <p><em>Hãy dạo quanh các tòa nhà A, B, Thư viện, Sân bóng để thử sức nhé!</em></p>
+          <p><em>Hãy ghé qua Thư viện từ vựng, Khu chính tả và Vườn toán học để tích lũy thêm XP và Sao nhé!</em></p>
         </div>
       `;
     }
@@ -490,7 +683,6 @@ class AcademyGame {
     const container = document.getElementById('minigameContainer');
     container.innerHTML = '';
 
-    // Play 3 random questions
     let currentIdx = 0;
     let score = 0;
     const questions = [...gameDef.questions].sort(() => 0.5 - Math.random()).slice(0, 3);
@@ -498,25 +690,42 @@ class AcademyGame {
     const renderQuestion = () => {
       container.innerHTML = '';
       if (currentIdx >= questions.length) {
-        // Complete!
-        const earned = poi.rewardPoints || 20;
-        this.player.points += earned;
+        // Hoàn thành vòng chơi!
+        const earnedCoins = poi.rewardCoins || 25;
+        const earnedXP = poi.rewardXP || 30;
+        const earnedStars = gameType === 'grand' ? 50 : 20;
+
+        this.player.coins = (this.player.coins || 0) + earnedCoins;
+        this.player.xp = (this.player.xp || 0) + earnedXP;
+        this.player.points = (this.player.points || 0) + earnedStars;
         this.player.clearedGames[gameType] = true;
+
+        const { level } = calculateLevel(this.player.xp);
+        this.player.level = level;
+
         if (isSpecialZoneUnlocked(this.player)) {
           this.player.specialUnlocked = true;
+          if (!this.player.ownedSkins.includes('leader')) {
+            this.player.ownedSkins.push('leader');
+          }
         }
+
         this.savePlayerState();
         this.updateHUD();
-        this.net.broadcastScore(earned, this.player.specialUnlocked);
+        this.net.broadcastScore(this.player.points, this.player.xp, this.player.level, this.player.specialUnlocked);
         this.sound.playSuccess();
 
         container.innerHTML = `
           <div class="game-result">
-            <div style="font-size: 48px; margin-bottom: 8px;">🎉🏆🌟</div>
-            <h3>Xuất sắc hoàn thành thử thách!</h3>
+            <div style="font-size: 52px; margin-bottom: 8px;">🎉🏆🌟</div>
+            <h3>Xuất sắc vượt qua thử thách!</h3>
             <p>Bạn đã trả lời đúng <strong>${score}/${questions.length}</strong> câu hỏi!</p>
-            <div class="reward-box">+${earned} ⭐ Sao Danh Dự</div>
-            ${gameType === 'olympiad' ? '<p class="elite-banner">👑 Chúc mừng bạn đã chinh phục Đỉnh Cao Tinh Hoa Phú Thọ!</p>' : ''}
+            <div style="display:flex; justify-content:center; gap:12px; margin: 14px 0;">
+              <div class="reward-box">+${earnedStars} ⭐ Sao</div>
+              <div class="reward-box" style="background:#fef9c3; border-color:#eab308; color:#854d0e;">+${earnedCoins} 🪙 Xu</div>
+              <div class="reward-box" style="background:#eff6ff; border-color:#3b82f6; color:#1d4ed8;">+${earnedXP} XP</div>
+            </div>
+            ${gameType === 'grand' ? '<p class="elite-banner" style="font-size:16px;">👑 BẠN ĐÃ ĐOẠT DANH HIỆU THỦ LĨNH HỌC VIỆN PHÚ THỌ!<br>Mở khóa Áo Choàng Đỏ Hoàng Gia tại Cửa hàng!</p>' : ''}
             <button id="finishGameBtn" class="btn primary-btn" style="margin-top: 16px;">Nhận Thưởng & Trở Về Sân Trường</button>
           </div>
         `;
@@ -555,7 +764,7 @@ class AcademyGame {
             score++;
             btn.classList.add('correct');
             feedback.innerHTML = `<span style="color:#059669; font-weight: bold;">✔ Chính xác!</span> ${this.escapeHtml(q.explanation)}`;
-            this.sound.playSuccess();
+            this.sound.playCoin();
           } else {
             btn.classList.add('wrong');
             optBtns[q.answer].classList.add('correct');
@@ -584,20 +793,20 @@ class AcademyGame {
     const list = document.getElementById('leaderboardList');
     if (!list) return;
 
-    // Combine local player, remote players, and NPCs for full bustling competition
     const all = [
-      { name: this.player.name, school: this.player.school, points: this.player.points, isSelf: true },
+      { name: this.player.name, school: this.player.school, points: this.player.points, coins: this.player.coins, isSelf: true },
       ...Array.from(this.remotePlayers.values()).map(p => ({
         name: p.name,
         school: p.school,
         points: p.points || 0,
+        coins: p.coins || 0,
         isSelf: false
       })),
-      { name: 'Nguyễn Minh Anh', school: 'TH Phú Thọ', points: 180, isSelf: false },
-      { name: 'Trần Gia Bảo', school: 'TH Chu Văn An', points: 155, isSelf: false },
-      { name: 'Lê Hoàng Nam', school: 'TH Phú Thọ', points: 140, isSelf: false },
-      { name: 'Phạm Quỳnh Chi', school: 'TH Kim Đồng', points: 125, isSelf: false },
-      { name: 'Vũ Đăng Khoa', school: 'TH Lê Quý Đôn', points: 110, isSelf: false },
+      { name: 'Nguyễn Minh Anh', school: 'TH Phú Thọ', points: 220, coins: 340, isSelf: false },
+      { name: 'Trần Gia Bảo', school: 'TH Chu Văn An', points: 195, coins: 280, isSelf: false },
+      { name: 'Lê Hoàng Nam', school: 'TH Phú Thọ', points: 170, coins: 230, isSelf: false },
+      { name: 'Phạm Quỳnh Chi', school: 'TH Kim Đồng', points: 155, coins: 190, isSelf: false },
+      { name: 'Vũ Đăng Khoa', school: 'TH Lê Quý Đôn', points: 130, coins: 150, isSelf: false },
     ];
 
     all.sort((a, b) => b.points - a.points);
@@ -623,7 +832,6 @@ class AcademyGame {
       .replace(/"/g, '&quot;');
   }
 
-  // GAME LOOP
   loop(now) {
     const dt = Math.min((now - this.lastTime) / 1000, 0.1);
     this.lastTime = now;
@@ -635,7 +843,6 @@ class AcademyGame {
   }
 
   update(dt) {
-    // Player Movement via Keys
     let moveX = 0;
     let moveY = 0;
     if (this.keys['w'] || this.keys['arrowup']) moveY -= 1;
@@ -660,7 +867,6 @@ class AcademyGame {
         this.player.direction = moveY > 0 ? 'down' : 'up';
       }
     } else {
-      // Mouse Click-to-move
       const dx = this.player.targetX - this.player.x;
       const dy = this.player.targetY - this.player.y;
       const dist = Math.hypot(dx, dy);
@@ -681,20 +887,31 @@ class AcademyGame {
       }
     }
 
-    // Boundaries
     this.player.x = clamp(this.player.x, 60, MAP_CONFIG.width - 60);
     this.player.y = clamp(this.player.y, 60, MAP_CONFIG.height - 60);
 
-    // Anim frame
     if (this.player.moving) {
-      this.player.animFrame += dt * 8;
+      this.player.animFrame += dt * 9;
+      this.net.broadcastMove(this.player.x, this.player.y, this.player.direction, 'walk');
     } else {
       this.player.animFrame = 0;
     }
 
-    // Broadcast position to peers
-    if (this.player.moving) {
-      this.net.broadcastMove(this.player.x, this.player.y, this.player.direction, 'walk');
+    // Follower Pet physics (leash follow with elastic delay)
+    if (this.player.pet && this.player.pet !== 'none') {
+      const targetPetX = this.player.direction === 'left' ? this.player.x + 36 : this.player.x - 36;
+      const targetPetY = this.player.y + 6;
+      const pdx = targetPetX - this.playerPetPos.x;
+      const pdy = targetPetY - this.playerPetPos.y;
+      const pdist = Math.hypot(pdx, pdy);
+
+      if (pdist > 8) {
+        this.playerPetPos.x += pdx * Math.min(1, dt * 7);
+        this.playerPetPos.y += pdy * Math.min(1, dt * 7);
+        this.playerPetPos.animFrame += dt * 10;
+      } else {
+        this.playerPetPos.animFrame = 0;
+      }
     }
 
     // Check POI Proximity
@@ -718,7 +935,7 @@ class AcademyGame {
       if (actionBtn) actionBtn.classList.add('hidden');
     }
 
-    // Camera follow (lerp)
+    // Camera follow (smooth lerp)
     const targetCamX = this.player.x - this.canvas.width / 2;
     const targetCamY = this.player.y - this.canvas.height / 2;
     this.camera.x += (targetCamX - this.camera.x) * 0.1;
@@ -726,7 +943,7 @@ class AcademyGame {
     this.camera.x = clamp(this.camera.x, 0, Math.max(0, MAP_CONFIG.width - this.canvas.width));
     this.camera.y = clamp(this.camera.y, 0, Math.max(0, MAP_CONFIG.height - this.canvas.height));
 
-    // Update ripples
+    // Ripples
     for (let i = this.clickRipples.length - 1; i >= 0; i--) {
       const r = this.clickRipples[i];
       r.radius += dt * 50;
@@ -744,27 +961,33 @@ class AcademyGame {
     ctx.save();
     ctx.translate(-this.camera.x, -this.camera.y);
 
-    // 1. Draw Campus Background (Grass, Paths, Campus Buildings)
+    // 1. Grand Campus World
     this.renderCampus(ctx);
 
     // 2. Click Ripples
     this.renderRipples(ctx);
 
-    // 3. Draw Entities (Sorted by Y for depth layering)
+    // 3. Render Entities (Characters, Pets, NPCs sorted by Y depth)
     const renderList = [
-      { type: 'local', y: this.player.y, entity: this.player },
-      ...this.npcs.map(n => ({ type: 'npc', y: n.y, entity: n })),
+      { type: 'local', y: this.player.y, entity: this.player, petPos: this.playerPetPos },
+      ...this.npcs.map(n => ({ type: 'npc', y: n.y, entity: n, petPos: n.petPos })),
       ...Array.from(this.remotePlayers.values()).map(p => ({ type: 'remote', y: p.y, entity: p })),
     ];
     renderList.sort((a, b) => a.y - b.y);
 
     for (const item of renderList) {
       if (item.type === 'local') {
-        this.renderCharacter(ctx, this.player, true);
+        this.renderCharacterChibi(ctx, this.player, true);
+        if (this.player.pet && this.player.pet !== 'none') {
+          this.renderPet(ctx, this.playerPetPos.x, this.playerPetPos.y, this.player.pet, this.playerPetPos.animFrame);
+        }
       } else if (item.type === 'npc') {
-        this.renderCharacter(ctx, item.entity, false, true);
+        this.renderCharacterChibi(ctx, item.entity, false, true);
+        if (item.entity.pet && item.entity.pet !== 'none') {
+          this.renderPet(ctx, item.entity.petPos.x, item.entity.petPos.y, item.entity.pet, item.entity.petPos.animFrame);
+        }
       } else if (item.type === 'remote') {
-        this.renderCharacter(ctx, item.entity, false, false);
+        this.renderCharacterChibi(ctx, item.entity, false, false);
       }
     }
 
@@ -775,32 +998,56 @@ class AcademyGame {
   }
 
   renderCampus(ctx) {
-    // Lush green ground
-    ctx.fillStyle = '#bbf7d0';
+    // Lush green ground with subtle grass tufts
+    ctx.fillStyle = '#a7f3d0'; // fresh lawn
     ctx.fillRect(0, 0, MAP_CONFIG.width, MAP_CONFIG.height);
 
-    // Subtle checkered lawn stripes
-    ctx.fillStyle = '#a7f3d0';
-    for (let y = 0; y < MAP_CONFIG.height; y += 120) {
-      ctx.fillRect(0, y, MAP_CONFIG.width, 60);
+    // Diagonal grass stripes
+    ctx.fillStyle = '#9ae6b4';
+    for (let y = 0; y < MAP_CONFIG.height; y += 140) {
+      ctx.fillRect(0, y, MAP_CONFIG.width, 70);
     }
 
-    // Broad Brick Walking Pavements
+    // Grand Avenue & Pathways (Warm Paved Marble & Brick)
     ctx.fillStyle = '#fef3c7'; // warm stone
     ctx.strokeStyle = '#fde68a';
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 5;
 
-    // Main Avenue (from Gate to Fountain and Flagpole)
-    ctx.fillRect(1220, 300, 160, 1500);
-    ctx.strokeRect(1220, 300, 160, 1500);
+    // Main Avenue (from Gate at 1100, 1380 to Grand Hall at 1100, 440)
+    ctx.fillRect(1000, 360, 200, 1100);
+    ctx.strokeRect(1000, 360, 200, 1100);
 
-    // Horizontal Pathway connecting Wings
-    ctx.fillRect(500, 810, 1600, 120);
-    ctx.strokeRect(500, 810, 1600, 120);
+    // Crossway 1 (Connecting Library and Literature Wing)
+    ctx.fillRect(300, 480, 1600, 110);
+    ctx.strokeRect(300, 480, 1600, 110);
 
-    // Path to Sports Court & Tech Lab
-    ctx.fillRect(500, 1340, 1600, 100);
-    ctx.strokeRect(500, 1340, 1600, 100);
+    // Crossway 2 (Connecting Spelling and Idiom Plaza)
+    ctx.fillRect(300, 920, 1600, 100);
+    ctx.strokeRect(300, 920, 1600, 100);
+
+    // Crossway 3 (Connecting Sports Field and Math Garden)
+    ctx.fillRect(400, 1220, 1400, 90);
+    ctx.strokeRect(400, 1220, 1400, 90);
+
+    // Decorative Red Phoenix Trees (Cây hoa phượng vĩ đỏ rực rỡ)
+    this.drawPhoenixTree(ctx, 320, 380);
+    this.drawPhoenixTree(ctx, 1880, 380);
+    this.drawPhoenixTree(ctx, 320, 820);
+    this.drawPhoenixTree(ctx, 1880, 820);
+    this.drawPhoenixTree(ctx, 740, 1340);
+    this.drawPhoenixTree(ctx, 1460, 1340);
+
+    // Bàng xanh rợp bóng
+    this.drawAlmondTree(ctx, 840, 480);
+    this.drawAlmondTree(ctx, 1360, 480);
+    this.drawAlmondTree(ctx, 840, 920);
+    this.drawAlmondTree(ctx, 1360, 920);
+
+    // Benches (Ghế đá sân trường)
+    this.drawBench(ctx, 940, 720);
+    this.drawBench(ctx, 1260, 720);
+    this.drawBench(ctx, 940, 1100);
+    this.drawBench(ctx, 1260, 1100);
 
     // Draw POIs
     for (const poi of POI_LOCATIONS) {
@@ -808,179 +1055,221 @@ class AcademyGame {
     }
   }
 
+  drawPhoenixTree(ctx, x, y) {
+    // Thân cây phượng
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(x - 8, y, 16, 50);
+
+    // Tán lá phượng đỏ rực rỡ
+    ctx.fillStyle = '#dc2626'; // hoa đỏ
+    ctx.beginPath();
+    ctx.arc(x, y - 10, 34, 0, Math.PI * 2);
+    ctx.arc(x - 22, y, 26, 0, Math.PI * 2);
+    ctx.arc(x + 22, y, 26, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Điểm xuyết lá xanh
+    ctx.fillStyle = '#16a34a';
+    ctx.beginPath();
+    ctx.arc(x - 12, y - 20, 12, 0, Math.PI * 2);
+    ctx.arc(x + 14, y - 8, 12, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  drawAlmondTree(ctx, x, y) {
+    // Thân cây bàng
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(x - 10, y, 20, 55);
+
+    // Tán cây bàng tầng tầng lớp lớp xanh mướt
+    ctx.fillStyle = '#15803d';
+    ctx.beginPath();
+    ctx.ellipse(x, y - 24, 46, 28, 0, 0, Math.PI * 2);
+    ctx.ellipse(x, y - 48, 36, 22, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  drawBench(ctx, x, y) {
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(x - 25, y - 8, 50, 14);
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(x - 20, y + 6, 8, 10);
+    ctx.fillRect(x + 12, y + 6, 8, 10);
+  }
+
   renderPOI(ctx, poi) {
     ctx.save();
     ctx.translate(poi.x, poi.y);
 
     if (poi.id === 'gate') {
-      // Cổng trường Tiểu Học Phú Thọ
-      ctx.fillStyle = '#dc2626'; // Đỏ tươi
-      ctx.fillRect(-140, -40, 280, 24);
-      // Hai cột trụ cổng
+      // CỔNG TRƯỜNG TIỂU HỌC PHÚ THỌ
+      // Trụ đá hoa cương
+      ctx.fillStyle = '#dc2626';
+      ctx.fillRect(-170, -40, 340, 28);
+
+      // Trụ cổng
       ctx.fillStyle = '#f59e0b';
-      ctx.fillRect(-150, -40, 30, 80);
-      ctx.fillRect(120, -40, 30, 80);
+      ctx.fillRect(-180, -40, 36, 90);
+      ctx.fillRect(144, -40, 36, 90);
 
-      // Bảng tên trường
+      // Mái ngói cong đỏ
+      ctx.fillStyle = '#b91c1c';
+      ctx.beginPath();
+      ctx.moveTo(-190, -40);
+      ctx.lineTo(0, -65);
+      ctx.lineTo(190, -40);
+      ctx.lineTo(170, -32);
+      ctx.lineTo(0, -55);
+      ctx.lineTo(-170, -32);
+      ctx.closePath();
+      ctx.fill();
+
+      // Bảng tên trường mạ vàng
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 16px "Nunito", sans-serif';
+      ctx.font = 'bold 18px "Nunito", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('TRƯỜNG TIỂU HỌC PHÚ THỌ', 0, -22);
+      ctx.fillText('TRƯỜNG TIỂU HỌC PHÚ THỌ', 0, -20);
 
-      // Cờ Việt Nam nhỏ ở hai trụ
-      this.drawMiniFlag(ctx, -135, -55);
-      this.drawMiniFlag(ctx, 135, -55);
+      this.drawMiniFlag(ctx, -165, -55);
+      this.drawMiniFlag(ctx, 165, -55);
     } else if (poi.id === 'flagpole') {
-      // Cột cờ Lễ Đài
+      // CỘT CỜ TAM CẤP
       ctx.fillStyle = '#e2e8f0';
       ctx.beginPath();
-      ctx.arc(0, 0, 50, 0, Math.PI * 2);
+      ctx.arc(0, 0, 48, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = '#94a3b8';
       ctx.lineWidth = 4;
       ctx.stroke();
 
-      // Cột cờ kim loại
-      ctx.strokeStyle = '#475569';
+      ctx.strokeStyle = '#334155';
       ctx.lineWidth = 5;
       ctx.beginPath();
       ctx.moveTo(0, 0);
-      ctx.lineTo(0, -90);
+      ctx.lineTo(0, -95);
       ctx.stroke();
 
-      // Lá cờ đỏ sao vàng tung bay
-      const wave = Math.sin(performance.now() / 250) * 4;
+      const wave = Math.sin(performance.now() / 240) * 5;
       ctx.fillStyle = '#dc2626';
       ctx.beginPath();
-      ctx.moveTo(0, -90);
-      ctx.lineTo(44, -85 + wave);
-      ctx.lineTo(44, -60 + wave);
-      ctx.lineTo(0, -65);
+      ctx.moveTo(0, -95);
+      ctx.lineTo(46, -90 + wave);
+      ctx.lineTo(46, -65 + wave);
+      ctx.lineTo(0, -70);
       ctx.closePath();
       ctx.fill();
 
-      // Ngôi sao vàng
       ctx.fillStyle = '#facc15';
       ctx.font = '16px sans-serif';
-      ctx.fillText('★', 18, -70 + wave);
+      ctx.fillText('★', 18, -75 + wave);
     } else if (poi.id === 'fountain') {
-      // Đài phun nước hòa bình
+      // ĐÀI PHUN NƯỚC BỒ CÂU TRẮNG
       ctx.fillStyle = '#67e8f9';
       ctx.beginPath();
-      ctx.arc(0, 0, 55, 0, Math.PI * 2);
+      ctx.arc(0, 0, 56, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = '#06b6d4';
       ctx.lineWidth = 6;
       ctx.stroke();
 
-      // Bọt nước phun
-      const wave = Math.sin(performance.now() / 200) * 8;
+      const spray = Math.sin(performance.now() / 180) * 8;
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
-      ctx.arc(0, -10 + wave, 12, 0, Math.PI * 2);
+      ctx.arc(0, -12 + spray, 12, 0, Math.PI * 2);
       ctx.fill();
 
-      // Bồ câu biểu tượng
-      ctx.font = '24px sans-serif';
+      ctx.font = '26px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('🕊️', 0, 5);
-    } else if (poi.id === 'building_a') {
-      // Tòa Nhà Toán Học (Wing A)
-      this.drawBuilding(ctx, -140, -90, 280, 180, '#38bdf8', '#0284c7', 'TÒA A - TOÁN HỌC 🧮');
-    } else if (poi.id === 'library') {
-      // Thư Viện Tri Thức (Nhà B)
-      this.drawBuilding(ctx, -140, -90, 280, 180, '#fbbf24', '#d97706', 'THƯ VIỆN TRI THỨC 📚');
-    } else if (poi.id === 'tech_lab') {
-      // Phòng Tin Học
-      this.drawBuilding(ctx, -130, -80, 260, 160, '#34d399', '#059669', 'PHÒNG TIN HỌC 💻');
-    } else if (poi.id === 'sports_field') {
-      // Sân Bóng Mini
-      ctx.fillStyle = '#22c55e'; // cỏ sân bóng
-      ctx.fillRect(-160, -90, 320, 180);
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 4;
-      ctx.strokeRect(-160, -90, 320, 180);
-
-      // Đường giữa sân và vòng tròn giao bóng
-      ctx.beginPath();
-      ctx.moveTo(0, -90);
-      ctx.lineTo(0, 90);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(0, 0, 36, 0, Math.PI * 2);
-      ctx.stroke();
-
-      // Khung thành 2 bên
-      ctx.strokeRect(-160, -35, 30, 70);
-      ctx.strokeRect(130, -35, 30, 70);
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 15px "Nunito", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('SÂN BÓNG ĐÁ PHÚ THỌ ⚽', 0, -65);
-    } else if (poi.id === 'eco_garden') {
-      // Vườn sinh thái
-      ctx.fillStyle = '#86efac';
-      ctx.beginPath();
-      ctx.arc(0, 0, 95, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#16a34a';
-      ctx.lineWidth = 5;
-      ctx.stroke();
-
-      // Cây táo & cá koi
-      ctx.font = '28px sans-serif';
-      ctx.fillText('🌳', -35, -20);
-      ctx.fillText('🍎', -25, -30);
-      ctx.fillText('🍎', -50, -10);
-      ctx.fillText('🌳', 35, -20);
-      ctx.fillText('🍎', 45, -30);
-
-      // Hồ cá nhỏ
+      ctx.fillText('🕊️', 0, 6);
+    } else if (poi.id === 'pond') {
+      // HỒ CÁ KOI & HOA SÚNG
       ctx.fillStyle = '#38bdf8';
       ctx.beginPath();
-      ctx.ellipse(0, 35, 45, 25, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, 65, 42, 0, 0, Math.PI * 2);
       ctx.fill();
-      ctx.font = '18px sans-serif';
-      ctx.fillText('🐟', -10, 42);
-      ctx.fillText('🐠', 12, 38);
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 4;
+      ctx.stroke();
 
-      ctx.fillStyle = '#14532d';
-      ctx.font = 'bold 14px "Nunito", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('VƯỜN SINH THÁI 🍎', 0, -60);
-    } else if (poi.id === 'special_zone') {
-      // KHU VỰC ĐẶC BIỆT: THÁP HỌC GIẢ TINH HOA
+      // Hoa súng
+      ctx.font = '20px sans-serif';
+      ctx.fillText('🪷', -22, -8);
+      ctx.fillText('🪷', 24, 12);
+      ctx.fillText('🐟', -8, 16);
+      ctx.fillText('🐠', 14, -14);
+    } else if (poi.id === 'grand') {
+      // ĐẠI HỘI TRI THỨC (GRAND HALL)
       const unlocked = isSpecialZoneUnlocked(this.player);
-      const pulse = Math.sin(performance.now() / 300) * 6;
+      const pulse = Math.sin(performance.now() / 280) * 8;
 
       // Aura lộng lẫy
-      const grad = ctx.createRadialGradient(0, 0, 30, 0, 0, 130 + pulse);
-      grad.addColorStop(0, unlocked ? 'rgba(250, 204, 21, 0.6)' : 'rgba(148, 163, 184, 0.4)');
+      const grad = ctx.createRadialGradient(0, -30, 40, 0, -30, 150 + pulse);
+      grad.addColorStop(0, unlocked ? 'rgba(250, 204, 21, 0.65)' : 'rgba(148, 163, 184, 0.45)');
       grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
       ctx.fillStyle = grad;
       ctx.beginPath();
-      ctx.arc(0, 0, 130 + pulse, 0, Math.PI * 2);
+      ctx.arc(0, -30, 150 + pulse, 0, Math.PI * 2);
       ctx.fill();
 
-      // Cổng vòm vàng ánh kim
-      ctx.strokeStyle = unlocked ? '#eab308' : '#64748b';
-      ctx.lineWidth = 8;
+      // Thảm đỏ lối vào
+      ctx.fillStyle = '#dc2626';
+      ctx.fillRect(-35, 30, 70, 70);
+
+      // Tòa nhà Tân Cổ Điển hoành tráng
+      this.drawGrandPalace(ctx, -160, -130, 320, 200, unlocked);
+    } else if (poi.id === 'library') {
+      this.drawSchoolBuilding(ctx, -130, -90, 260, 180, '#38bdf8', '#0284c7', 'THƯ VIỆN TỪ VỰNG 📚');
+    } else if (poi.id === 'literature') {
+      this.drawSchoolBuilding(ctx, -130, -90, 260, 180, '#a855f7', '#7e22ce', 'NHÀ NGỮ VĂN 📜');
+    } else if (poi.id === 'spelling') {
+      this.drawSchoolBuilding(ctx, -120, -80, 240, 160, '#fb923c', '#c2410c', 'KHU CHÍNH TẢ ✏️');
+    } else if (poi.id === 'idiom') {
+      this.drawSchoolBuilding(ctx, -120, -80, 240, 160, '#facc15', '#a16207', 'QUẢNG TRƯỜNG THÀNH NGỮ 🧩');
+    } else if (poi.id === 'math') {
+      this.drawSchoolBuilding(ctx, -120, -80, 240, 160, '#4ade80', '#15803d', 'VƯỜN TOÁN HỌC 🧮');
+    } else if (poi.id === 'arena') {
+      this.drawSchoolBuilding(ctx, -110, -75, 220, 150, '#f43f5e', '#be123c', 'ĐẤU TRƯỜNG 60S ⚡');
+    } else if (poi.id === 'sports') {
+      // SÂN BÓNG ĐÁ CỎ XANH
+      ctx.fillStyle = '#16a34a';
+      ctx.fillRect(-140, -80, 280, 160);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(-140, -80, 280, 160);
+
       ctx.beginPath();
-      ctx.arc(0, -20, 85, Math.PI, 0, false);
+      ctx.moveTo(0, -80);
+      ctx.lineTo(0, 80);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(0, 0, 32, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Tòa tháp vàng
-      this.drawBuilding(ctx, -100, -110, 200, 150, unlocked ? '#fef08a' : '#cbd5e1', unlocked ? '#ca8a04' : '#475569', unlocked ? 'THÁP TINH HOA 👑' : 'KHU KHÓA 🔒');
+      ctx.strokeRect(-140, -30, 25, 60);
+      ctx.strokeRect(115, -30, 25, 60);
 
-      // Floating badge
-      ctx.fillStyle = unlocked ? '#ca8a04' : '#475569';
-      ctx.font = 'bold 15px "Nunito", sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 14px "Nunito", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(unlocked ? '✨ MỞ KHÓA TINH HOA ✨' : '🔒 CẦN 50 SAO ĐỂ MỞ', 0, 70);
+      ctx.fillText('SÂN BÓNG PHÚ THỌ ⚽', 0, -55);
+    } else if (poi.id === 'missions') {
+      // BẢNG NHIỆM VỤ GỖ
+      ctx.fillStyle = '#854d0e';
+      ctx.fillRect(-45, -45, 90, 70);
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(-40, -40, 80, 60);
+      ctx.fillStyle = '#713f12';
+      ctx.font = 'bold 12px "Nunito", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('NHIỆM VỤ 📋', 0, -20);
+      ctx.fillText('HẰNG NGÀY', 0, -4);
+    } else if (poi.id === 'shop') {
+      this.drawSchoolBuilding(ctx, -100, -70, 200, 140, '#ec4899', '#be185d', 'CỬA HÀNG 🛍️');
+    } else if (poi.id === 'pets') {
+      this.drawSchoolBuilding(ctx, -100, -70, 200, 140, '#f59e0b', '#b45309', 'KHU THÚ CƯNG 🐾');
     }
 
-    // Active POI indicator ring
+    // Active indicator
     if (this.activePOI && this.activePOI.id === poi.id) {
       ctx.strokeStyle = '#f59e0b';
       ctx.lineWidth = 4;
@@ -994,31 +1283,71 @@ class AcademyGame {
     ctx.restore();
   }
 
-  drawBuilding(ctx, x, y, w, h, roofColor, wallColor, label) {
-    // Mái ngói
+  drawGrandPalace(ctx, x, y, w, h, unlocked) {
+    // Mái vòm hoàng gia (Golden Dome)
+    ctx.fillStyle = unlocked ? '#eab308' : '#64748b';
+    ctx.beginPath();
+    ctx.arc(x + w / 2, y + 10, 65, Math.PI, 0);
+    ctx.fill();
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // Thân cung điện
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(x, y + 10, w, h - 10);
+    ctx.strokeRect(x, y + 10, w, h - 10);
+
+    // 6 Cột trụ La Mã đồ sộ
+    ctx.fillStyle = '#e2e8f0';
+    for (let i = 0; i < 6; i++) {
+      const colX = x + 25 + i * ((w - 50) / 5);
+      ctx.fillRect(colX - 8, y + 15, 16, h - 35);
+      ctx.strokeRect(colX - 8, y + 15, 16, h - 35);
+    }
+
+    // Cổng vòm lớn
+    ctx.fillStyle = unlocked ? '#fef08a' : '#334155';
+    ctx.beginPath();
+    ctx.arc(x + w / 2, y + h - 50, 36, Math.PI, 0);
+    ctx.lineTo(x + w / 2 + 36, y + h);
+    ctx.lineTo(x + w / 2 - 36, y + h);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Bảng tên ĐẠI HỘI TRI THỨC
+    ctx.fillStyle = '#b45309';
+    ctx.font = 'bold 15px "Nunito", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('ĐẠI HỘI TRI THỨC 👑', x + w / 2, y + 5);
+
+    // Biển trạng thái
+    ctx.fillStyle = unlocked ? '#15803d' : '#991b1b';
+    ctx.font = 'bold 13px "Nunito", sans-serif';
+    ctx.fillText(unlocked ? '✨ ĐÃ MỞ KHÓA ✨' : '🔒 CẦN CẤP 3 HOẶC 60 SAO', x + w / 2, y + h + 24);
+  }
+
+  drawSchoolBuilding(ctx, x, y, w, h, roofColor, wallColor, label) {
     ctx.fillStyle = roofColor;
     ctx.fillRect(x, y, w, 35);
     ctx.strokeStyle = wallColor;
     ctx.lineWidth = 3;
     ctx.strokeRect(x, y, w, 35);
 
-    // Tường nhà
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(x + 10, y + 35, w - 20, h - 35);
     ctx.strokeRect(x + 10, y + 35, w - 20, h - 35);
 
-    // Cửa chính
     ctx.fillStyle = wallColor;
     ctx.fillRect(x + w / 2 - 25, y + h - 45, 50, 45);
 
-    // Cửa sổ
     ctx.fillStyle = '#bae6fd';
-    ctx.fillRect(x + 25, y + 55, 35, 30);
-    ctx.fillRect(x + w - 60, y + 55, 35, 30);
+    ctx.fillRect(x + 22, y + 50, 32, 28);
+    ctx.fillRect(x + w - 54, y + 50, 32, 28);
 
-    // Bảng tên tòa nhà
     ctx.fillStyle = '#0f172a';
-    ctx.font = 'bold 14px "Nunito", sans-serif';
+    ctx.font = 'bold 13px "Nunito", sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(label, x + w / 2, y + 24);
   }
@@ -1045,171 +1374,436 @@ class AcademyGame {
     }
   }
 
-  renderCharacter(ctx, char, isLocal = false, isNpc = false) {
+  /**
+   * VẼ NHÂN VẬT CHIBI SIÊU XỊN (Cao ~96px)
+   * Tỉ lệ chibi anime, mắt to long lanh, tóc bồng bềnh, khăn quàng đỏ tung bay, balo 3D, áo choàng thủ lĩnh!
+   */
+  renderCharacterChibi(ctx, char, isLocal = false, isNpc = false) {
     ctx.save();
     ctx.translate(char.x, char.y);
 
-    const bob = char.moving ? Math.sin(char.animFrame) * 3 : (isNpc ? Math.sin(performance.now() / 400 + (char.bobOffset || 0)) * 2 : 0);
+    const bob = char.moving ? Math.sin(char.animFrame) * 4 : (isNpc ? Math.sin(performance.now() / 420 + (char.bobOffset || 0)) * 2 : 0);
+    const swing = char.moving ? Math.sin(char.animFrame) : 0;
+    const isGirl = char.character === 'girl';
+    const isSide = char.direction === 'left' || char.direction === 'right';
+    const isBack = char.direction === 'up';
 
-    // Shadow
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+    // Đổ bóng mềm dưới chân
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
     ctx.beginPath();
-    ctx.ellipse(0, 18, 16, 8, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 8, 22, 9, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Body / Outfit
     const skinColor = this.getSkinColor(char.skin);
     const outfitDef = CUSTOMIZATION_OPTIONS.outfits.find(o => o.id === char.outfit) || CUSTOMIZATION_OPTIONS.outfits[0];
+    const bagDef = CUSTOMIZATION_OPTIONS.bagColors.find(b => b.id === char.bagColor) || CUSTOMIZATION_OPTIONS.bagColors[0];
 
-    // Legs / Shoes
-    const legOffset = char.moving ? Math.cos(char.animFrame) * 4 : 0;
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(-8, 10 + legOffset, 6, 8);
-    ctx.fillRect(2, 10 - legOffset, 6, 8);
-
-    // Torso / Shirt
-    ctx.fillStyle = outfitDef.primary;
-    ctx.fillRect(-12, -10 + bob, 24, 22);
-
-    // Collar / Scarf (Khăn quàng đỏ của học sinh Phú Thọ)
-    if (outfitDef.scarf) {
-      ctx.fillStyle = outfitDef.scarf;
+    // 1. Áo Choàng Thủ Lĩnh (Nếu là trang phục Leader)
+    if (outfitDef.accessory === 'leader') {
+      const capeWave = char.moving ? Math.sin(char.animFrame) * 8 : Math.sin(performance.now() / 300) * 4;
+      ctx.fillStyle = '#dc2626';
       ctx.beginPath();
-      ctx.moveTo(-10, -8 + bob);
-      ctx.lineTo(0, 4 + bob);
-      ctx.lineTo(10, -8 + bob);
+      ctx.moveTo(-16, -45 + bob);
+      ctx.lineTo(-24 - capeWave, 2 + bob);
+      ctx.lineTo(24 + capeWave, 2 + bob);
+      ctx.lineTo(16, -45 + bob);
       ctx.closePath();
       ctx.fill();
-    } else if (outfitDef.emblem === 'star') {
-      ctx.fillStyle = '#facc15';
-      ctx.font = '12px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('★', 0, 4 + bob);
     }
 
-    // Head
+    // 2. Chân & Giày
+    const legOffset = swing * 6;
+    ctx.fillStyle = isGirl ? skinColor : outfitDef.bottom;
+    // Chân trái & phải
+    ctx.fillRect(-10, -10 + bob + legOffset, 7, 16);
+    ctx.fillRect(3, -10 + bob - legOffset, 7, 16);
+
+    // Giày thể thao trắng viền đen
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-12, 4 + bob + legOffset, 11, 8);
+    ctx.fillRect(1, 4 + bob - legOffset, 11, 8);
+
+    // 3. Thân / Trang phục
+    ctx.fillStyle = outfitDef.shirt;
+    ctx.beginPath();
+    ctx.roundRect(-16, -46 + bob, 32, 38, [6, 6, 4, 4]);
+    ctx.fill();
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Quần / Váy
+    ctx.fillStyle = outfitDef.bottom;
+    if (isGirl) {
+      // Váy xòe xếp ly xinh xắn
+      ctx.beginPath();
+      ctx.moveTo(-17, -22 + bob);
+      ctx.lineTo(17, -22 + bob);
+      ctx.lineTo(20, -10 + bob);
+      ctx.lineTo(-20, -10 + bob);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    } else {
+      // Quần soóc / âu
+      ctx.fillRect(-16, -20 + bob, 32, 12);
+      ctx.strokeRect(-16, -20 + bob, 32, 12);
+    }
+
+    // 4. Balo 3D đeo sau lưng
+    if (isBack) {
+      ctx.fillStyle = bagDef.color;
+      ctx.beginPath();
+      ctx.roundRect(-14, -48 + bob, 28, 28, 6);
+      ctx.fill();
+      ctx.stroke();
+      // Khóa kéo
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(-3, -36 + bob, 6, 4);
+    } else if (isSide) {
+      ctx.fillStyle = bagDef.color;
+      ctx.beginPath();
+      ctx.roundRect(-18, -48 + bob, 12, 26, 4);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // 5. Khăn Quàng Đỏ Phú Thọ (Tung bay phấp phới)
+    if (outfitDef.scarf && !isBack) {
+      const scarfFlutter = char.moving ? Math.sin(char.animFrame * 1.5) * 5 : 0;
+      ctx.fillStyle = outfitDef.scarf;
+      // Cổ khăn
+      ctx.beginPath();
+      ctx.moveTo(-10, -44 + bob);
+      ctx.lineTo(0, -32 + bob);
+      ctx.lineTo(10, -44 + bob);
+      ctx.closePath();
+      ctx.fill();
+      // 2 Dải khăn rủ xuống
+      ctx.beginPath();
+      ctx.moveTo(-2, -32 + bob);
+      ctx.lineTo(-8 + scarfFlutter, -16 + bob);
+      ctx.lineTo(0, -18 + bob);
+      ctx.lineTo(6 + scarfFlutter, -16 + bob);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // 6. Tay & Cánh tay vung vẩy
+    ctx.fillStyle = outfitDef.shirt;
+    const armSwing = swing * 8;
+    ctx.fillRect(-22, -44 + bob - armSwing, 7, 20);
+    ctx.fillRect(15, -44 + bob + armSwing, 7, 20);
+    // Bàn tay
     ctx.fillStyle = skinColor;
     ctx.beginPath();
-    ctx.arc(0, -22 + bob, 14, 0, Math.PI * 2);
+    ctx.arc(-18.5, -24 + bob - armSwing, 4, 0, Math.PI * 2);
+    ctx.arc(18.5, -24 + bob + armSwing, 4, 0, Math.PI * 2);
     ctx.fill();
 
-    // Hair
-    this.renderHair(ctx, char.hair, char.hairColor, bob);
+    // 7. Đầu chibi tròn trĩnh
+    const headY = -66 + bob;
+    ctx.fillStyle = skinColor;
+    ctx.beginPath();
+    ctx.arc(0, headY, 20, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
 
-    // Eyes
-    ctx.fillStyle = '#1f2937';
-    if (char.direction === 'up') {
-      // Facing away, don't show face
-    } else if (char.direction === 'left') {
-      ctx.beginPath();
-      ctx.arc(-6, -23 + bob, 2, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (char.direction === 'right') {
-      ctx.beginPath();
-      ctx.arc(6, -23 + bob, 2, 0, Math.PI * 2);
-      ctx.fill();
-    } else {
-      // Facing down
-      ctx.beginPath();
-      ctx.arc(-4, -22 + bob, 2, 0, Math.PI * 2);
-      ctx.arc(4, -22 + bob, 2, 0, Math.PI * 2);
-      ctx.fill();
-      // Smile
-      ctx.strokeStyle = '#be123c';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(0, -17 + bob, 3, 0, Math.PI);
-      ctx.stroke();
+    // 8. Tóc (Render Hair)
+    this.renderChibiHair(ctx, char.hair, char.hairColor, headY, isBack, isSide, isGirl);
+
+    // 9. Khuôn mặt mắt to anime lấp lánh (nếu không nhìn sau)
+    if (!isBack) {
+      this.renderAnimeEyes(ctx, headY, char.direction, isGirl);
     }
 
-    // Accessory (Glasses / Cap / Star pin)
-    if (char.accessory === 'glasses') {
-      ctx.strokeStyle = '#0f172a';
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(-8, -25 + bob, 6, 6);
-      ctx.strokeRect(2, -25 + bob, 6, 6);
-      ctx.beginPath();
-      ctx.moveTo(-2, -22 + bob);
-      ctx.lineTo(2, -22 + bob);
-      ctx.stroke();
-    } else if (char.accessory === 'star_pin') {
-      ctx.fillStyle = '#facc15';
-      ctx.font = '11px sans-serif';
-      ctx.fillText('⭐', 7, -5 + bob);
-    } else if (char.accessory === 'headband') {
-      ctx.strokeStyle = '#dc2626';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(0, -26 + bob, 13, Math.PI * 0.8, Math.PI * 0.2, true);
-      ctx.stroke();
-    }
+    // 10. Mũ / Phụ kiện
+    this.renderAccessory(ctx, char.accessory, outfitDef.accessory, headY);
 
-    // Nametag & School Pill above head
-    ctx.font = 'bold 11px "Nunito", sans-serif';
+    // 11. Bảng tên & Trường học phía trên đầu
+    ctx.font = 'bold 12px "Nunito", sans-serif';
     ctx.textAlign = 'center';
 
     const tagText = `[${char.school}] ${char.name}`;
-    const tagWidth = ctx.measureText(tagText).width + 12;
+    const tagWidth = ctx.measureText(tagText).width + 16;
 
-    ctx.fillStyle = isLocal ? 'rgba(30, 58, 138, 0.85)' : 'rgba(15, 23, 42, 0.75)';
+    ctx.fillStyle = isLocal ? 'rgba(2, 132, 199, 0.9)' : 'rgba(15, 23, 42, 0.8)';
     ctx.beginPath();
-    ctx.roundRect(-tagWidth / 2, -48 + bob, tagWidth, 17, 8);
+    ctx.roundRect(-tagWidth / 2, headY - 36, tagWidth, 20, 10);
     ctx.fill();
 
     ctx.fillStyle = isLocal ? '#fef08a' : '#ffffff';
-    ctx.fillText(tagText, 0, -35 + bob);
+    ctx.fillText(tagText, 0, headY - 22);
+
+    ctx.restore();
+  }
+
+  renderChibiHair(ctx, hairStyle, hairColor, headY, isBack, isSide, isGirl) {
+    ctx.fillStyle = hairColor || '#1f1f1f';
+
+    if (isBack) {
+      ctx.beginPath();
+      ctx.arc(0, headY, 21, 0, Math.PI * 2);
+      ctx.fill();
+      if (hairStyle === 'twintail') {
+        ctx.beginPath();
+        ctx.ellipse(-24, headY - 4, 8, 18, -0.3, 0, Math.PI * 2);
+        ctx.ellipse(24, headY - 4, 8, 18, 0.3, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (hairStyle === 'ponytail') {
+        ctx.beginPath();
+        ctx.ellipse(-16, headY - 12, 10, 22, -0.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      return;
+    }
+
+    // Tóc mái trước
+    ctx.beginPath();
+    ctx.arc(0, headY, 21.5, Math.PI, Math.PI * 2);
+    ctx.fill();
+
+    if (hairStyle === 'twintail') {
+      // 2 chùm tóc cột cao hai bên kèm nơ
+      ctx.beginPath();
+      ctx.ellipse(-22, headY - 6, 8, 18, -0.3, 0, Math.PI * 2);
+      ctx.ellipse(22, headY - 6, 8, 18, 0.3, 0, Math.PI * 2);
+      ctx.fill();
+      // Nơ đỏ
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(-24, headY - 14, 6, 6);
+      ctx.fillRect(18, headY - 14, 6, 6);
+    } else if (hairStyle === 'ponytail') {
+      ctx.beginPath();
+      ctx.ellipse(-20, headY - 8, 9, 20, -0.4, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (hairStyle === 'spiky') {
+      // Tóc vuốt nhọn cá tính
+      ctx.beginPath();
+      ctx.moveTo(-14, headY - 18);
+      ctx.lineTo(-7, headY - 29);
+      ctx.lineTo(0, headY - 20);
+      ctx.lineTo(8, headY - 30);
+      ctx.lineTo(15, headY - 18);
+      ctx.fill();
+    } else {
+      // Tóc mái vòm tự nhiên
+      ctx.beginPath();
+      ctx.arc(0, headY - 4, 18, Math.PI * 0.9, Math.PI * 2.1);
+      ctx.fill();
+    }
+
+    // Vệt bóng tóc bóng mượt (Hair highlight sheen)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.beginPath();
+    ctx.ellipse(0, headY - 14, 12, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  renderAnimeEyes(ctx, headY, direction, isGirl) {
+    const eyeY = headY + 3;
+
+    // Má hồng phấn dễ thương
+    ctx.fillStyle = 'rgba(244, 114, 182, 0.6)';
+    ctx.beginPath();
+    ctx.arc(-11, eyeY + 8, 4.5, 0, Math.PI * 2);
+    ctx.arc(11, eyeY + 8, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Mắt to anime long lanh
+    const drawEye = (x) => {
+      // Tròng đen
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.ellipse(x, eyeY, 4, 6.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Đốm bắt sáng to (Sparkle 1)
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(x - 1.2, eyeY - 2.5, 1.8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Đốm bắt sáng nhỏ (Sparkle 2)
+      ctx.beginPath();
+      ctx.arc(x + 1.2, eyeY + 2, 1, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Hàng mi mắt trên
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.arc(x, eyeY - 4, 5, Math.PI * 1.1, Math.PI * 1.9);
+      ctx.stroke();
+    };
+
+    if (direction === 'left') {
+      drawEye(-6);
+    } else if (direction === 'right') {
+      drawEye(6);
+    } else {
+      drawEye(-7);
+      drawEye(7);
+
+      // Nụ cười rạng rỡ
+      ctx.strokeStyle = '#be123c';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.arc(0, eyeY + 6, 4, 0.2, Math.PI - 0.2);
+      ctx.stroke();
+    }
+  }
+
+  renderAccessory(ctx, accessory, outfitAcc, headY) {
+    if (outfitAcc === 'scholar') {
+      // Mũ cử nhân tú tài
+      ctx.fillStyle = '#1e1b4b';
+      ctx.beginPath();
+      ctx.moveTo(0, headY - 34);
+      ctx.lineTo(26, headY - 24);
+      ctx.lineTo(0, headY - 14);
+      ctx.lineTo(-26, headY - 24);
+      ctx.closePath();
+      ctx.fill();
+      // Tua rua vàng
+      ctx.strokeStyle = '#facc15';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, headY - 24);
+      ctx.lineTo(18, headY - 18);
+      ctx.stroke();
+    } else if (outfitAcc === 'explorer') {
+      // Mũ thám hiểm tai bèo
+      ctx.fillStyle = '#b45309';
+      ctx.beginPath();
+      ctx.arc(0, headY - 18, 26, Math.PI, 0);
+      ctx.fill();
+    } else if (outfitAcc === 'inventor') {
+      // Kính bảo hộ trên trán
+      ctx.fillStyle = '#38bdf8';
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(-16, headY - 22, 12, 8);
+      ctx.strokeRect(4, headY - 22, 12, 8);
+      ctx.fillRect(-16, headY - 22, 12, 8);
+      ctx.fillRect(4, headY - 22, 12, 8);
+    }
+
+    if (accessory === 'glasses') {
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1.8;
+      ctx.strokeRect(-12, headY - 1, 9, 8);
+      ctx.strokeRect(3, headY - 1, 9, 8);
+      ctx.beginPath();
+      ctx.moveTo(-3, headY + 3);
+      ctx.lineTo(3, headY + 3);
+      ctx.stroke();
+    } else if (accessory === 'star_pin') {
+      ctx.fillStyle = '#facc15';
+      ctx.font = '13px sans-serif';
+      ctx.fillText('⭐', 12, headY + 28);
+    }
+  }
+
+  /**
+   * VẼ THÚ CƯNG THEO SAU (Pet Follower)
+   */
+  renderPet(ctx, x, y, petId, animFrame = 0) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    const bob = Math.sin(animFrame) * 3;
+
+    // Bóng thú cưng
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+    ctx.beginPath();
+    ctx.ellipse(0, 4, 12, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (petId === 'duck') {
+      // Vịt vàng con 🐥
+      ctx.fillStyle = '#facc15';
+      ctx.beginPath();
+      ctx.ellipse(0, -8 + bob, 14, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Đầu
+      ctx.beginPath();
+      ctx.arc(8, -18 + bob, 8, 0, Math.PI * 2);
+      ctx.fill();
+      // Mỏ cam
+      ctx.fillStyle = '#ea580c';
+      ctx.fillRect(14, -18 + bob, 6, 4);
+      // Mắt
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(10, -20 + bob, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (petId === 'dog') {
+      // Cún con 🐶
+      ctx.fillStyle = '#d97706';
+      ctx.beginPath();
+      ctx.ellipse(0, -10 + bob, 15, 11, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Đầu & Tai
+      ctx.beginPath();
+      ctx.arc(10, -18 + bob, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#92400e';
+      ctx.beginPath();
+      ctx.ellipse(6, -23 + bob, 4, 8, -0.3, 0, Math.PI * 2);
+      ctx.fill();
+      // Mũi đen
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(17, -18 + bob, 3, 3);
+    } else if (petId === 'rabbit') {
+      // Thỏ trắng 🐰
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.ellipse(0, -10 + bob, 13, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(8, -17 + bob, 8, 0, Math.PI * 2);
+      ctx.fill();
+      // Tai dài
+      ctx.beginPath();
+      ctx.ellipse(6, -28 + bob, 3, 9, 0, 0, Math.PI * 2);
+      ctx.ellipse(10, -28 + bob, 3, 9, 0.2, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (petId === 'cat') {
+      // Mèo con 🐱
+      ctx.fillStyle = '#f97316';
+      ctx.beginPath();
+      ctx.ellipse(0, -10 + bob, 14, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(8, -17 + bob, 8, 0, Math.PI * 2);
+      ctx.fill();
+      // Tai tam giác
+      ctx.beginPath();
+      ctx.moveTo(4, -23 + bob);
+      ctx.lineTo(8, -29 + bob);
+      ctx.lineTo(12, -23 + bob);
+      ctx.fill();
+    } else {
+      // Gà con 🐣
+      ctx.fillStyle = '#fef08a';
+      ctx.beginPath();
+      ctx.arc(0, -12 + bob, 10, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#dc2626';
+      ctx.fillRect(-2, -24 + bob, 4, 4); // mào đỏ
+      ctx.fillStyle = '#ea580c';
+      ctx.fillRect(8, -13 + bob, 4, 3); // mỏ
+    }
 
     ctx.restore();
   }
 
   getSkinColor(skinId) {
     const s = CUSTOMIZATION_OPTIONS.skins.find(item => item.id === skinId);
-    return s ? s.color : '#ffdfbf';
-  }
-
-  renderHair(ctx, hairId, hairColor, bob) {
-    ctx.fillStyle = hairColor || '#1f1f1f';
-
-    if (hairId === 'short' || !hairId) {
-      ctx.beginPath();
-      ctx.arc(0, -25 + bob, 15, Math.PI, Math.PI * 2);
-      ctx.fill();
-    } else if (hairId === 'bob') {
-      ctx.beginPath();
-      ctx.arc(0, -23 + bob, 16, Math.PI * 0.9, Math.PI * 2.1);
-      ctx.fill();
-      ctx.fillRect(-16, -23 + bob, 6, 12);
-      ctx.fillRect(10, -23 + bob, 6, 12);
-    } else if (hairId === 'ponytail') {
-      ctx.beginPath();
-      ctx.arc(0, -25 + bob, 15, Math.PI, Math.PI * 2);
-      ctx.fill();
-      // Đuôi ngựa vắt sang một bên
-      ctx.beginPath();
-      ctx.ellipse(-12, -30 + bob, 6, 12, Math.PI / 4, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (hairId === 'curly') {
-      for (let angle = 0; angle < Math.PI; angle += 0.5) {
-        const hx = Math.cos(angle + Math.PI) * 15;
-        const hy = Math.sin(angle + Math.PI) * 15 - 22 + bob;
-        ctx.beginPath();
-        ctx.arc(hx, hy, 6, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    } else if (hairId === 'spiky') {
-      ctx.beginPath();
-      ctx.arc(0, -25 + bob, 14, Math.PI, Math.PI * 2);
-      ctx.fill();
-      // Spikes
-      ctx.beginPath();
-      ctx.moveTo(-10, -32 + bob);
-      ctx.lineTo(-5, -40 + bob);
-      ctx.lineTo(0, -32 + bob);
-      ctx.lineTo(5, -42 + bob);
-      ctx.lineTo(10, -32 + bob);
-      ctx.closePath();
-      ctx.fill();
-    }
+    return s ? s.color : '#ffd9b8';
   }
 
   renderSpeechBubbles(ctx) {
@@ -1221,7 +1815,6 @@ class AcademyGame {
         continue;
       }
 
-      // Find position of entity
       let target = null;
       if (entityId === this.player.id) {
         target = this.player;
@@ -1234,46 +1827,42 @@ class AcademyGame {
       if (!target) continue;
 
       ctx.save();
-      ctx.translate(target.x, target.y - 58);
+      ctx.translate(target.x, target.y - 82);
 
-      ctx.font = 'bold 12px "Nunito", sans-serif';
+      ctx.font = 'bold 13px "Nunito", sans-serif';
       const text = bubble.text;
       const metrics = ctx.measureText(text);
-      const bubbleWidth = Math.min(240, metrics.width + 20);
-      const bubbleHeight = 28;
+      const bubbleWidth = Math.min(260, metrics.width + 24);
+      const bubbleHeight = 32;
 
-      // Bubble background
       ctx.fillStyle = '#ffffff';
       ctx.strokeStyle = '#0284c7';
-      ctx.lineWidth = 2;
-      ctx.shadowColor = 'rgba(0,0,0,0.15)';
-      ctx.shadowBlur = 6;
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = 'rgba(0,0,0,0.18)';
+      ctx.shadowBlur = 8;
       ctx.beginPath();
-      ctx.roundRect(-bubbleWidth / 2, -bubbleHeight, bubbleWidth, bubbleHeight, 8);
+      ctx.roundRect(-bubbleWidth / 2, -bubbleHeight, bubbleWidth, bubbleHeight, 10);
       ctx.fill();
       ctx.stroke();
 
-      // Tail
       ctx.beginPath();
-      ctx.moveTo(-4, 0);
-      ctx.lineTo(0, 6);
-      ctx.lineTo(4, 0);
+      ctx.moveTo(-5, 0);
+      ctx.lineTo(0, 7);
+      ctx.lineTo(5, 0);
       ctx.fillStyle = '#ffffff';
       ctx.fill();
       ctx.stroke();
 
-      // Text
       ctx.shadowBlur = 0;
-      ctx.fillStyle = '#1e293b';
+      ctx.fillStyle = '#0f172a';
       ctx.textAlign = 'center';
-      ctx.fillText(text, 0, -10, bubbleWidth - 10);
+      ctx.fillText(text, 0, -11, bubbleWidth - 12);
 
       ctx.restore();
     }
   }
 }
 
-// Start on DOM load
 window.addEventListener('DOMContentLoaded', () => {
   window.academyGame = new AcademyGame();
 });

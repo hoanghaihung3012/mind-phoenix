@@ -1,12 +1,15 @@
 /**
  * Học Viện Phú Thọ (Phu Tho Academy) - Core Game Engine
- * Manages game state, campus POIs, character customization, sound synthesis, minigame scoring, and network synchronization.
+ * Thiết kế theo kiến trúc chuẩn từ game Phú Thọ gốc:
+ * Bản đồ trường học hoành tráng, nhân vật chibi xịn xò, thú cưng đi theo (Pet Follower),
+ * hệ thống tiền xu (Coins), điểm kinh nghiệm (XP), cấp độ (Level), Cửa hàng (Shop),
+ * Nhiệm vụ (Missions), Huy hiệu (Badges) và Đại hội Tri thức (Grand Challenge).
  */
 
 export const MAP_CONFIG = {
-  width: 2600,
-  height: 1900,
-  spawn: { x: 1300, y: 1720 },
+  width: 2200,
+  height: 1500,
+  spawn: { x: 1100, y: 1380 },
 };
 
 export const SCHOOL_PRESETS = [
@@ -19,19 +22,32 @@ export const SCHOOL_PRESETS = [
   'Trường Bạn Khác'
 ];
 
+export const PET_CONFIGS = [
+  { id: 'duck', name: 'Vịt Vàng', icon: '🐥', desc: 'Chú vịt vàng lạch bạch dễ thương.', price: 0 },
+  { id: 'dog', name: 'Cún Con', icon: '🐶', desc: 'Chú cún nhỏ trung thành hay vẫy đuôi.', price: 50 },
+  { id: 'chicken', name: 'Gà Con', icon: '🐣', desc: 'Cô gà con lông vàng mào đỏ xinh xắn.', price: 80 },
+  { id: 'rabbit', name: 'Thỏ Trắng', icon: '🐰', desc: 'Chú thỏ trắng tai dài nhảy nhẹ nhàng.', price: 100 },
+  { id: 'cat', name: 'Mèo Mướp', icon: '🐱', desc: 'Chú mèo con tinh nghịch với đôi mắt biếc.', price: 120 }
+];
+
 export const CUSTOMIZATION_OPTIONS = {
+  characters: [
+    { id: 'boy', label: 'Bạn Nam', icon: '👦' },
+    { id: 'girl', label: 'Bạn Nữ', icon: '👧' }
+  ],
   skins: [
-    { id: 'fair', label: 'Trắng hồng', color: '#ffdfbf' },
+    { id: 'fair', label: 'Trắng hồng', color: '#ffd9b8' },
     { id: 'warm', label: 'Tự nhiên', color: '#f5c798' },
     { id: 'tan', label: 'Bánh mật', color: '#d89a64' },
     { id: 'peach', label: 'Ấm áp', color: '#ffd2b0' },
   ],
   hairs: [
-    { id: 'short', label: 'Tóc ngắn năng động' },
-    { id: 'bob', label: 'Tóc ngắn cúp' },
-    { id: 'ponytail', label: 'Tóc đuôi ngựa' },
+    { id: 'short', label: 'Tóc ngắn gọn gàng' },
+    { id: 'spiky', label: 'Tóc vuốt cá tính' },
+    { id: 'bob', label: 'Tóc bob năng động' },
+    { id: 'ponytail', label: 'Đuôi ngựa thắt nơ' },
+    { id: 'twintail', label: 'Hai chùm cột cao' },
     { id: 'curly', label: 'Tóc xoăn bồng bềnh' },
-    { id: 'spiky', label: 'Tóc cá tính' },
   ],
   hairColors: [
     { id: 'black', label: 'Đen tuyền', color: '#1f1f1f' },
@@ -41,17 +57,75 @@ export const CUSTOMIZATION_OPTIONS = {
     { id: 'amber', label: 'Hổ phách', color: '#b45309' },
   ],
   outfits: [
-    { id: 'uniform', label: 'Đồng phục Phú Thọ (Khăn quàng đỏ)', primary: '#ffffff', secondary: '#1e3a8a', scarf: '#dc2626' },
-    { id: 'sport', label: 'Thể dục năng động', primary: '#f97316', secondary: '#0284c7', scarf: null },
-    { id: 'scholar', label: 'Nhà khoa học nhí', primary: '#059669', secondary: '#0f172a', scarf: null },
-    { id: 'flag', label: 'Áo Cờ đỏ sao vàng', primary: '#dc2626', secondary: '#1e293b', scarf: null, emblem: 'star' },
+    {
+      id: 'default-student',
+      label: 'Đồng phục Phú Thọ (Khăn quàng đỏ)',
+      shirt: '#ffffff',
+      bottom: '#2f4b9b',
+      scarf: '#dc2626',
+      accessory: 'none',
+      price: 0
+    },
+    {
+      id: 'explorer',
+      label: 'Nhà Thám Hiểm (Áo gile & Nón)',
+      shirt: '#c9b27a',
+      bottom: '#6b5b3a',
+      scarf: null,
+      accessory: 'explorer',
+      price: 80
+    },
+    {
+      id: 'scholar',
+      label: 'Học Giả Cử Nhân (Mũ tú tài & Nơ)',
+      shirt: '#f2efe6',
+      bottom: '#3b3b5c',
+      scarf: null,
+      accessory: 'scholar',
+      price: 150
+    },
+    {
+      id: 'inventor',
+      label: 'Nhà Phát Minh (Áo blouse & Kính)',
+      shirt: '#ffffff',
+      bottom: '#546e7a',
+      scarf: null,
+      accessory: 'inventor',
+      price: 200
+    },
+    {
+      id: 'leader',
+      label: 'Thủ Lĩnh Học Viện (Áo hoàng gia & Choàng đỏ)',
+      shirt: '#fff1a8',
+      bottom: '#b3261e',
+      scarf: null,
+      accessory: 'leader',
+      price: 0,
+      unlockRequirement: 'Hoàn thành Đại Hội Tri Thức'
+    },
+    {
+      id: 'sport',
+      label: 'Thể Dục Năng Động',
+      shirt: '#f97316',
+      bottom: '#0284c7',
+      scarf: null,
+      accessory: 'none',
+      price: 40
+    }
+  ],
+  bagColors: [
+    { id: 'red', label: 'Balo Đỏ', color: '#e4572e' },
+    { id: 'blue', label: 'Balo Xanh Dương', color: '#3a7bd5' },
+    { id: 'green', label: 'Balo Xanh Lá', color: '#2fa56b' },
+    { id: 'purple', label: 'Balo Tím', color: '#8e5bd0' },
+    { id: 'yellow', label: 'Balo Vàng', color: '#f59e0b' },
+    { id: 'pink', label: 'Balo Hồng', color: '#ec4899' },
   ],
   accessories: [
     { id: 'none', label: 'Không phụ kiện' },
     { id: 'glasses', label: 'Kính cận tri thức' },
-    { id: 'cap', label: 'Nón tai bèo' },
-    { id: 'headband', label: 'Băng đô thể thao' },
     { id: 'star_pin', label: 'Huy hiệu Sao Vàng Phú Thọ' },
+    { id: 'headband', label: 'Băng đô thể thao' },
   ]
 };
 
@@ -60,225 +134,339 @@ export const POI_LOCATIONS = [
     id: 'gate',
     name: 'Cổng Trường Tiểu Học Phú Thọ',
     nameEn: 'Phu Tho Primary School Main Gate',
-    x: 1300,
-    y: 1720,
-    radius: 110,
+    x: 1100,
+    y: 1380,
+    radius: 120,
     icon: '🏫',
     category: 'welcome',
-    desc: 'Cổng trường khang trang đón chào học sinh Phú Thọ và các bạn trường bạn!',
+    desc: 'Cổng trường khang trang đón chào các bạn học sinh Phú Thọ và trường bạn!',
   },
   {
     id: 'flagpole',
-    name: 'Cột Cờ & Lễ Đài Vinh Danh',
-    nameEn: 'Flagpole & Honor Plaza',
-    x: 1300,
-    y: 1250,
-    radius: 95,
+    name: 'Cột Cờ & Lễ Đài Quốc Kỳ',
+    nameEn: 'Honor Flagpole Plaza',
+    x: 880,
+    y: 920,
+    radius: 90,
     icon: '🚩',
     category: 'landmark',
-    desc: 'Nơi chào cờ đầu tuần và vinh danh những học sinh đạt nhiều điểm danh dự.',
+    desc: 'Lễ đài cờ đỏ sao vàng trang nghiêm, nơi vinh danh học sinh xuất sắc.',
   },
   {
     id: 'fountain',
     name: 'Đài Phun Nước Bồ Câu Trắng',
-    nameEn: 'Central Peace Fountain',
-    x: 1300,
-    y: 950,
-    radius: 85,
+    nameEn: 'Peace Dove Fountain',
+    x: 1100,
+    y: 920,
+    radius: 90,
     icon: '⛲',
     category: 'social',
-    desc: 'Khu vực trung tâm mát mẻ, nơi học sinh gặp gỡ, giao lưu và trò chuyện.',
+    desc: 'Quảng trường trung tâm mát mẻ với bồ câu trắng và đài phun nước róc rách.',
   },
   {
-    id: 'building_a',
-    name: 'Tòa Nhà Thông Thái: Trạm Toán Học',
-    nameEn: 'Wisdom Wing: Math Academy',
-    x: 750,
-    y: 850,
-    radius: 130,
-    icon: '🧮',
-    category: 'game',
-    gameType: 'math',
-    minigameTitle: 'Thử Thách Thần Đồng Toán Học',
-    desc: 'Giải toán tính nhẩm, chuỗi số logic và câu đố hình học.',
-    rewardPoints: 20,
+    id: 'pond',
+    name: 'Hồ Cá Koi & Cầu Gỗ Hoa Súng',
+    nameEn: 'Koi Fish Pond & Water Lilies',
+    x: 1340,
+    y: 920,
+    radius: 95,
+    icon: '🐟',
+    category: 'social',
+    desc: 'Hồ nước trong xanh râm mát, đàn cá Koi bơi lội dưới hoa súng nở.',
   },
   {
     id: 'library',
-    name: 'Thư Viện Tri Thức (Nhà B)',
-    nameEn: 'Knowledge Library: Vietnamese Arts',
-    x: 1850,
-    y: 850,
-    radius: 130,
+    name: 'Thư Viện Từ Vựng (Nhà A)',
+    nameEn: 'Vocabulary Library',
+    x: 420,
+    y: 520,
+    radius: 135,
     icon: '📚',
     category: 'game',
-    gameType: 'vietnamese',
-    minigameTitle: 'Vua Tiếng Việt & Đố Ca Dao',
-    desc: 'Thử tài từ vựng Tiếng Việt, câu đố dân gian và bắt lỗi chính tả.',
-    rewardPoints: 20,
+    gameType: 'vocabulary',
+    minigameTitle: 'Truy Tìm Kho Báu Từ Vựng',
+    desc: 'Khám phá từ đồng nghĩa, trái nghĩa, từ ghép và từ láy phong phú.',
+    rewardCoins: 25,
+    rewardXP: 30,
   },
   {
-    id: 'tech_lab',
-    name: 'Phòng Tin Học & Sáng Tạo Số',
-    nameEn: 'Future Tech & Coding Lab',
-    x: 650,
-    y: 1380,
-    radius: 120,
-    icon: '💻',
-    category: 'game',
-    gameType: 'coding',
-    minigameTitle: 'Lập Trình Robot & Gỡ Mã',
-    desc: 'Tư duy thuật toán, sắp xếp lệnh điều khiển robot vượt chướng ngại vật.',
-    rewardPoints: 25,
-  },
-  {
-    id: 'sports_field',
-    name: 'Sân Bóng & Khu Thể Thao Đa Năng',
-    nameEn: 'Sports Court & Athletic Center',
-    x: 1950,
-    y: 1380,
-    radius: 135,
-    icon: '⚽',
-    category: 'game',
-    gameType: 'sports',
-    minigameTitle: 'Tâng Bóng Phản Xạ Thể Thao',
-    desc: 'Rèn luyện phản xạ nhanh nhẹn, tâng bóng chính xác ghi điểm cao.',
-    rewardPoints: 20,
-  },
-  {
-    id: 'eco_garden',
-    name: 'Vườn Sinh Thái & Hồ Cá Koi',
-    nameEn: 'Eco Nature Garden & Koi Pond',
-    x: 700,
-    y: 420,
-    radius: 125,
-    icon: '🍎',
-    category: 'game',
-    gameType: 'nature',
-    minigameTitle: 'Thu Hoạch Táo & Nhớ Hình Động Vật',
-    desc: 'Hái táo chín và thử thách trí nhớ các loài cây quả, động vật đáng yêu.',
-    rewardPoints: 20,
-  },
-  {
-    id: 'special_zone',
-    name: 'Tháp Học Giả Tinh Hoa Phú Thọ',
-    nameEn: 'Phu Tho Elite Golden Tower',
-    x: 1300,
-    y: 360,
-    radius: 145,
+    id: 'grand',
+    name: 'ĐẠI HỘI TRI THỨC PHÚ THỌ',
+    nameEn: 'Grand Hall of Wisdom',
+    x: 1100,
+    y: 440,
+    radius: 160,
     icon: '👑',
     category: 'special_zone',
-    gameType: 'olympiad',
-    minigameTitle: 'Đại Khảo Thí Tinh Hoa Phú Thọ',
-    desc: 'Khu vực bí ẩn có cổng rào ánh sáng vàng. Chỉ dành cho học sinh ưu tú!',
-    requiredPoints: 50,
-    rewardPoints: 50,
+    gameType: 'grand',
+    minigameTitle: 'Đại Khảo Thí Tri Thức Tinh Hoa',
+    desc: 'Tòa nhà Tân Cổ Điển nguy nga nhất trường! Cần đạt Cấp độ 3 hoặc 60 Sao để mở khóa.',
+    requiredLevel: 3,
+    requiredPoints: 60,
+    rewardCoins: 100,
+    rewardXP: 120,
+  },
+  {
+    id: 'literature',
+    name: 'Nhà Ngữ Văn & Ghép Câu (Nhà B)',
+    nameEn: 'Literature & Sentence Palace',
+    x: 1780,
+    y: 520,
+    radius: 135,
+    icon: '📜',
+    category: 'game',
+    gameType: 'literature',
+    minigameTitle: 'Xây Dựng Câu Văn Hoàn Chỉnh',
+    desc: 'Rèn luyện ngữ pháp, chủ ngữ - vị ngữ và biện pháp tu từ nghệ thuật.',
+    rewardCoins: 25,
+    rewardXP: 30,
+  },
+  {
+    id: 'spelling',
+    name: 'Khu Chính Tả Tiếng Việt',
+    nameEn: 'Spelling Pavilion',
+    x: 400,
+    y: 960,
+    radius: 125,
+    icon: '✏️',
+    category: 'game',
+    gameType: 'spelling',
+    minigameTitle: 'Bắn Bong Bóng Chính Tả',
+    desc: 'Soi lỗi chính tả tiếng Việt: s/x, tr/ch, d/gi/r và thanh điệu hỏi ngã.',
+    rewardCoins: 25,
+    rewardXP: 30,
+  },
+  {
+    id: 'arena',
+    name: 'Đấu Trường Thử Thách 60s',
+    nameEn: 'Speed Challenge Arena',
+    x: 1100,
+    y: 700,
+    radius: 110,
+    icon: '⚡',
+    category: 'game',
+    gameType: 'arena',
+    minigameTitle: 'Đấu Trường Tốc Độ 60 Giây',
+    desc: 'Phản xạ nhanh như chớp với các câu hỏi thi đấu dồn dập.',
+    rewardCoins: 35,
+    rewardXP: 45,
+  },
+  {
+    id: 'idiom',
+    name: 'Quảng Trường Thành Ngữ',
+    nameEn: 'Idiom & Folklore Plaza',
+    x: 1800,
+    y: 960,
+    radius: 125,
+    icon: '🧩',
+    category: 'game',
+    gameType: 'idiom',
+    minigameTitle: 'Mở Ô Chữ Thành Ngữ - Tục Ngữ',
+    desc: 'Kho tàng ca dao tục ngữ và bài học quý báu của cha ông.',
+    rewardCoins: 25,
+    rewardXP: 30,
+  },
+  {
+    id: 'math',
+    name: 'Vườn Toán Học & Mê Cung Số',
+    nameEn: 'Math Garden & Logic Maze',
+    x: 1480,
+    y: 1240,
+    radius: 120,
+    icon: '🧮',
+    category: 'game',
+    gameType: 'math',
+    minigameTitle: 'Bắn Bong Bóng Toán Học & Chuỗi Số',
+    desc: 'Thử tài tính nhẩm nhanh và câu đố hình học thông thái.',
+    rewardCoins: 25,
+    rewardXP: 30,
+  },
+  {
+    id: 'sports',
+    name: 'Sân Bóng Đá Phú Thọ Mini',
+    nameEn: 'Mini Football Stadium',
+    x: 620,
+    y: 1240,
+    radius: 125,
+    icon: '⚽',
+    category: 'sports',
+    desc: 'Sân cỏ bóng đá mini kẻ vạch trắng tinh, nơi học sinh thi đấu thể thao rèn luyện sức khỏe.',
+  },
+  {
+    id: 'missions',
+    name: 'Bảng Nhiệm Vụ Học Viện',
+    nameEn: 'Daily Mission Board',
+    x: 750,
+    y: 1100,
+    radius: 80,
+    icon: '📋',
+    category: 'panel',
+    panelType: 'missions',
+    desc: 'Bảng gỗ nhiệm vụ mỗi ngày: Hoàn thành thử thách để nhận thêm Xu và XP!',
+  },
+  {
+    id: 'shop',
+    name: 'Cửa Hàng Học Viện',
+    nameEn: 'Academy Boutique',
+    x: 1820,
+    y: 1240,
+    radius: 110,
+    icon: '🛍️',
+    category: 'panel',
+    panelType: 'shop',
+    desc: 'Nơi mua sắm trang phục mới, đổi màu balo, giày và nâng cấp phụ kiện!',
+  },
+  {
+    id: 'pets',
+    name: 'Khu Thú Cưng Đáng Yêu',
+    nameEn: 'Pet Companion Sanctuary',
+    x: 360,
+    y: 1240,
+    radius: 110,
+    icon: '🐾',
+    category: 'panel',
+    panelType: 'pets',
+    desc: 'Nhận nuôi thú cưng đồng hành chạy theo sau bạn trên khắp sân trường!',
   }
+];
+
+export const DAILY_MISSIONS = [
+  { id: 'm-spell-3', text: 'Trả lời đúng 3 câu Chính tả', target: 3, category: 'spelling', current: 0, rewardCoins: 15, rewardXP: 20 },
+  { id: 'm-idiom-3', text: 'Hoàn thành 3 câu Thành ngữ', target: 3, category: 'idiom', current: 0, rewardCoins: 15, rewardXP: 20 },
+  { id: 'm-vocab-3', text: 'Chinh phục 3 câu Thư viện Từ vựng', target: 3, category: 'vocabulary', current: 0, rewardCoins: 15, rewardXP: 20 },
+  { id: 'm-math-3', text: 'Giải đúng 3 bài Vườn Toán học', target: 3, category: 'math', current: 0, rewardCoins: 15, rewardXP: 20 },
+  { id: 'm-grand-1', text: 'Chinh phục thử thách Đại Hội Tri Thức', target: 1, category: 'grand', current: 0, rewardCoins: 50, rewardXP: 80 }
 ];
 
 export const DEFAULT_NPCS = [
   {
     id: 'npc_minh',
-    name: 'Bạn Minh (Lớp 5A Phú Thọ)',
+    name: 'Bạn Minh (Lớp 4A Phú Thọ)',
     school: 'TH Phú Thọ',
+    character: 'boy',
     skin: 'fair',
     hair: 'short',
     hairColor: '#1f1f1f',
-    outfit: 'uniform',
-    accessory: 'glasses',
-    x: 1200,
-    y: 1620,
+    outfit: 'default-student',
+    bagColor: 'blue',
+    pet: 'dog',
+    x: 980,
+    y: 1280,
     direction: 'down',
     messages: [
-      'Chào mừng bạn đến với trường Tiểu học Phú Thọ!',
-      'Trường mình có sân bóng đẹp và thư viện rất nhiều truyện hay đó.',
-      'Bạn hãy thử đi qua các trạm để tích lũy sao danh dự nhé!'
+      'Chào mừng bạn đến với Trường Tiểu học Phú Thọ!',
+      'Trường chúng tớ có Cột cờ uy nghiêm, Thư viện tri thức và Đại Hội Tri Thức hoành tráng!',
+      'Bạn hãy vào Thư viện và Khu Chính tả để kiếm thêm Xu mua thú cưng nhé!'
     ]
   },
   {
     id: 'npc_lan',
     name: 'Bạn Lan (Lớp 4B Phú Thọ)',
     school: 'TH Phú Thọ',
+    character: 'girl',
     skin: 'warm',
     hair: 'ponytail',
     hairColor: '#4a2c11',
-    outfit: 'uniform',
-    accessory: 'star_pin',
-    x: 1420,
-    y: 1100,
+    outfit: 'default-student',
+    bagColor: 'red',
+    pet: 'duck',
+    x: 1220,
+    y: 920,
     direction: 'left',
     messages: [
-      'Chào bạn! Tớ vừa giải xong 3 câu đố ở Thư viện.',
-      'Bạn đã kiếm đủ 50 sao để mở Tháp Học Giả Tinh Hoa chưa?',
-      'Tháp Tinh Hoa ở phía trên cùng đó, cổng sáng rực luôn!'
+      'Chào bạn! Đàn vịt vàng của tớ bơi theo tớ ngoan lắm nè!',
+      'Cậu đã đạt Cấp độ 3 để vào Đại Hội Tri Thức chưa?',
+      'Đại Hội Tri Thức ở tòa nhà trung tâm mái vòm vàng lộng lẫy đó!'
     ]
   },
   {
     id: 'npc_khoi',
     name: 'Bạn Khôi (TH Chu Văn An)',
     school: 'TH Chu Văn An',
+    character: 'boy',
     skin: 'tan',
     hair: 'spiky',
     hairColor: '#7c3f1d',
-    outfit: 'sport',
-    accessory: 'headband',
-    x: 1850,
-    y: 1460,
+    outfit: 'explorer',
+    bagColor: 'green',
+    pet: 'rabbit',
+    x: 1680,
+    y: 960,
     direction: 'up',
     messages: [
-      'Trường Phú Thọ rộng và mát mẻ thật đấy!',
-      'Sân bóng ở đây cỏ xanh mướt, tâng bóng đã ghê!',
-      'Cậu có muốn đọ điểm tâng bóng cùng tớ không?'
+      'Trường Phú Thọ vừa đẹp vừa rộng, sân bóng cỏ xanh mướt!',
+      'Tớ từ trường Chu Văn An sang đây giao lưu học tập.',
+      'Quảng trường Thành ngữ có nhiều câu đố thú vị lắm đó bạn ơi!'
     ]
   },
   {
     id: 'npc_mai',
     name: 'Bạn Mai (TH Lê Quý Đôn)',
     school: 'TH Lê Quý Đôn',
+    character: 'girl',
     skin: 'peach',
-    hair: 'bob',
+    hair: 'twintail',
     hairColor: '#1f1f1f',
     outfit: 'scholar',
-    accessory: 'glasses',
-    x: 720,
-    y: 920,
+    bagColor: 'pink',
+    pet: 'cat',
+    x: 520,
+    y: 560,
     direction: 'right',
     messages: [
-      'Phòng Toán học đố nhiều câu hay dã man!',
-      'Tớ từ trường Lê Quý Đôn sang giao lưu đây.',
-      'Cùng nhau học tập tiến bộ nhé bạn ơi!'
+      'Tớ vừa mua mũ cử nhân ở Cửa hàng Học viện nè, xinh không?',
+      'Hãy ghé Thư Viện Từ Vựng giải đố từ ghép và từ láy với tớ nhé!'
     ]
   }
 ];
 
+export function calculateLevel(xp = 0) {
+  // Level threshold: 50 XP per level
+  const level = Math.floor(xp / 60) + 1;
+  const currentLevelXP = xp % 60;
+  return { level, currentLevelXP, maxLevelXP: 60 };
+}
+
 export function createDefaultPlayer(savedData = {}) {
+  const xp = Number(savedData.xp) || 0;
+  const { level } = calculateLevel(xp);
+
   return {
     id: savedData.id || `pt_${Math.random().toString(36).slice(2, 9)}`,
     name: savedData.name || 'Học sinh Phú Thọ',
     school: savedData.school || 'TH Phú Thọ',
+    character: savedData.character || 'boy', // 'boy' | 'girl'
     skin: savedData.skin || 'fair',
-    hair: savedData.hair || 'short',
+    hair: savedData.hair || (savedData.character === 'girl' ? 'ponytail' : 'short'),
     hairColor: savedData.hairColor || '#1f1f1f',
-    outfit: savedData.outfit || 'uniform',
+    outfit: savedData.outfit || 'default-student',
+    bagColor: savedData.bagColor || 'blue',
     accessory: savedData.accessory || 'star_pin',
+    pet: savedData.pet || 'duck', // follower pet: duck, dog, chicken, rabbit, cat, none
+    coins: Number(savedData.coins) || 50, // starting gift coins
+    xp,
+    level,
+    points: Number(savedData.points) || 0, // Academy Stars
+    clearedGames: savedData.clearedGames || {},
+    specialUnlocked: Boolean(savedData.specialUnlocked),
+    ownedSkins: savedData.ownedSkins || ['default-student'],
+    ownedPets: savedData.ownedPets || ['duck'],
     x: savedData.x ?? MAP_CONFIG.spawn.x,
     y: savedData.y ?? MAP_CONFIG.spawn.y,
     targetX: savedData.x ?? MAP_CONFIG.spawn.x,
     targetY: savedData.y ?? MAP_CONFIG.spawn.y,
-    speed: 240, // pixels per second
+    speed: 250,
     direction: 'down',
     moving: false,
     animFrame: 0,
-    points: Number(savedData.points) || 0,
-    clearedGames: savedData.clearedGames || {},
-    specialUnlocked: Boolean(savedData.specialUnlocked),
     currentZone: null,
   };
 }
 
 export function isSpecialZoneUnlocked(player) {
   if (player.specialUnlocked) return true;
-  if ((player.points || 0) >= 50) return true;
+  if ((player.points || 0) >= 60) return true;
+  if ((player.level || 1) >= 3) return true;
   const count = Object.keys(player.clearedGames || {}).length;
   return count >= 3;
 }
@@ -304,7 +492,7 @@ export function clamp(val, min, max) {
 }
 
 /**
- * Web Audio sound synthesizers (friendly 8-bit / cheerful tones for kids)
+ * Web Audio sound synthesizers
  */
 export class SoundController {
   constructor() {
@@ -355,8 +543,8 @@ export class SoundController {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(480, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(720, ctx.currentTime + 0.08);
+      osc.frequency.setValueAtTime(520, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(780, ctx.currentTime + 0.08);
       gain.gain.setValueAtTime(0.06, ctx.currentTime);
       gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.08);
       osc.connect(gain);
@@ -392,18 +580,18 @@ export class SoundController {
     if (!ctx) return;
     try {
       const now = ctx.currentTime;
-      const notes = [440, 554.37, 659.25, 880, 1108.73];
+      const notes = [440, 554.37, 659.25, 880, 1108.73, 1318.51];
       notes.forEach((freq, i) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'triangle';
         osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.1, now + i * 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.35);
+        gain.gain.setValueAtTime(0.12, now + i * 0.09);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + 0.35);
         osc.connect(gain);
         gain.connect(ctx.destination);
-        osc.start(now + i * 0.1);
-        osc.stop(now + i * 0.1 + 0.4);
+        osc.start(now + i * 0.09);
+        osc.stop(now + i * 0.09 + 0.38);
       });
     } catch (_) {}
   }
@@ -415,8 +603,8 @@ export class SoundController {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(600, ctx.currentTime);
-      osc.frequency.setValueAtTime(900, ctx.currentTime + 0.06);
+      osc.frequency.setValueAtTime(640, ctx.currentTime);
+      osc.frequency.setValueAtTime(960, ctx.currentTime + 0.05);
       gain.gain.setValueAtTime(0.05, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
       osc.connect(gain);
@@ -425,10 +613,29 @@ export class SoundController {
       osc.stop(ctx.currentTime + 0.16);
     } catch (_) {}
   }
+
+  playCoin() {
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(987.77, now); // B5
+      osc.frequency.setValueAtTime(1318.51, now + 0.08); // E6
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.32);
+    } catch (_) {}
+  }
 }
 
 /**
- * Multiplayer Network Manager (WebSocket + BroadcastChannel multi-tab sync + NPC bots)
+ * Multiplayer Network Manager
  */
 export class AcademyNetworkManager {
   constructor(localPlayer, onRemotePlayerUpdate, onChatReceived, onInteractionReceived) {
@@ -441,7 +648,6 @@ export class AcademyNetworkManager {
     this.remotePlayers = new Map();
     this.lastBroadcastMove = 0;
 
-    // Local tab-to-tab real-time sync
     if (typeof window !== 'undefined' && window.BroadcastChannel) {
       try {
         this.bc = new BroadcastChannel('phutho_academy_channel');
@@ -469,14 +675,18 @@ export class AcademyNetworkManager {
             id: this.localPlayer.id,
             name: this.localPlayer.name,
             school: this.localPlayer.school,
+            character: this.localPlayer.character,
             skin: this.localPlayer.skin,
             hair: this.localPlayer.hair,
             hairColor: this.localPlayer.hairColor,
             outfit: this.localPlayer.outfit,
+            bagColor: this.localPlayer.bagColor,
             accessory: this.localPlayer.accessory,
+            pet: this.localPlayer.pet,
             x: this.localPlayer.x,
             y: this.localPlayer.y,
             points: this.localPlayer.points,
+            level: this.localPlayer.level,
             specialUnlocked: this.localPlayer.specialUnlocked
           }
         });
@@ -489,13 +699,8 @@ export class AcademyNetworkManager {
         } catch (_) {}
       };
 
-      this.ws.onclose = () => {
-        this.connected = false;
-      };
-
-      this.ws.onerror = () => {
-        this.connected = false;
-      };
+      this.ws.onclose = () => { this.connected = false; };
+      this.ws.onerror = () => { this.connected = false; };
     } catch (e) {
       this.connected = false;
     }
@@ -505,11 +710,8 @@ export class AcademyNetworkManager {
     if (this.ws && this.connected && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(data));
     }
-    // Also broadcast to other browser tabs
     if (this.bc) {
-      try {
-        this.bc.postMessage(data);
-      } catch (_) {}
+      try { this.bc.postMessage(data); } catch (_) {}
     }
   }
 
@@ -548,18 +750,17 @@ export class AcademyNetworkManager {
       const p = this.remotePlayers.get(msg.id);
       if (p) {
         p.points = msg.points;
+        p.level = msg.level;
         p.specialUnlocked = msg.specialUnlocked;
       }
     }
   }
 
   handleLocalMessage(msg) {
-    // Process messages from peer tabs
     if (!msg || typeof msg !== 'object') return;
     if (msg.type === 'join' && msg.player && msg.player.id !== this.localPlayer.id) {
       this.remotePlayers.set(msg.player.id, { ...msg.player, lastActive: Date.now() });
       if (this.onRemotePlayerUpdate) this.onRemotePlayerUpdate(this.remotePlayers);
-      // Respond with my own player info so the new tab sees me
       if (this.bc) {
         this.bc.postMessage({
           type: 'peer_presence',
@@ -567,14 +768,18 @@ export class AcademyNetworkManager {
             id: this.localPlayer.id,
             name: this.localPlayer.name,
             school: this.localPlayer.school,
+            character: this.localPlayer.character,
             skin: this.localPlayer.skin,
             hair: this.localPlayer.hair,
             hairColor: this.localPlayer.hairColor,
             outfit: this.localPlayer.outfit,
+            bagColor: this.localPlayer.bagColor,
             accessory: this.localPlayer.accessory,
+            pet: this.localPlayer.pet,
             x: this.localPlayer.x,
             y: this.localPlayer.y,
             points: this.localPlayer.points,
+            level: this.localPlayer.level,
             specialUnlocked: this.localPlayer.specialUnlocked
           }
         });
@@ -608,7 +813,7 @@ export class AcademyNetworkManager {
 
   broadcastMove(x, y, direction, anim) {
     const now = Date.now();
-    if (now - this.lastBroadcastMove < 50) return; // throttle 20 fps network sync
+    if (now - this.lastBroadcastMove < 50) return;
     this.lastBroadcastMove = now;
 
     const payload = {
@@ -646,11 +851,13 @@ export class AcademyNetworkManager {
     this.send(payload);
   }
 
-  broadcastScore(deltaPoints, specialUnlocked) {
+  broadcastScore(deltaPoints, deltaXP, level, specialUnlocked) {
     const payload = {
       type: 'score_update',
       id: this.localPlayer.id,
-      deltaPoints,
+      points: this.localPlayer.points,
+      xp: this.localPlayer.xp,
+      level,
       specialUnlocked
     };
     this.send(payload);

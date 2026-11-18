@@ -1,168 +1,293 @@
 /**
- * Minigame challenges inside Hoc Vien Phu Tho
- * Station quizzes and reflex games giving points to students.
+ * Minigame challenges inside Học Viện Phú Thọ
+ * Dựa trên cấu trúc chuẩn từ nguồn học liệu Trường Tiểu học Phú Thọ:
+ * Từ vựng, Chính tả, Ngữ văn, Thành ngữ, Toán học, Đấu trường 60s và Đại hội Tri thức.
  */
 
 export const MINIGAME_DATA = {
+  // 1. Thư viện Từ vựng (Vocabulary Treasure)
+  vocabulary: {
+    title: 'Thư Viện Từ Vựng Tri Thức 📚',
+    instructions: 'Khám phá từ đồng nghĩa, từ trái nghĩa, từ ghép và từ láy để nhận 25 Xu & 30 XP!',
+    rewardCoins: 25,
+    rewardXP: 30,
+    questions: [
+      {
+        question: 'Từ nào sau đây là TỪ LÁY tượng thanh mô tả tiếng chim kêu?',
+        options: ['Ríu rít', 'Rì rầm', 'Thầm thì', 'Ồn ào'],
+        answer: 0,
+        explanation: '“Ríu rít” là từ láy mô tả tiếng chim hót vui vẻ rộn ràng.'
+      },
+      {
+        question: 'Cặp từ nào dưới đây là cặp TỪ TRÁI NGHĨA?',
+        options: ['Chăm chỉ - Siêng năng', 'Dũng cảm - Hèn nhát', 'Thông minh - Sáng dạ', 'Hiền lành - Nhân hậu'],
+        answer: 1,
+        explanation: '“Dũng cảm” đối lập hoàn toàn về nghĩa với “Hèn nhát”.'
+      },
+      {
+        question: 'Từ nào sau đây là TỪ GHÉP tổng hợp?',
+        options: ['Sách vở', 'Sách Toán', 'Xe đạp', 'Bút bi'],
+        answer: 0,
+        explanation: '“Sách vở” gộp chung tất cả các loại sách và vở, là từ ghép tổng hợp.'
+      },
+      {
+        question: 'Tìm từ ĐỒNG NGHĨA với từ “bao la”:',
+        options: ['Mênh mông', 'Chật hẹp', 'Bé nhỏ', 'Ngắn ngủi'],
+        answer: 0,
+        explanation: '“Bao la” đồng nghĩa với “mênh mông”, “bát ngát”.'
+      },
+      {
+        question: 'Tiếng “nhân” trong từ nào dưới đây có nghĩa là “lòng thương người”?',
+        options: ['Nhân dân', 'Nhân ái', 'Nhân công', 'Nhân tài'],
+        answer: 1,
+        explanation: '“Nhân ái” là lòng yêu thương con người; “nhân” ở đây nghĩa là lòng nhân từ.'
+      }
+    ]
+  },
+
+  // 2. Khu Chính Tả (Spelling Pavilion)
+  spelling: {
+    title: 'Khu Chính Tả Tiếng Việt ✏️',
+    instructions: 'Soi lỗi chính tả, chọn cách viết chuẩn xác nhất tiếng Việt!',
+    rewardCoins: 25,
+    rewardXP: 30,
+    questions: [
+      {
+        question: 'Chọn từ viết ĐÚNG chính tả:',
+        options: ['Xinh đẹp', 'Sinh đẹp', 'Xinh đệp', 'Sinh đệp'],
+        answer: 0,
+        explanation: '“Xinh đẹp” là từ chuẩn chính tả: “xinh” viết với x.'
+      },
+      {
+        question: 'Từ nào sau đây viết ĐÚNG chính tả khi phân biệt s/x?',
+        options: ['Sáng sủa', 'Xáng sủa', 'Sáng xủa', 'Xáng xủa'],
+        answer: 0,
+        explanation: '“Sáng sủa” là cách viết đúng: cả hai tiếng đều viết bằng s.'
+      },
+      {
+        question: 'Chọn từ viết ĐÚNG chính tả khi phân biệt ch/tr:',
+        options: ['Chăm chỉ', 'Trăm chỉ', 'Chăm chỉa', 'Trăm trỉ'],
+        answer: 0,
+        explanation: '“Chăm chỉ” viết bằng chữ ch.'
+      },
+      {
+        question: 'Từ nào sau đây viết ĐÚNG chính tả khi phân biệt dấu hỏi / ngã?',
+        options: ['Dũng cảm', 'Dủng cảm', 'Dũng cãm', 'Dủng cãm'],
+        answer: 0,
+        explanation: '“Dũng cảm”: “dũng” viết dấu ngã, “cảm” viết dấu hỏi.'
+      },
+      {
+        question: 'Chọn từ viết ĐÚNG chính tả:',
+        options: ['Xôn xao', 'Sôn sao', 'Xôn sao', 'Sôn xao'],
+        answer: 0,
+        explanation: '“Xôn xao” là từ tượng thanh viết với âm đầu x.'
+      }
+    ]
+  },
+
+  // 3. Nhà Ngữ Văn (Sentence Builder)
+  literature: {
+    title: 'Nhà Ngữ Văn & Ghép Câu 📜',
+    instructions: 'Nhận diện thành phần câu Chủ ngữ - Vị ngữ và biện pháp tu từ nghệ thuật!',
+    rewardCoins: 25,
+    rewardXP: 30,
+    questions: [
+      {
+        question: 'Trong câu: “Những chú chim hót ríu rít trên cành bàng.”, bộ phận CHỦ NGỮ là gì?',
+        options: ['Những chú chim', 'hót ríu rít', 'trên cành bàng', 'Những chú chim hót'],
+        answer: 0,
+        explanation: '“Những chú chim” trả lời cho câu hỏi “Con gì?”.'
+      },
+      {
+        question: 'Câu nào sau đây sử dụng biện pháp nghệ thuật NHÂN HÓA?',
+        options: [
+          'Chị gió nhẹ nhàng lướt qua tán lá cây.',
+          'Bông hoa hồng nở rất đẹp.',
+          'Mặt trời đỏ rực như quả cầu lửa.',
+          'Cây bàng cao lớn trong sân trường.'
+        ],
+        answer: 0,
+        explanation: 'Gọi gió là “chị” và gán hành động “lướt qua” là biện pháp nhân hóa.'
+      },
+      {
+        question: 'Câu nào dưới đây là CÂU KỂ “Ai làm gì?”?',
+        options: [
+          'Các bạn học sinh đang cùng nhau dọn dẹp sân trường.',
+          'Trường Tiểu học Phú Thọ rất khang trang và sạch đẹp.',
+          'Bạn Minh là học sinh gương mẫu của lớp 4A.',
+          'Bầu trời mùa thu trong xanh vời vợi.'
+        ],
+        answer: 0,
+        explanation: 'Vị ngữ “đang cùng nhau dọn dẹp sân trường” nêu hoạt động của người.'
+      },
+      {
+        question: 'Xác định TRẠNG NGỮ trong câu: “Sáng sớm hôm nay, em hân hoan bước vào cổng trường Phú Thọ.”',
+        options: ['Sáng sớm hôm nay', 'em hân hoan', 'bước vào cổng trường', 'cổng trường Phú Thọ'],
+        answer: 0,
+        explanation: '“Sáng sớm hôm nay” là trạng ngữ chỉ thời gian.'
+      }
+    ]
+  },
+
+  // 4. Quảng Trường Thành Ngữ (Idiom Plaza)
+  idiom: {
+    title: 'Quảng Trường Thành Ngữ Tục Ngữ 🧩',
+    instructions: 'Khám phá kho tàng ca dao, tục ngữ và bài học quý báu của cha ông!',
+    rewardCoins: 25,
+    rewardXP: 30,
+    questions: [
+      {
+        question: 'Điền từ còn thiếu vào câu tục ngữ: “Có công mài sắt, có ngày ______”',
+        options: ['nên kim', 'nên vàng', 'thành công', 'có thưởng'],
+        answer: 0,
+        explanation: '“Có công mài sắt, có ngày nên kim” khuyên chúng ta kiên trì và bền chí.'
+      },
+      {
+        question: 'Hoàn thành câu tục ngữ: “Uống nước nhớ ______”',
+        options: ['nguồn', 'sông', 'mưa', 'ao'],
+        answer: 0,
+        explanation: '“Uống nước nhớ nguồn” nhắc nhở lòng biết ơn cội nguồn, tổ tiên.'
+      },
+      {
+        question: 'Điền từ thích hợp: “Lá lành đùm lá ______”',
+        options: ['rách', 'vàng', 'rơi', 'khô'],
+        answer: 0,
+        explanation: '“Lá lành đùm lá rách” thể hiện tinh thần tương thân tương ái của người Việt.'
+      },
+      {
+        question: 'Câu thành ngữ nào mang ý nghĩa “đoàn kết một lòng thì làm việc gì cũng thành công”?',
+        options: [
+          'Đồng sức đồng lòng',
+          'Đứng núi này trông núi nọ',
+          'Được đằng chân lân đằng đầu',
+          'Đầu voi đuôi chuột'
+        ],
+        answer: 0,
+        explanation: '“Đồng sức đồng lòng” nghĩa là cùng hợp sức, đoàn kết một ý chí.'
+      },
+      {
+        question: 'Điền từ còn thiếu: “Ăn quả nhớ kẻ ______”',
+        options: ['trồng cây', 'hái quả', 'bán quả', 'mua quả'],
+        answer: 0,
+        explanation: '“Ăn quả nhớ kẻ trồng cây” răn dạy lòng biết ơn người đã cống hiến tạo dựng.'
+      }
+    ]
+  },
+
+  // 5. Vườn Toán Học (Math Garden)
   math: {
-    title: 'Trạm Toán Học Thông Thái 🧮',
-    instructions: 'Giải nhanh 3 câu hỏi toán đố để nhận 20 Sao Danh Dự!',
+    title: 'Vườn Toán Học & Chuỗi Số Logic 🧮',
+    instructions: 'Thử tài tính nhẩm nhanh nhẹn, hình học không gian và chuỗi số quy luật!',
+    rewardCoins: 25,
+    rewardXP: 30,
     questions: [
       {
-        question: 'Tìm số tiếp theo trong dãy quy luật: 3, 6, 12, 24, ...?',
-        options: ['36', '48', '52', '42'],
-        answer: 1,
-        explanation: 'Quy luật nhân đôi: 24 × 2 = 48.'
-      },
-      {
-        question: 'Một hình vuông có chu vi 36 cm. Diện tích của hình vuông đó là bao nhiêu?',
-        options: ['64 cm²', '72 cm²', '81 cm²', '90 cm²'],
-        answer: 2,
-        explanation: 'Cạnh = 36 : 4 = 9 cm. Diện tích = 9 × 9 = 81 cm².'
-      },
-      {
-        question: 'Tính nhanh: 25 × 18 × 4 = ?',
-        options: ['1600', '1800', '2000', '1500'],
-        answer: 1,
-        explanation: '(25 × 4) × 18 = 100 × 18 = 1800.'
-      },
-      {
-        question: 'Có 5 gói kẹo, mỗi gói có 12 cái. Chia đều cho 6 bạn, mỗi bạn được mấy cái kẹo?',
-        options: ['10 cái', '8 cái', '12 cái', '14 cái'],
+        question: 'Tìm số tiếp theo trong dãy quy luật: 4, 8, 16, 32, ...?',
+        options: ['64', '48', '56', '60'],
         answer: 0,
-        explanation: '5 × 12 = 60 cái. 60 : 6 = 10 cái.'
-      }
-    ]
-  },
-  vietnamese: {
-    title: 'Thư Viện Tri Thức & Vua Tiếng Việt 📚',
-    instructions: 'Đoán đúng các câu đố ca dao, từ ngữ và chính tả để nhận 20 Sao Danh Dự!',
-    questions: [
-      {
-        question: 'Điền từ còn thiếu vào câu tục ngữ: "Học thầy không tày học ..."',
-        options: ['sách', 'bạn', 'mẹ', 'ông'],
-        answer: 1,
-        explanation: 'Tục ngữ Việt Nam: "Học thầy không tày học bạn".'
+        explanation: 'Quy luật nhân đôi: 32 × 2 = 64.'
       },
       {
-        question: 'Từ nào sau đây viết ĐÚNG chính tả?',
-        options: ['Xắp xếp', 'Sắp xếp', 'Sắp sếp', 'Xắp sếp'],
-        answer: 1,
-        explanation: '"Sắp xếp" là từ chuẩn chính tả Tiếng Việt.'
-      },
-      {
-        question: 'Giải câu đố: "Cây gì lá nhỏ, quả tròn / Chín vàng ngọt lịm, cội nguồn quê hương?"',
-        options: ['Cây bưởi', 'Cây nhãn', 'Cây cam', 'Cây ổi'],
-        answer: 1,
-        explanation: 'Nhãn lồng chín vàng ngọt lịm thơm ngon.'
-      },
-      {
-        question: 'Trong câu: "Mặt trời đỏ rực như một quả cầu lửa khổng lồ", có biện pháp nghệ thuật gì?',
-        options: ['Nhân hóa', 'So sánh', 'Điệp ngữ', 'Ẩn dụ'],
-        answer: 1,
-        explanation: 'Có từ so sánh "như": mặt trời đỏ rực như quả cầu lửa.'
-      }
-    ]
-  },
-  coding: {
-    title: 'Phòng Tin Học & Lập Trình Robot 💻',
-    instructions: 'Sắp xếp tư duy thuật toán và logic máy tính để nhận 25 Sao!',
-    questions: [
-      {
-        question: 'Robot đang đứng ở ô (0, 0) nhìn về hướng Đông. Robot đi lệnh: [Tiến 3] -> [Quay trái] -> [Tiến 2]. Tọa độ hiện tại là?',
-        options: ['(3, 2)', '(2, 3)', '(3, -2)', '(5, 0)'],
+        question: 'Một mảnh vườn chữ nhật có chiều dài 18m, chiều rộng 12m. Chu vi mảnh vườn là:',
+        options: ['60m', '54m', '72m', '216m'],
         answer: 0,
-        explanation: 'Tiến 3 sang Đông (X=3), quay trái là hướng Bắc, tiến 2 (Y=2) => Tọa độ (3, 2).'
+        explanation: 'Chu vi = (18 + 12) × 2 = 30 × 2 = 60m.'
       },
       {
-        question: 'Trong lập trình, cấu trúc vòng lặp "Lặp lại 4 lần [Tiến 1 bước, Rẽ phải 90°]" sẽ tạo thành hình gì?',
-        options: ['Hình tam giác', 'Hình chữ nhật dài', 'Hình vuông', 'Hình tròn'],
-        answer: 2,
-        explanation: '4 cạnh bằng nhau và 4 góc vuông 90° tạo thành hình vuông.'
-      },
-      {
-        question: 'Nếu trời mưa THÌ mang ô, NGƯỢC LẠI THÌ đội mũ. Nếu trời NẮNG, hành động là gì?',
-        options: ['Mang ô', 'Đội mũ', 'Ở nhà', 'Đi ngủ'],
-        answer: 1,
-        explanation: 'Vì trời không mưa (ngược lại), nên robot thực hiện hành động "Đội mũ".'
-      }
-    ]
-  },
-  sports: {
-    title: 'Sân Bóng & Phản Xạ Thể Thao ⚽',
-    instructions: 'Thử thách độ hiểu biết và tinh thần thể thao năng động!',
-    questions: [
-      {
-        question: 'Một trận đấu bóng đá chính thức gồm mấy hiệp thi đấu chính và mỗi hiệp bao nhiêu phút?',
-        options: ['2 hiệp, mỗi hiệp 40 phút', '2 hiệp, mỗi hiệp 45 phút', '3 hiệp, mỗi hiệp 30 phút', '2 hiệp, mỗi hiệp 50 phút'],
-        answer: 1,
-        explanation: 'Bóng đá tiêu chuẩn có 2 hiệp, mỗi hiệp 45 phút.'
-      },
-      {
-        question: 'Động tác nào giúp phòng tránh chấn thương hiệu quả nhất TRƯỚC KHI chơi thể thao?',
-        options: ['Uống thật nhiều nước ngọt', 'Khởi động xoay các khớp kỹ càng', 'Chạy nước rút ngay lập tức', 'Ngồi nghỉ ngơi'],
-        answer: 1,
-        explanation: 'Khởi động kỹ các khớp cổ chân, đầu gối, cánh tay giúp làm ấm cơ thể và chống chấn thương.'
-      },
-      {
-        question: 'Đội tuyển bóng đá nam Tiểu học có bao nhiêu cầu thủ thi đấu trên sân bóng mini 5 người?',
-        options: ['4 bạn', '5 bạn (tính cả thủ môn)', '6 bạn', '7 bạn'],
-        answer: 1,
-        explanation: 'Sân 5 người có 5 cầu thủ mỗi đội, bao gồm cả thủ môn.'
-      }
-    ]
-  },
-  nature: {
-    title: 'Vườn Sinh Thái & Trí Nhớ Thiên Nhiên 🍎',
-    instructions: 'Khám phá thế giới thực vật và động vật quanh sân trường!',
-    questions: [
-      {
-        question: 'Quá trình cây xanh sử dụng ánh sáng mặt trời, nước và khí CO₂ để tạo ra chất dinh dưỡng và khí Oxi gọi là gì?',
-        options: ['Hô hấp', 'Quang hợp', 'Thoát hơi nước', 'Nảy mầm'],
-        answer: 1,
-        explanation: 'Quang hợp là quá trình tạo chất hữu cơ và nhả khí oxy của lá cây.'
-      },
-      {
-        question: 'Cá Koi bơi lội dưới hồ nước thở bằng bộ phận nào?',
-        options: ['Phổi', 'Mang cá', 'Vây cá', 'Đuôi'],
-        answer: 1,
-        explanation: 'Cá thở bằng mang để lấy oxy hòa tan trong nước.'
-      },
-      {
-        question: 'Loài chim nào thường xuất hiện trên logo hòa bình và bay lượn ở đài phun nước sân trường?',
-        options: ['Chim Bồ Câu', 'Chim Đại Bàng', 'Chim Cú Mèo', 'Chim Hải Âu'],
+        question: 'Tính nhanh: 125 × 7 × 8 = ?',
+        options: ['7000', '6000', '8000', '7500'],
         answer: 0,
-        explanation: 'Chim Bồ Câu trắng là biểu tượng quốc tế của tình hữu nghị và hòa bình.'
+        explanation: '(125 × 8) × 7 = 1000 × 7 = 7000.'
+      },
+      {
+        question: 'Số nào chia hết cho cả 2, 3 và 5?',
+        options: ['90', '75', '80', '65'],
+        answer: 0,
+        explanation: '90 có tận cùng là 0 (chia hết cho 2 và 5), tổng chữ số 9+0=9 (chia hết cho 3).'
       }
     ]
   },
-  olympiad: {
-    title: '🌟 Tháp Học Giả Tinh Hoa Phú Thọ (Đại Khảo Thí) 👑',
-    instructions: 'Khu vực đặc biệt dành cho các học giả nhí xuất sắc! Câu hỏi tổng hợp độ khó cao, nhân đôi điểm số (+50 Sao Danh Dự) và mở khóa Huy Hiệu Tinh Hoa!',
+
+  // 6. Đấu Trường 60 Giây (Speed Arena)
+  arena: {
+    title: 'Đấu Trường Thử Thách 60 Giây ⚡',
+    instructions: 'Phản xạ nhanh như chớp với các câu đố đa lĩnh vực Toán - Văn - Khoa học!',
+    rewardCoins: 35,
+    rewardXP: 45,
     questions: [
       {
-        question: 'Olympic Toán: Một lớp học có 32 học sinh. Có 20 bạn thích môn Toán, 18 bạn thích môn Tiếng Việt, và 10 bạn thích cả hai môn. Hỏi có mấy bạn không thích môn nào trong hai môn này?',
-        options: ['2 bạn', '4 bạn', '6 bạn', '0 bạn'],
-        answer: 1,
-        explanation: 'Số bạn thích ít nhất 1 môn = 20 + 18 - 10 = 28 bạn. Số bạn không thích môn nào = 32 - 28 = 4 bạn.'
-      },
-      {
-        question: 'Olympic Tiếng Việt: Trong các từ sau, từ nào là từ ghép đẳng lập?',
-        options: ['Nhà sàn', 'Mưa rào', 'Núi non', 'Bút bi'],
-        answer: 2,
-        explanation: '"Núi non" gồm hai tiếng có nghĩa ngang hàng bình đẳng, là từ ghép đẳng lập.'
-      },
-      {
-        question: 'Olympic Tiếng Anh: "If you want to keep the school clean and green, you should never throw ______ on the ground."',
-        options: ['litter', 'flowers', 'water', 'books'],
+        question: 'Tỉnh Phú Thọ nổi tiếng với lễ hội truyền thống nào lớn nhất cả nước vào mùng 10 tháng 3 âm lịch?',
+        options: ['Lễ hội Đền Hùng', 'Lễ hội Chùa Hương', 'Lễ hội Đền Trần', 'Hội Lim'],
         answer: 0,
-        explanation: '"throw litter" nghĩa là vứt rác bừa bãi ra sân trường.'
+        explanation: '“Dù ai đi ngược về xuôi / Nhớ ngày Giỗ Tổ mùng mười tháng ba” - Đền Hùng, Phú Thọ.'
       },
       {
-        question: 'Lịch sử & Địa lý: Đền Hùng - nơi thờ các vị Vua Hùng có công dựng nước Văn Lang tọa lạc tại tỉnh nào của nước ta?',
-        options: ['Vĩnh Phúc', 'Hà Nội', 'Phú Thọ', 'Tuyên Quang'],
-        answer: 2,
-        explanation: 'Di tích lịch sử Đền Hùng nằm trên núi Nghĩa Lĩnh, tỉnh Phú Thọ!'
+        question: 'Đố vui: Cái gì chặt không đứt, bứt không rời, phơi không khô, nấu không chín?',
+        options: ['Nước', 'Sợi chỉ', 'Tóc', 'Đá'],
+        answer: 0,
+        explanation: 'Dòng nước chảy không thể chặt đứt hay bứt rời.'
+      },
+      {
+        question: '1 ngày và 6 giờ bằng bao nhiêu giờ?',
+        options: ['30 giờ', '24 giờ', '28 giờ', '36 giờ'],
+        answer: 0,
+        explanation: '1 ngày = 24 giờ. 24 + 6 = 30 giờ.'
+      },
+      {
+        question: 'Từ nào viết ĐÚNG: “gọn gàng” hay “gọn gàn”?',
+        options: ['Gọn gàng', 'Gọn gàn', 'Cả hai đều đúng', 'Cả hai đều sai'],
+        answer: 0,
+        explanation: '“Gọn gàng” là từ láy chuẩn chính tả.'
+      }
+    ]
+  },
+
+  // 7. KHU VỰC ĐẶC BIỆT: ĐẠI HỘI TRI THỨC (Grand Hall of Wisdom)
+  grand: {
+    title: '👑 ĐẠI HỘI TRI THỨC HỌC VIỆN PHÚ THỌ 🌟',
+    instructions: 'Khu vực khảo thí tinh hoa đỉnh cao! Trả lời đúng các câu hỏi Olympic để mở khóa Áo Choàng Thủ Lĩnh và nhận 100 Xu & 120 XP!',
+    rewardCoins: 100,
+    rewardXP: 120,
+    questions: [
+      {
+        question: 'Olympic Phú Thọ: Địa danh lịch sử Đền Hùng tọa lạc trên ngọn núi có tên là gì?',
+        options: ['Núi Nghĩa Lĩnh', 'Núi Ba Vì', 'Núi Yên Tử', 'Núi Tam Đảo'],
+        answer: 0,
+        explanation: 'Khu di tích lịch sử Quốc gia đặc biệt Đền Hùng nằm trên núi Nghĩa Lĩnh, TP Việt Trì, Phú Thọ.'
+      },
+      {
+        question: 'Olympic Tiếng Việt: Trong bài thơ “Hạt gạo làng ta” của Trần Đăng Khoa, hạt gạo có những vị gì?',
+        options: [
+          'Vị phù sa, hương sen thơm, lời mẹ hát',
+          'Vị mưa rào, nắng gắt, hương lúa',
+          'Vị ngọt ngào, cay đắng, gió bão',
+          'Vị đồng quê, dòng sông, mồ hôi'
+        ],
+        answer: 0,
+        explanation: '“Hạt gạo làng ta / Có vị phù sa / Của sông Kinh Thầy / Có hương sen thơm / Trong hồ nước đầy / Có lời mẹ hát...”.'
+      },
+      {
+        question: 'Olympic Toán: Trung bình cộng của ba số là 45. Số thứ nhất là 38, số thứ hai là 42. Số thứ ba là bao nhiêu?',
+        options: ['55', '50', '60', '48'],
+        answer: 0,
+        explanation: 'Tổng ba số = 45 × 3 = 135. Số thứ ba = 135 - (38 + 42) = 135 - 80 = 55.'
+      },
+      {
+        question: 'Olympic Khoa Học: Tại sao lá cây hầu hết lại có màu xanh lục?',
+        options: [
+          'Do có chất diệp lục hấp thụ ánh sáng để quang hợp',
+          'Do hút nước có màu xanh từ rễ',
+          'Do phản chiếu màu của bầu trời',
+          'Do tác động của không khí'
+        ],
+        answer: 0,
+        explanation: 'Chất diệp lục trong lục lạp của tế bào thực vật tạo nên màu xanh tươi mát của lá.'
+      },
+      {
+        question: 'Olympic Tiếng Anh: "Phu Tho Primary School is a ________ and modern school with green trees and cheerful friends."',
+        options: ['spacious', 'tiny', 'narrow', 'messy'],
+        answer: 0,
+        explanation: '“spacious” nghĩa là rộng rãi, khang trang.'
       }
     ]
   }

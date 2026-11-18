@@ -4,8 +4,10 @@ import {
   MAP_CONFIG,
   SCHOOL_PRESETS,
   CUSTOMIZATION_OPTIONS,
+  PET_CONFIGS,
   POI_LOCATIONS,
   DEFAULT_NPCS,
+  calculateLevel,
   createDefaultPlayer,
   isSpecialZoneUnlocked,
   checkProximityPOI,
@@ -14,12 +16,15 @@ import {
 } from './academy.mjs';
 import { MINIGAME_DATA } from './minigames.mjs';
 
-test('createDefaultPlayer initializes valid player data with fallback and custom values', () => {
+test('createDefaultPlayer initializes valid player data with coins, xp, level and follower pet', () => {
   const p1 = createDefaultPlayer();
   assert.equal(typeof p1.id, 'string');
   assert.equal(p1.school, 'TH Phú Thọ');
   assert.equal(p1.points, 0);
-  assert.equal(p1.speed, 240);
+  assert.equal(p1.coins, 50);
+  assert.equal(p1.level, 1);
+  assert.equal(p1.pet, 'duck');
+  assert.equal(p1.character, 'boy');
   assert.equal(p1.x, MAP_CONFIG.spawn.x);
   assert.equal(p1.y, MAP_CONFIG.spawn.y);
 
@@ -27,36 +32,67 @@ test('createDefaultPlayer initializes valid player data with fallback and custom
     id: 'student_custom',
     name: 'Bảo Ngọc',
     school: 'TH Chu Văn An',
+    character: 'girl',
     points: 80,
-    outfit: 'sport'
+    coins: 120,
+    xp: 150,
+    pet: 'rabbit',
+    outfit: 'scholar'
   });
   assert.equal(p2.id, 'student_custom');
   assert.equal(p2.name, 'Bảo Ngọc');
   assert.equal(p2.school, 'TH Chu Văn An');
-  assert.equal(p2.points, 80);
-  assert.equal(p2.outfit, 'sport');
+  assert.equal(p2.character, 'girl');
+  assert.equal(p2.pet, 'rabbit');
+  assert.equal(p2.level, 3);
+  assert.equal(p2.outfit, 'scholar');
 });
 
-test('CUSTOMIZATION_OPTIONS has valid skins, hairs, colors and outfits', () => {
+test('calculateLevel properly advances level at 60 XP intervals', () => {
+  assert.deepEqual(calculateLevel(0), { level: 1, currentLevelXP: 0, maxLevelXP: 60 });
+  assert.deepEqual(calculateLevel(50), { level: 1, currentLevelXP: 50, maxLevelXP: 60 });
+  assert.deepEqual(calculateLevel(60), { level: 2, currentLevelXP: 0, maxLevelXP: 60 });
+  assert.deepEqual(calculateLevel(130), { level: 3, currentLevelXP: 10, maxLevelXP: 60 });
+});
+
+test('CUSTOMIZATION_OPTIONS has valid characters, skins, hairs, colors, outfits and bag colors', () => {
+  assert.ok(CUSTOMIZATION_OPTIONS.characters.length >= 2);
   assert.ok(CUSTOMIZATION_OPTIONS.skins.length >= 4);
   assert.ok(CUSTOMIZATION_OPTIONS.hairs.length >= 4);
   assert.ok(CUSTOMIZATION_OPTIONS.hairColors.length >= 4);
   assert.ok(CUSTOMIZATION_OPTIONS.outfits.length >= 4);
-  assert.ok(CUSTOMIZATION_OPTIONS.accessories.length >= 4);
+  assert.ok(CUSTOMIZATION_OPTIONS.bagColors.length >= 4);
+  assert.ok(CUSTOMIZATION_OPTIONS.accessories.length >= 3);
 
   // Check uniform outfit has red scarf for Phu Tho primary students
-  const uniform = CUSTOMIZATION_OPTIONS.outfits.find(o => o.id === 'uniform');
+  const uniform = CUSTOMIZATION_OPTIONS.outfits.find(o => o.id === 'default-student');
   assert.ok(uniform);
   assert.equal(uniform.scarf, '#dc2626');
+
+  // Check leader outfit exists
+  const leader = CUSTOMIZATION_OPTIONS.outfits.find(o => o.id === 'leader');
+  assert.ok(leader);
+  assert.equal(leader.accessory, 'leader');
 });
 
-test('POI_LOCATIONS defines campus points including special VIP zone', () => {
-  assert.ok(POI_LOCATIONS.length >= 8);
+test('PET_CONFIGS defines follower pets including duck, dog, rabbit, cat', () => {
+  assert.ok(PET_CONFIGS.length >= 4);
+  for (const pet of PET_CONFIGS) {
+    assert.ok(pet.id);
+    assert.ok(pet.name);
+    assert.ok(pet.icon);
+    assert.ok(pet.desc);
+    assert.ok(pet.price >= 0);
+  }
+});
 
-  const special = POI_LOCATIONS.find(p => p.id === 'special_zone');
-  assert.ok(special, 'Special zone must exist');
-  assert.equal(special.category, 'special_zone');
-  assert.ok(special.requiredPoints >= 50);
+test('POI_LOCATIONS defines campus points including Grand Hall and school stations', () => {
+  assert.ok(POI_LOCATIONS.length >= 10);
+
+  const grand = POI_LOCATIONS.find(p => p.id === 'grand');
+  assert.ok(grand, 'Grand Hall (Đại Hội Tri Thức) must exist');
+  assert.equal(grand.category, 'special_zone');
+  assert.ok(grand.requiredPoints >= 50 || grand.requiredLevel >= 3);
 
   // Every POI must have valid coords and positive radius
   for (const poi of POI_LOCATIONS) {
@@ -68,22 +104,25 @@ test('POI_LOCATIONS defines campus points including special VIP zone', () => {
 });
 
 test('isSpecialZoneUnlocked accurately evaluates unlocking conditions', () => {
-  const p = createDefaultPlayer({ points: 20, clearedGames: {} });
-  assert.equal(isSpecialZoneUnlocked(p), false, 'Under 50 points and 0 games should be locked');
+  const p = createDefaultPlayer({ points: 20, level: 1, clearedGames: {} });
+  assert.equal(isSpecialZoneUnlocked(p), false, 'Under 60 points and level 1 should be locked');
 
-  p.points = 55;
-  assert.equal(isSpecialZoneUnlocked(p), true, '>= 50 points unlocks special zone');
+  p.points = 65;
+  assert.equal(isSpecialZoneUnlocked(p), true, '>= 60 points unlocks Grand Hall');
 
-  const pGames = createDefaultPlayer({ points: 10, clearedGames: { math: true, vietnamese: true, coding: true } });
-  assert.equal(isSpecialZoneUnlocked(pGames), true, '3 cleared stations unlocks special zone');
+  const pLevel = createDefaultPlayer({ points: 10, xp: 140, clearedGames: {} });
+  assert.equal(isSpecialZoneUnlocked(pLevel), true, 'Level >= 3 unlocks Grand Hall');
 
-  const pFlag = createDefaultPlayer({ points: 0, specialUnlocked: true });
+  const pGames = createDefaultPlayer({ points: 10, level: 1, clearedGames: { vocabulary: true, spelling: true, math: true } });
+  assert.equal(isSpecialZoneUnlocked(pGames), true, '3 cleared stations unlocks Grand Hall');
+
+  const pFlag = createDefaultPlayer({ points: 0, level: 1, specialUnlocked: true });
   assert.equal(isSpecialZoneUnlocked(pFlag), true, 'Explicit specialUnlocked flag opens zone');
 });
 
 test('checkProximityPOI detects locations when near and ignores when far', () => {
-  // Near the flagpole (1300, 1250)
-  const hit = checkProximityPOI(1300, 1250);
+  // Near the flagpole (880, 920)
+  const hit = checkProximityPOI(880, 920);
   assert.ok(hit);
   assert.equal(hit.poi.id, 'flagpole');
 
@@ -99,8 +138,8 @@ test('calculateDistance and clamp behave correctly', () => {
   assert.equal(clamp(150, 0, 100), 100);
 });
 
-test('MINIGAME_DATA contains valid educational question banks with 4 options each', () => {
-  const categories = ['math', 'vietnamese', 'coding', 'sports', 'nature', 'olympiad'];
+test('MINIGAME_DATA contains comprehensive questions from Phu Tho educational curriculum', () => {
+  const categories = ['vocabulary', 'spelling', 'literature', 'idiom', 'math', 'arena', 'grand'];
   for (const cat of categories) {
     const data = MINIGAME_DATA[cat];
     assert.ok(data, `Category ${cat} must exist`);
@@ -116,12 +155,13 @@ test('MINIGAME_DATA contains valid educational question banks with 4 options eac
   }
 });
 
-test('DEFAULT_NPCS contains welcoming students with speech messages', () => {
+test('DEFAULT_NPCS contains welcoming students with pets and speech messages', () => {
   assert.ok(DEFAULT_NPCS.length >= 3);
   for (const npc of DEFAULT_NPCS) {
     assert.ok(npc.id.startsWith('npc_'));
     assert.ok(npc.name);
     assert.ok(npc.school);
+    assert.ok(npc.pet, `${npc.id} must have a follower pet`);
     assert.ok(Array.isArray(npc.messages) && npc.messages.length > 0);
   }
 });
