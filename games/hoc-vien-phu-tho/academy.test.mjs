@@ -347,3 +347,34 @@ test('SoccerMinigame operates purely for fun without affecting player XP or leve
   assert.equal(game.mode, 'free');
   assert.equal(game.shots, 0);
 });
+
+test('SoccerMinigame keeper moves steadily and score is awarded when shot misses keeper', async () => {
+  const { SoccerMinigame } = await import('./soccer.js');
+  const game = new SoccerMinigame();
+
+  // 1. Thủ môn di chuyển qua lại đều đặn với tốc độ nhanh vừa phải
+  assert.equal(game.keeper.dir, 1);
+  const startX = game.keeper.x;
+  game.update(0.1); // 0.1s
+  assert.ok(game.keeper.x > startX, 'Keeper should move forward steadily');
+
+  // Đổi chiều khi chạm maxX
+  game.keeper.x = game.keeper.maxX;
+  game.update(0.05);
+  assert.equal(game.keeper.dir, -1, 'Keeper should reverse direction at boundary');
+
+  // 2. Sút bóng không trúng thủ môn => Ghi bàn
+  game.keeper.x = 450; // Thủ môn đứng góc bên phải
+  game.ball.x = 260;   // Bóng sút góc bên trái trong khung thành
+  game.ball.y = 160;
+  game.evaluateShot();
+  assert.equal(game.goals, 1, 'Shot missing keeper inside goal must score a goal');
+  assert.equal(game.keeper.state, 'miss');
+
+  // 3. Sút bóng trúng thủ môn => Cản phá
+  game.ball.x = 450;   // Bóng sút ngay vị trí thủ môn
+  game.ball.y = 220;
+  game.evaluateShot();
+  assert.equal(game.goals, 1, 'Shot hitting keeper must be saved (goals unchanged)');
+  assert.equal(game.keeper.state, 'catch');
+});

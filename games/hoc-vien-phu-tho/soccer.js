@@ -54,23 +54,19 @@ export class SoccerMinigame {
       peakHeight: 60
     };
 
-    // Thủ môn (Goalkeeper)
+    // Thủ môn (Goalkeeper): Di chuyển qua lại đều đặn, không nhảy ảo
     this.keeper = {
       x: 380,
       baseY: 250,
       w: 54,
       h: 70,
-      vx: 2.2,
-      minX: 230,
-      maxX: 530,
-      diveX: 0,
-      diveY: 0,
-      isDiving: false,
-      diveProgress: 0,
-      reactionTimer: 0,
-      armAngle: 0,
-      color: '#f59e0b', // Áo thủ môn vàng cam
-      state: 'patrol' // 'patrol', 'dive', 'catch', 'miss'
+      speed: 240, // Tốc độ di chuyển nhanh hơn một chút, đều đặn theo thời gian dt (240px/s)
+      dir: 1, // 1 là sang phải, -1 là sang trái
+      minX: 220, // Biên trái gần cột dọc
+      maxX: 540, // Biên phải gần cột dọc
+      walkAnim: 0,
+      color: '#f59e0b',
+      state: 'patrol' // 'patrol', 'catch', 'miss'
     };
 
     // Lưới bóng đá & Rung lưới
@@ -177,9 +173,6 @@ export class SoccerMinigame {
     this.ball.rotation = 0;
     this.ball.progress = 0;
     this.keeper.state = 'patrol';
-    this.keeper.isDiving = false;
-    this.keeper.diveProgress = 0;
-    this.keeper.reactionTimer = 0;
     this.resultMessage = '';
   }
 
@@ -200,7 +193,7 @@ export class SoccerMinigame {
     this.ball.progress = 0;
 
     // Độ xoáy ngẫu nhiên nhẹ
-    this.ball.curve = (Math.random() - 0.5) * 40;
+    this.ball.curve = (Math.random() - 0.5) * 30;
 
     // Âm thanh sút bóng
     if (this.sound && this.sound.playKick) {
@@ -209,52 +202,25 @@ export class SoccerMinigame {
       this.sound.playClick();
     }
 
-    // Thủ môn phản xạ sau 0.12s
-    this.keeper.reactionTimer = 0.12;
-
-    // Dự đoán hướng thủ môn sẽ bay người bắt bóng
-    // 70% thủ môn đoán đúng hướng sang trái hoặc sang phải, 30% bị lừa hướng
-    const shotToLeft = targetX < this.goal.x + this.goal.w / 2;
-    const keeperGuessedRight = Math.random() < 0.65;
-    const keeperDivesLeft = keeperGuessedRight ? shotToLeft : !shotToLeft;
-
-    // Điểm thủ môn bay tới
-    const keeperTargetX = keeperDivesLeft
-      ? Math.max(this.goal.x + 35, targetX + (Math.random() - 0.45) * 60)
-      : Math.min(this.goal.x + this.goal.w - 35, targetX + (Math.random() - 0.45) * 60);
-
-    const keeperTargetY = Math.max(this.goal.y + 40, Math.min(this.goal.y + this.goal.h - 15, targetY));
-
-    this.keeper.diveTargetX = keeperTargetX;
-    this.keeper.diveTargetY = keeperTargetY;
-
+    // Thủ môn di chuyển qua lại đều đặn, KHÔNG tự nhiên nhảy ra bắt bóng!
     this.updateUI();
   }
 
   update(dt) {
-    // 1. Cập nhật thủ môn
-    if (this.keeper.state === 'patrol') {
-      this.keeper.x += this.keeper.vx;
-      if (this.keeper.x > this.keeper.maxX || this.keeper.x < this.keeper.minX) {
-        this.keeper.vx = -this.keeper.vx;
-      }
-    } else if (this.keeper.state === 'diving') {
-      this.keeper.diveProgress += dt * 3.2;
-      const t = Math.min(1, this.keeper.diveProgress);
-      this.keeper.x += (this.keeper.diveTargetX - this.keeper.x) * 0.18;
+    // 1. Cập nhật thủ môn di chuyển qua lại đều đặn, tốc độ nhanh hơn một chút
+    this.keeper.x += this.keeper.dir * this.keeper.speed * dt;
+    this.keeper.walkAnim += dt * 8;
+
+    if (this.keeper.x >= this.keeper.maxX) {
+      this.keeper.x = this.keeper.maxX;
+      this.keeper.dir = -1;
+    } else if (this.keeper.x <= this.keeper.minX) {
+      this.keeper.x = this.keeper.minX;
+      this.keeper.dir = 1;
     }
 
     // 2. Cập nhật bóng bay
     if (this.ballState === 'flying') {
-      if (this.keeper.reactionTimer > 0) {
-        this.keeper.reactionTimer -= dt;
-        if (this.keeper.reactionTimer <= 0) {
-          this.keeper.state = 'diving';
-          this.keeper.isDiving = true;
-          this.keeper.diveProgress = 0;
-        }
-      }
-
       this.ball.progress += dt * 1.55; // Thời gian bay ~0.65 giây
       const t = Math.min(1, this.ball.progress);
 
@@ -345,19 +311,14 @@ export class SoccerMinigame {
       return;
     }
 
-    // Kiểm tra thủ môn cản phá
-    // Vùng bao tay & thân của thủ môn
-    const keeperBox = {
-      x: this.keeper.x - 36,
-      y: (this.keeper.diveTargetY || this.keeper.baseY) - 50,
-      w: 72,
-      h: 80
-    };
+    // 3. Kiểm tra trúng thủ môn
+    // Thủ môn di chuyển qua lại đều đặn, chỉ cản phá nếu bóng sút trúng vị trí thủ môn đang đứng
+    const keeperHalfWidth = 32;
+    const keeperTop = this.keeper.baseY - 74;
+    const isHitKeeper = Math.abs(bx - this.keeper.x) <= keeperHalfWidth &&
+                        by >= keeperTop && by <= this.keeper.baseY + 8;
 
-    const isSavedByKeeper = bx >= keeperBox.x && bx <= keeperBox.x + keeperBox.w &&
-                            by >= keeperBox.y && by <= keeperBox.y + keeperBox.h;
-
-    if (isSavedByKeeper) {
+    if (isHitKeeper) {
       this.keeper.state = 'catch';
       this.streak = 0;
       if (this.sound && this.sound.playClick) this.sound.playClick();
@@ -366,7 +327,8 @@ export class SoccerMinigame {
       return;
     }
 
-    // VÀOOOOO! GHI BÀN THẮNG!
+    // 4. Sút KHÔNG trúng thủ môn và bóng VÀO KHUNG THÀNH => GHI BÀN (GOAL)!
+    this.keeper.state = 'miss';
     this.goals++;
     this.streak++;
     if (this.streak > this.bestStreak) this.bestStreak = this.streak;
@@ -710,7 +672,7 @@ export class SoccerMinigame {
   drawKeeper(ctx) {
     const k = this.keeper;
     const x = k.x;
-    const y = k.isDiving && k.diveTargetY ? k.diveTargetY : k.baseY;
+    const y = k.baseY;
 
     ctx.save();
     ctx.translate(x, y);
@@ -721,26 +683,24 @@ export class SoccerMinigame {
     ctx.ellipse(0, 0, 24, 7, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Góc nghiêng khi bay người bắt bóng
-    if (k.isDiving) {
-      const tilt = (k.diveTargetX - 380) * 0.002;
-      ctx.rotate(tilt);
-    }
+    // Bước nhún chân khi di chuyển qua lại đều đặn
+    const bob = Math.abs(Math.sin(k.walkAnim)) * 2.5;
 
     // 1. Chân & Giày thể thao
+    const legOffset = Math.sin(k.walkAnim) * 5;
     ctx.fillStyle = '#1e293b'; // Quần đùi xanh đen
-    ctx.fillRect(-14, -28, 28, 14);
+    ctx.fillRect(-14, -28 - bob, 28, 14);
 
     ctx.fillStyle = '#f87171'; // Giày đỏ
     ctx.beginPath();
-    ctx.roundRect(-16, -10, 11, 10, 3);
-    ctx.roundRect(5, -10, 11, 10, 3);
+    ctx.roundRect(-16 + legOffset, -10 - bob, 11, 10, 3);
+    ctx.roundRect(5 - legOffset, -10 - bob, 11, 10, 3);
     ctx.fill();
 
     // 2. Thân áo thủ môn (Màu cam phản quang số 1)
     ctx.fillStyle = '#f97316';
     ctx.beginPath();
-    ctx.roundRect(-18, -54, 36, 28, 6);
+    ctx.roundRect(-18, -54 - bob, 36, 28, 6);
     ctx.fill();
 
     // Số 1 trên áo
@@ -748,53 +708,65 @@ export class SoccerMinigame {
     ctx.font = 'bold 12px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('1', 0, -40);
+    ctx.fillText('1', 0, -40 - bob);
 
     // 3. Đầu Chibi & Nón thể thao
     ctx.fillStyle = '#fed7aa'; // Mặt da sáng
     ctx.beginPath();
-    ctx.arc(0, -66, 15, 0, Math.PI * 2);
+    ctx.arc(0, -66 - bob, 15, 0, Math.PI * 2);
     ctx.fill();
 
     // Mắt & Miệng
     ctx.fillStyle = '#0f172a';
     ctx.beginPath();
-    ctx.arc(-5, -67, 2.2, 0, Math.PI * 2);
-    ctx.arc(5, -67, 2.2, 0, Math.PI * 2);
+    ctx.arc(-5, -67 - bob, 2.2, 0, Math.PI * 2);
+    ctx.arc(5, -67 - bob, 2.2, 0, Math.PI * 2);
     ctx.fill();
 
-    // Nụ cười tập trung
+    // Biểu cảm miệng
     ctx.strokeStyle = '#0f172a';
     ctx.lineWidth = 1.2;
     ctx.beginPath();
-    ctx.arc(0, -62, 3.5, 0.1 * Math.PI, 0.9 * Math.PI);
-    ctx.stroke();
+    if (k.state === 'miss') {
+      ctx.arc(0, -60 - bob, 2.8, 0, Math.PI * 2);
+      ctx.stroke();
+    } else {
+      ctx.arc(0, -62 - bob, 3.5, 0.1 * Math.PI, 0.9 * Math.PI);
+      ctx.stroke();
+    }
 
     // Mũ lưỡi trai vàng
     ctx.fillStyle = '#eab308';
     ctx.beginPath();
-    ctx.arc(0, -71, 14, Math.PI, 0);
+    ctx.arc(0, -71 - bob, 14, Math.PI, 0);
     ctx.fill();
-    ctx.fillRect(-12, -73, 24, 4);
+    ctx.fillRect(-12, -73 - bob, 24, 4);
 
     // 4. Tay & Găng tay thủ môn to bản (Gloves)
     ctx.fillStyle = '#38bdf8'; // Găng tay xanh sáng
     ctx.strokeStyle = '#0284c7';
     ctx.lineWidth = 2;
 
-    if (k.isDiving || k.state === 'catch') {
-      // Giơ hai tay lên cao cản bóng
+    if (k.state === 'catch') {
+      // Giơ hai tay ôm bóng cản phá
       ctx.beginPath();
-      ctx.arc(-22, -64, 9, 0, Math.PI * 2);
-      ctx.arc(22, -64, 9, 0, Math.PI * 2);
+      ctx.arc(-14, -46 - bob, 9, 0, Math.PI * 2);
+      ctx.arc(14, -46 - bob, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    } else if (k.state === 'miss') {
+      // Buông xuôi tiếc nuối khi bị thủng lưới
+      ctx.beginPath();
+      ctx.arc(-22, -32 - bob, 9, 0, Math.PI * 2);
+      ctx.arc(22, -32 - bob, 9, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
     } else {
-      // Tư thế chuẩn bị bắt gôn
-      const armBob = Math.sin(performance.now() / 180) * 3;
+      // Tư thế chuẩn bị bắt gôn: Giơ hai tay mở rộng sang 2 bên, nhịp nhàng theo bước chạy
+      const armBob = Math.cos(k.walkAnim) * 3.5;
       ctx.beginPath();
-      ctx.arc(-24, -44 + armBob, 9, 0, Math.PI * 2);
-      ctx.arc(24, -44 + armBob, 9, 0, Math.PI * 2);
+      ctx.arc(-26, -46 - bob + armBob, 9, 0, Math.PI * 2);
+      ctx.arc(26, -46 - bob - armBob, 9, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
     }
