@@ -109,11 +109,11 @@ class AcademyGame {
     // Follower Pet position
     this.playerPetPos = { x: this.player.x - 40, y: this.player.y, animFrame: 0 };
 
-    // Camera (zoom 0.70 = map rendered 30% smaller)
+    // Camera (zoom 0.85 = view balanced and crisp for expanded buildings)
     this.camera = {
-      zoom: 0.70,
-      x: this.player.x - (window.innerWidth / 0.70) / 2,
-      y: this.player.y - (window.innerHeight / 0.70) / 2,
+      zoom: 0.85,
+      x: this.player.x - (window.innerWidth / 0.85) / 2,
+      y: this.player.y - (window.innerHeight / 0.85) / 2,
     };
 
     // Default student NPCs (legacy bots)
@@ -252,7 +252,7 @@ class AcademyGame {
 
     this.canvas.addEventListener('mousedown', (e) => {
       const rect = this.canvas.getBoundingClientRect();
-      const zoom = this.camera.zoom || 0.70;
+      const zoom = this.camera.zoom || 0.85;
       const clickWorldX = (e.clientX - rect.left) / zoom + this.camera.x;
       const clickWorldY = (e.clientY - rect.top) / zoom + this.camera.y;
 
@@ -272,7 +272,7 @@ class AcademyGame {
       if (e.touches.length > 0) {
         const touch = e.touches[0];
         const rect = this.canvas.getBoundingClientRect();
-        const zoom = this.camera.zoom || 0.70;
+        const zoom = this.camera.zoom || 0.85;
         const clickWorldX = (touch.clientX - rect.left) / zoom + this.camera.x;
         const clickWorldY = (touch.clientY - rect.top) / zoom + this.camera.y;
 
@@ -1990,8 +1990,8 @@ class AcademyGame {
       if (actionBtn) actionBtn.classList.add('hidden');
     }
 
-    // Camera follow (smooth lerp, zoomed out 30% so camera.zoom = 0.70)
-    const zoom = this.camera.zoom || 0.70;
+    // Camera follow (smooth lerp, zoom = 0.85)
+    const zoom = this.camera.zoom || 0.85;
     const viewW = this.canvas.width / zoom;
     const viewH = this.canvas.height / zoom;
     const targetCamX = this.player.x - viewW / 2;
@@ -2016,7 +2016,7 @@ class AcademyGame {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    const zoom = this.camera.zoom || 0.70;
+    const zoom = this.camera.zoom || 0.85;
     ctx.save();
     ctx.scale(zoom, zoom);
     ctx.translate(-this.camera.x, -this.camera.y);
@@ -2130,7 +2130,7 @@ class AcademyGame {
       y: FLAGPOLE.y + 3,
       draw: (c) => {
         const img = TEXTURES['prop-flag'];
-        if (img) c.drawImage(img, FLAGPOLE.x - 56, FLAGPOLE.y + 3 - img.height * 0.97);
+        if (img) c.drawImage(img, FLAGPOLE.x - img.width * 0.435, FLAGPOLE.y + 3 - img.height * 0.97);
       }
     });
 
@@ -2164,20 +2164,20 @@ class AcademyGame {
       y: GATE.y,
       draw: (c) => {
         const img = TEXTURES['prop-gate'];
-        if (img) c.drawImage(img, GATE.x - 165, GATE.y - 140);
+        if (img) c.drawImage(img, GATE.x - img.width / 2, GATE.y - img.height);
         const gp = PLATE_INFO['prop-gate'];
         if (gp) {
           c.save();
           drawFittedText(
             c,
             'TRƯỜNG TIỂU HỌC PHÚ THỌ',
-            GATE.x - 165 + gp.x,
-            GATE.y - 140 + gp.y,
+            GATE.x - img.width / 2 + gp.x,
+            GATE.y - img.height + gp.y,
             gp.w,
-            16,
+            18,
             '"Baloo 2", "Nunito", sans-serif',
             '#1558b0',
-            10
+            11
           );
           c.restore();
         }

@@ -45,92 +45,93 @@ function genericBuilding(scene, key, w, h, o) {
     const roofH = o.roofH;
     const bx = 14;
     const bw = w - 28;
-    ell(g, w / 2, h - 6, w * 0.98, 24, 0x000000, null, 0, 0.18);
-    rr(g, bx, roofH - 6, bw, h - roofH, 6, o.wall, INK, 4);
-    rr(g, bx + 2, h - 24, bw - 4, 20, 4, o.base, null, 0);
+    ell(g, w / 2, h - 6, w * 0.98, 28, 0x000000, null, 0, 0.18);
+    rr(g, bx, roofH - 6, bw, h - roofH, 8, o.wall, INK, 4);
+    rr(g, bx + 2, h - 28, bw - 4, 24, 4, o.base, null, 0);
     // Cửa sổ hai bên
-    const wy = roofH + 50;
-    const wh = Math.max(24, Math.min(54, h - wy - 34));
-    const doorH = Math.max(60, Math.min(88, h - roofH - 58));
+    const wy = roofH + 60;
+    const wh = Math.max(30, Math.min(68, h - wy - 42));
+    const doorH = Math.max(72, Math.min(110, h - roofH - 70));
     const cols = o.windows ?? 2;
-    const ww = w >= 280 ? 40 : 30;
+    const ww = w >= 350 ? 52 : (w >= 280 ? 44 : 36);
     for (let i = 0; i < cols; i++) {
-      const step = i * 52;
-      windowShape(g, bx + 16 + step, wy, ww, wh);
-      windowShape(g, w - bx - 16 - ww - step, wy, ww, wh);
+      const step = i * 62;
+      windowShape(g, bx + 20 + step, wy, ww, wh);
+      windowShape(g, w - bx - 20 - ww - step, wy, ww, wh);
     }
-    door(g, w / 2, h - 6, 56, doorH, o.door);
+    door(g, w / 2, h - 6, 70, doorH, o.door);
     // Mái
-    poly(g, [0, roofH, 34, 8, w - 34, 8, w, roofH], o.roof, INK, 4);
+    poly(g, [0, roofH, 42, 8, w - 42, 8, w, roofH], o.roof, INK, 4);
     poly(
       g,
-      [14, roofH - 4, 40, 14, w - 40, 14, w - 14, roofH - 4],
+      [16, roofH - 4, 48, 14, w - 48, 14, w - 16, roofH - 4],
       shade(o.roof, 0.18),
       null,
       0,
     );
     for (const t of [0.35, 0.65]) {
       const yy = 8 + (roofH - 8) * t;
-      const inset = 34 * (1 - t);
+      const inset = 42 * (1 - t);
       line(g, inset + 4, yy, w - inset - 4, yy, shade(o.roof, -0.3), 3);
     }
     // Bảng tên
-    const p = plate(key, w, w / 2, roofH + 4, bw * 0.90, 36);
-    rr(g, p.x, p.y, p.w, p.h, 10, 0xfff9e6, INK, 3);
+    const p = plate(key, w, w / 2, roofH + 6, bw * 0.90, 44);
+    rr(g, p.x, p.y, p.w, p.h, 12, 0xfff9e6, INK, 3.5);
     // Biểu tượng trên mái
     const iconY = 8 + (roofH - 8) * 0.48;
-    circ(g, w / 2, iconY, 24, 0xfff9e6, INK, 3);
-    drawIconShape(g, o.deco, w / 2, iconY, 32);
+    circ(g, w / 2, iconY, 30, 0xfff9e6, INK, 3.5);
+    drawIconShape(g, o.deco, w / 2, iconY, 40);
     o.extra?.(g, w, h, doorH);
   });
 }
 
 function grandHall(scene, key, w, h) {
   makeTexture(scene, key, w, h, (g) => {
-    ell(g, w / 2, h - 6, w * 0.98, 26, 0x000000, null, 0, 0.18);
-    rr(g, 14, 120, w - 28, h - 124, 6, 0xfff1c9, INK, 4);
-    rr(g, 16, h - 26, w - 32, 22, 4, 0xcfb989, null, 0);
+    const mid = w / 2;
+    ell(g, mid, h - 6, w * 0.98, 32, 0x000000, null, 0, 0.18);
+    rr(g, 14, 156, w - 28, h - 162, 8, 0xfff1c9, INK, 4);
+    rr(g, 16, h - 34, w - 32, 28, 4, 0xcfb989, null, 0);
     // Tháp giữa
-    rr(g, 148, 28, 124, 100, 6, 0xffe6a3, INK, 4);
-    poly(g, [134, 34, 286, 34, 210, 2], 0xc0392b, INK, 4);
-    circ(g, 210, 66, 22, 0xffffff, INK, 4);
-    line(g, 210, 66, 210, 50, INK, 4);
-    line(g, 210, 66, 222, 72, INK, 4);
+    rr(g, mid - 81, 36, 162, 130, 8, 0xffe6a3, INK, 4);
+    poly(g, [mid - 98, 44, mid + 98, 44, mid, 2], 0xc0392b, INK, 4);
+    circ(g, mid, 86, 28, 0xffffff, INK, 4);
+    line(g, mid, 86, mid, 66, INK, 4);
+    line(g, mid, 86, mid + 16, 94, INK, 4);
     // Cánh nhà và mái
-    poly(g, [0, 126, 30, 96, w - 30, 96, w, 126], 0xc0392b, INK, 4);
-    poly(g, [14, 122, 38, 102, w - 38, 102, w - 14, 122], 0xd9564a, null, 0);
+    poly(g, [0, 164, 40, 126, w - 40, 126, w, 164], 0xc0392b, INK, 4);
+    poly(g, [18, 158, 50, 134, w - 50, 134, w - 18, 158], 0xd9564a, null, 0);
     // Cửa sổ
-    for (const row of [150, 208]) {
-      for (const x of [34, 88]) {
-        windowShape(g, x, row, 40, 44);
-        windowShape(g, w - x - 40, row, 40, 44);
+    for (const row of [196, 272]) {
+      for (const x of [44, 114]) {
+        windowShape(g, x, row, 52, 58);
+        windowShape(g, w - x - 52, row, 52, 58);
       }
     }
     // Cửa chính và bậc thềm
-    rr(g, 150, h - 14, 120, 12, 3, 0xcfd6df, INK, 3);
-    rr(g, 160, h - 24, 100, 12, 3, 0xdbe1e8, INK, 3);
-    rr(g, 170, h - 124, 80, 100, 18, 0x8a5a2b, INK, 4);
-    line(g, 210, h - 118, 210, h - 28, 0x5b3a1b, 3);
-    circ(g, 200, h - 76, 3.5, 0xffd23f, INK, 1.5);
-    circ(g, 220, h - 76, 3.5, 0xffd23f, INK, 1.5);
+    rr(g, mid - 80, h - 18, 160, 16, 4, 0xcfd6df, INK, 3);
+    rr(g, mid - 68, h - 32, 136, 16, 4, 0xdbe1e8, INK, 3);
+    rr(g, mid - 52, h - 162, 104, 132, 22, 0x8a5a2b, INK, 4);
+    line(g, mid, h - 154, mid, h - 36, 0x5b3a1b, 4);
+    circ(g, mid - 14, h - 100, 4.5, 0xffd23f, INK, 2);
+    circ(g, mid + 14, h - 100, 4.5, 0xffd23f, INK, 2);
     // Bảng tên trường
-    const p = plate(key, w, w / 2, 104, 344, 38);
-    rr(g, p.x, p.y, p.w, p.h, 10, 0xfff9e6, INK, 4);
+    const p = plate(key, w, mid, 136, 450, 50);
+    rr(g, p.x, p.y, p.w, p.h, 12, 0xfff9e6, INK, 4);
   });
 }
 
 function arenaTent(scene, key, w, h) {
   makeTexture(scene, key, w, h, (g) => {
     const mid = w / 2;
-    ell(g, mid, h - 6, w * 0.98, 24, 0x000000, null, 0, 0.18);
-    rr(g, 14, 96, w - 28, h - 100, 8, 0xfff1c9, INK, 4);
+    ell(g, mid, h - 6, w * 0.98, 30, 0x000000, null, 0, 0.18);
+    rr(g, 14, 124, w - 28, h - 130, 8, 0xfff1c9, INK, 4);
     // Sọc dọc của thân lều
     for (let i = 0; i < 8; i++) {
       if (i % 2 === 0) continue;
       g.fillStyle(0xf6c5bd, 1);
-      g.fillRect(16 + i * ((w - 32) / 8), 98, (w - 32) / 8, h - 124);
+      g.fillRect(16 + i * ((w - 32) / 8), 126, (w - 32) / 8, h - 160);
     }
-    rr(g, 14, 96, w - 28, h - 100, 8, null, INK, 4);
+    rr(g, 14, 124, w - 28, h - 130, 8, null, INK, 4);
     // Mái lều
     const steps = 8;
     for (let i = 0; i < steps; i++) {
@@ -138,47 +139,48 @@ function arenaTent(scene, key, w, h) {
       const x2 = 2 + ((i + 1) * (w - 4)) / steps;
       poly(
         g,
-        [mid, 24, x1, 104, x2, 104],
+        [mid, 30, x1, 134, x2, 134],
         i % 2 === 0 ? 0xe4572e : 0xffffff,
         INK,
-        3,
+        3.5,
       );
     }
-    line(g, mid, 24, mid, 4, INK, 4);
-    poly(g, [mid, 4, mid + 24, 10, mid, 16], 0xffc83d, INK, 3);
-    circ(g, mid, 70, 16, 0xfff9e6, INK, 3);
-    drawIconShape(g, "flame", mid, 70, 22);
-    door(g, mid, h - 6, 56, 80, 0x7b3f1d);
-    const p = plate(key, w, mid, 110, w - 50, 32);
-    rr(g, p.x, p.y, p.w, p.h, 10, 0xfff9e6, INK, 3);
+    line(g, mid, 30, mid, 5, INK, 4);
+    poly(g, [mid, 5, mid + 30, 13, mid, 21], 0xffc83d, INK, 3);
+    circ(g, mid, 90, 21, 0xfff9e6, INK, 3);
+    drawIconShape(g, "flame", mid, 90, 28);
+    door(g, mid, h - 6, 72, 104, 0x7b3f1d);
+    const p = plate(key, w, mid, 142, w - 65, 42);
+    rr(g, p.x, p.y, p.w, p.h, 12, 0xfff9e6, INK, 3.5);
   });
 }
 
 function idiomStage(scene, key, w, h) {
   makeTexture(scene, key, w, h, (g) => {
-    ell(g, w / 2, h - 6, w * 0.98, 24, 0x000000, null, 0, 0.18);
-    rr(g, 10, h - 46, w - 20, 40, 6, 0xd9c6a0, INK, 4);
-    rr(g, 24, h - 62, w - 48, 20, 6, 0xe8d8b4, INK, 4);
-    rr(g, 46, 60, w - 92, h - 112, 8, 0xffe0a3, INK, 4);
+    const mid = w / 2;
+    ell(g, mid, h - 6, w * 0.98, 30, 0x000000, null, 0, 0.18);
+    rr(g, 12, h - 60, w - 24, 52, 8, 0xd9c6a0, INK, 4);
+    rr(g, 30, h - 80, w - 60, 26, 8, 0xe8d8b4, INK, 4);
+    rr(g, 60, 78, w - 120, h - 146, 10, 0xffe0a3, INK, 4);
     // Rèm
-    poly(g, [46, 60, 82, 60, 46, h - 52], 0xc0392b, INK, 3);
-    poly(g, [w - 46, 60, w - 82, 60, w - 46, h - 52], 0xc0392b, INK, 3);
+    poly(g, [60, 78, 106, 78, 60, h - 68], 0xc0392b, INK, 3);
+    poly(g, [w - 60, 78, w - 106, 78, w - 60, h - 68], 0xc0392b, INK, 3);
     // Cột
-    for (const x of [22, w - 44]) {
-      rr(g, x, 50, 22, h - 98, 5, 0xf3efe6, INK, 3);
-      rr(g, x - 4, 44, 30, 12, 4, 0xe0d8c6, INK, 3);
+    for (const x of [28, w - 56]) {
+      rr(g, x, 65, 28, h - 128, 6, 0xf3efe6, INK, 3);
+      rr(g, x - 5, 57, 38, 16, 5, 0xe0d8c6, INK, 3);
     }
     // Mái che
-    poly(g, [8, 56, w - 8, 56, w - 36, 12, 36, 12], 0x8e5bd0, INK, 4);
-    poly(g, [22, 52, w - 22, 52, w - 44, 18, 44, 18], 0xa77be0, null, 0);
+    poly(g, [10, 72, w - 10, 72, w - 46, 16, 46, 16], 0x8e5bd0, INK, 4);
+    poly(g, [28, 68, w - 28, 68, w - 58, 24, 58, 24], 0xa77be0, null, 0);
     // Các ô chữ trang trí
     const tiles = [0xff8a65, 0xffd54f, 0x81c784, 0x64b5f6, 0xba68c8];
     for (let i = 0; i < 5; i++)
-      rr(g, 94 + i * 20, h - 108, 17, 24, 3, tiles[i], INK, 2);
-    const p = plate(key, w, w / 2, 66, w - 60, 32);
-    rr(g, p.x, p.y, p.w, p.h, 10, 0xfff9e6, INK, 3);
-    circ(g, w / 2, 30, 17, 0xfff9e6, INK, 3);
-    drawIconShape(g, "scroll", w / 2, 30, 24);
+      rr(g, mid - 65 + i * 26, h - 140, 22, 31, 4, tiles[i], INK, 2);
+    const p = plate(key, w, mid, 86, w - 80, 42);
+    rr(g, p.x, p.y, p.w, p.h, 12, 0xfff9e6, INK, 3.5);
+    circ(g, mid, 38, 22, 0xfff9e6, INK, 3);
+    drawIconShape(g, "scroll", mid, 38, 30);
   });
 }
 
@@ -192,14 +194,14 @@ function shopFront(scene, key, w, h, o) {
         poly(
           g,
           [
-            doorX - 46 + i * 15.3,
+            doorX - 60 + i * 20,
             top - 2,
-            doorX - 46 + (i + 1) * 15.3,
+            doorX - 60 + (i + 1) * 20,
             top - 2,
-            doorX - 52 + (i + 1) * 17.3,
-            top + 18,
-            doorX - 52 + i * 17.3,
-            top + 18,
+            doorX - 68 + (i + 1) * 22.6,
+            top + 24,
+            doorX - 68 + i * 22.6,
+            top + 24,
           ],
           i % 2 === 0 ? 0xe4572e : 0xffffff,
           INK,
@@ -214,20 +216,20 @@ function soccerField(scene, key, w, h) {
   makeTexture(scene, key, w, h, (g) => {
     const midX = w / 2;
     // Bóng đổ
-    ell(g, midX, h - 6, w * 0.98, 24, 0x000000, null, 0, 0.18);
+    ell(g, midX, h - 6, w * 0.98, 30, 0x000000, null, 0, 0.18);
 
     // Bờ tường / hàng rào bao quanh sân bóng
-    rr(g, 6, 24, w - 12, h - 30, 14, 0xd4c5a9, INK, 4);
+    rr(g, 6, 28, w - 12, h - 36, 16, 0xd4c5a9, INK, 4);
 
     // Nền sân cỏ bóng đá
-    const fieldX = 14;
-    const fieldY = 32;
-    const fieldW = w - 28;
-    const fieldH = h - 46;
-    rr(g, fieldX, fieldY, fieldW, fieldH, 10, 0x2e7d32, INK, 3);
+    const fieldX = 16;
+    const fieldY = 38;
+    const fieldW = w - 32;
+    const fieldH = h - 54;
+    rr(g, fieldX, fieldY, fieldW, fieldH, 12, 0x2e7d32, INK, 3);
 
     // Các dải cỏ sáng tối xen kẽ (sọc cỏ sân vận động)
-    const stripeW = 32;
+    const stripeW = 40;
     let stripeIdx = 0;
     for (let x = fieldX + 2; x < fieldX + fieldW - 2; x += stripeW) {
       if (stripeIdx % 2 === 1) {
@@ -239,23 +241,23 @@ function soccerField(scene, key, w, h) {
     }
 
     // Vạch biên ngoài sân cỏ
-    const innerX = fieldX + 12;
-    const innerY = fieldY + 12;
-    const innerW = fieldW - 24;
-    const innerH = fieldH - 24;
-    rr(g, innerX, innerY, innerW, innerH, 4, null, 0xffffff, 2.5);
+    const innerX = fieldX + 14;
+    const innerY = fieldY + 14;
+    const innerW = fieldW - 28;
+    const innerH = fieldH - 28;
+    rr(g, innerX, innerY, innerW, innerH, 4, null, 0xffffff, 3);
 
     // Đường giữa sân
     const centerY = innerY + innerH / 2;
-    line(g, innerX, centerY, innerX + innerW, centerY, 0xffffff, 2.5);
+    line(g, innerX, centerY, innerX + innerW, centerY, 0xffffff, 3);
 
     // Vòng tròn trung tâm
-    circ(g, midX, centerY, 24, null, 0xffffff, 2.5);
-    circ(g, midX, centerY, 3.5, 0xffffff, null, 0);
+    circ(g, midX, centerY, 30, null, 0xffffff, 3);
+    circ(g, midX, centerY, 4.5, 0xffffff, null, 0);
 
     // Khung thành phía trên (Top Goal)
-    const goalW = 76;
-    const goalH = 22;
+    const goalW = 98;
+    const goalH = 28;
     const goalX = midX - goalW / 2;
     const goalY = innerY - 6;
 
@@ -263,23 +265,23 @@ function soccerField(scene, key, w, h) {
     g.fillStyle(0xe2e8f0, 0.7);
     g.fillRect(goalX + 2, goalY - goalH + 4, goalW - 4, goalH);
     // Mắt lưới caro
-    for (let lx = goalX + 8; lx < goalX + goalW; lx += 8) {
-      line(g, lx, goalY - goalH + 4, lx, goalY + 4, 0xffffff, 1.2);
+    for (let lx = goalX + 10; lx < goalX + goalW; lx += 10) {
+      line(g, lx, goalY - goalH + 4, lx, goalY + 4, 0xffffff, 1.3);
     }
-    for (let ly = goalY - goalH + 8; ly <= goalY; ly += 6) {
-      line(g, goalX + 2, ly, goalX + goalW - 2, ly, 0xffffff, 1.2);
+    for (let ly = goalY - goalH + 10; ly <= goalY; ly += 7) {
+      line(g, goalX + 2, ly, goalX + goalW - 2, ly, 0xffffff, 1.3);
     }
     // Cột dọc và xà ngang khung thành trên
-    rr(g, goalX, goalY - goalH + 2, goalW, goalH + 2, 2, null, 0xffffff, 3);
-    rr(g, goalX, goalY - goalH + 2, goalW, goalH + 2, 2, null, INK, 1.5);
+    rr(g, goalX, goalY - goalH + 2, goalW, goalH + 2, 3, null, 0xffffff, 3.5);
+    rr(g, goalX, goalY - goalH + 2, goalW, goalH + 2, 3, null, INK, 1.8);
 
     // Vòng cấm địa (Penalty box) phía trên
-    rr(g, midX - 52, innerY, 104, 30, 2, null, 0xffffff, 2);
-    circ(g, midX, innerY + 22, 2.5, 0xffffff, null, 0);
+    rr(g, midX - 68, innerY, 136, 38, 2, null, 0xffffff, 2.5);
+    circ(g, midX, innerY + 28, 3, 0xffffff, null, 0);
 
     // Vòng cấm địa phía dưới
-    rr(g, midX - 52, innerY + innerH - 30, 104, 30, 2, null, 0xffffff, 2);
-    circ(g, midX, innerY + innerH - 22, 2.5, 0xffffff, null, 0);
+    rr(g, midX - 68, innerY + innerH - 38, 136, 38, 2, null, 0xffffff, 2.5);
+    circ(g, midX, innerY + innerH - 28, 3, 0xffffff, null, 0);
 
     // Cờ 4 góc sân (vàng & đỏ)
     for (const [cx, cy, dir] of [
@@ -288,128 +290,128 @@ function soccerField(scene, key, w, h) {
       [innerX, innerY + innerH, 1],
       [innerX + innerW, innerY + innerH, -1],
     ]) {
-      line(g, cx, cy, cx, cy - 10, 0xfacc15, 2);
-      poly(g, [cx, cy - 10, cx + 8 * dir, cy - 7, cx, cy - 4], 0xef4444, INK, 1);
+      line(g, cx, cy, cx, cy - 13, 0xfacc15, 2.5);
+      poly(g, [cx, cy - 13, cx + 10 * dir, cy - 9, cx, cy - 5], 0xef4444, INK, 1.2);
     }
 
     // Quả bóng đá ở trung tâm
-    circ(g, midX, centerY, 8, 0xffffff, INK, 2);
-    circ(g, midX, centerY, 3, 0x1f2937, null, 0);
+    circ(g, midX, centerY, 10, 0xffffff, INK, 2.5);
+    circ(g, midX, centerY, 4, 0x1f2937, null, 0);
     for (let a = 0; a < Math.PI * 2; a += Math.PI / 2.5) {
-      circ(g, midX + Math.cos(a) * 5.2, centerY + Math.sin(a) * 5.2, 1.8, 0x1f2937, null, 0);
+      circ(g, midX + Math.cos(a) * 6.5, centerY + Math.sin(a) * 6.5, 2.2, 0x1f2937, null, 0);
     }
 
     // Bảng tên sân bóng đá
-    const p = plate(key, w, midX, 4, w - 60, 28);
-    rr(g, p.x, p.y, p.w, p.h, 8, 0x15803d, INK, 3);
-    rr(g, p.x + 3, p.y + 3, p.w - 6, p.h - 6, 6, 0xfff9e6, null, 0);
+    const p = plate(key, w, midX, 4, w - 75, 36);
+    rr(g, p.x, p.y, p.w, p.h, 10, 0x15803d, INK, 3.5);
+    rr(g, p.x + 3, p.y + 3, p.w - 6, p.h - 6, 8, 0xfff9e6, null, 0);
 
     // Biểu tượng bóng đá hai bên bảng tên
-    circ(g, p.x + 16, p.y + p.h / 2, 8, 0xffffff, INK, 1.5);
-    circ(g, p.x + 16, p.y + p.h / 2, 2.5, 0x1e293b, null, 0);
-    circ(g, p.x + p.w - 16, p.y + p.h / 2, 8, 0xffffff, INK, 1.5);
-    circ(g, p.x + p.w - 16, p.y + p.h / 2, 2.5, 0x1e293b, null, 0);
+    circ(g, p.x + 20, p.y + p.h / 2, 10, 0xffffff, INK, 2);
+    circ(g, p.x + 20, p.y + p.h / 2, 3.5, 0x1e293b, null, 0);
+    circ(g, p.x + p.w - 20, p.y + p.h / 2, 10, 0xffffff, INK, 2);
+    circ(g, p.x + p.w - 20, p.y + p.h / 2, 3.5, 0x1e293b, null, 0);
   });
 }
 
 function tree(scene, key, variant) {
-  makeTexture(scene, key, 110, 140, (g) => {
-    ell(g, 55, 134, 52, 12, 0x000000, null, 0, 0.2);
-    rr(g, 46, 78, 18, 58, 5, 0x8a5a2b, INK, 3);
+  makeTexture(scene, key, 145, 185, (g) => {
+    ell(g, 72, 178, 70, 16, 0x000000, null, 0, 0.2);
+    rr(g, 60, 102, 24, 76, 6, 0x8a5a2b, INK, 4);
     const green = variant === 0 ? 0x3fa34d : 0x58b947;
-    circ(g, 34, 62, 28, green, INK, 4);
-    circ(g, 76, 62, 28, green, INK, 4);
-    circ(g, 55, 36, 32, green, INK, 4);
-    circ(g, 55, 66, 26, green, null, 0);
-    circ(g, 45, 28, 12, shade(green, 0.25), null, 0);
-    circ(g, 28, 54, 8, shade(green, 0.25), null, 0);
+    circ(g, 44, 82, 38, green, INK, 5);
+    circ(g, 100, 82, 38, green, INK, 5);
+    circ(g, 72, 48, 42, green, INK, 5);
+    circ(g, 72, 88, 34, green, null, 0);
+    circ(g, 58, 38, 16, shade(green, 0.25), null, 0);
+    circ(g, 36, 72, 11, shade(green, 0.25), null, 0);
     if (variant === 1) {
       for (const [x, y] of [
-        [40, 50],
-        [70, 44],
-        [58, 70],
-        [32, 72],
-        [78, 68],
+        [52, 66],
+        [92, 58],
+        [76, 92],
+        [42, 95],
+        [102, 90],
       ])
-        circ(g, x, y, 5, 0xff5a5f, INK, 1.5);
+        circ(g, x, y, 6.5, 0xff5a5f, INK, 2);
     }
   });
 }
 
 function bench(scene) {
-  makeTexture(scene, "prop-bench", 90, 46, (g) => {
-    ell(g, 45, 42, 84, 8, 0x000000, null, 0, 0.2);
-    rr(g, 8, 24, 12, 18, 3, 0x8f9aa8, INK, 3);
-    rr(g, 70, 24, 12, 18, 3, 0x8f9aa8, INK, 3);
-    rr(g, 2, 16, 86, 12, 5, 0xb9c2cd, INK, 3);
-    rr(g, 6, 2, 78, 11, 5, 0xc7cfd8, INK, 3);
+  makeTexture(scene, "prop-bench", 118, 60, (g) => {
+    ell(g, 59, 55, 110, 10, 0x000000, null, 0, 0.2);
+    rr(g, 10, 31, 16, 24, 4, 0x8f9aa8, INK, 3);
+    rr(g, 92, 31, 16, 24, 4, 0x8f9aa8, INK, 3);
+    rr(g, 3, 21, 112, 16, 6, 0xb9c2cd, INK, 3);
+    rr(g, 8, 3, 102, 15, 6, 0xc7cfd8, INK, 3);
   });
 }
 
 function flowerBed(scene, w) {
-  makeTexture(scene, `prop-bed-${w}`, w, 44, (g) => {
-    rr(g, 0, 18, w, 26, 8, 0xb9c2cd, INK, 3);
-    rr(g, 4, 22, w - 8, 16, 6, 0x6b4a2b, null, 0);
+  makeTexture(scene, `prop-bed-${w}`, w, 56, (g) => {
+    rr(g, 0, 24, w, 32, 10, 0xb9c2cd, INK, 3);
+    rr(g, 5, 29, w - 10, 20, 8, 0x6b4a2b, null, 0);
     const colors = [0xff6b81, 0xffd23f, 0xffffff, 0xff9f43, 0xb388ff];
-    const n = Math.floor(w / 18);
+    const n = Math.floor(w / 22);
     for (let i = 0; i < n; i++) {
-      const x = 12 + i * ((w - 24) / Math.max(1, n - 1));
-      line(g, x, 22, x, 10 + (i % 2) * 4, 0x2e8b57, 3);
-      circ(g, x, 8 + (i % 2) * 4, 7, colors[i % colors.length], INK, 2);
-      circ(g, x, 8 + (i % 2) * 4, 2.5, 0xffe066, null, 0);
+      const x = 14 + i * ((w - 28) / Math.max(1, n - 1));
+      line(g, x, 29, x, 13 + (i % 2) * 5, 0x2e8b57, 3.5);
+      circ(g, x, 11 + (i % 2) * 5, 9, colors[i % colors.length], INK, 2);
+      circ(g, x, 11 + (i % 2) * 5, 3.2, 0xffe066, null, 0);
     }
   });
 }
 
 function flagpole(scene) {
-  makeTexture(scene, "prop-flag", 130, 240, (g) => {
-    ell(g, 56, 226, 98, 24, 0x000000, null, 0, 0.2);
-    ell(g, 56, 218, 92, 30, 0xcfd6df, INK, 4);
-    ell(g, 56, 214, 70, 20, 0x9be07a, INK, 3);
-    rr(g, 52, 24, 8, 194, 3, 0xdfe5ec, INK, 3);
-    circ(g, 56, 20, 7, 0xffc83d, 0xb86e00, 3);
-    poly(g, [60, 30, 122, 30, 122, 82, 60, 82], 0xda251d, INK, 3);
-    poly(g, starPoints(91, 56, 16, 6.5), 0xffe34d, null, 0);
+  makeTexture(scene, "prop-flag", 170, 310, (g) => {
+    ell(g, 74, 294, 128, 30, 0x000000, null, 0, 0.2);
+    ell(g, 74, 284, 120, 38, 0xcfd6df, INK, 5);
+    ell(g, 74, 278, 92, 26, 0x9be07a, INK, 4);
+    rr(g, 69, 32, 11, 250, 4, 0xdfe5ec, INK, 4);
+    circ(g, 74, 26, 9.5, 0xffc83d, 0xb86e00, 3.5);
+    poly(g, [80, 40, 160, 40, 160, 108, 80, 108], 0xda251d, INK, 4);
+    poly(g, starPoints(120, 74, 21, 8.5), 0xffe34d, null, 0);
   });
 }
 
 function board(scene) {
-  makeTexture(scene, "prop-board", 90, 100, (g) => {
-    ell(g, 45, 94, 70, 10, 0x000000, null, 0, 0.2);
-    rr(g, 14, 50, 9, 48, 2, 0x8a5a2b, INK, 3);
-    rr(g, 67, 50, 9, 48, 2, 0x8a5a2b, INK, 3);
-    rr(g, 2, 4, 86, 62, 8, 0xc99a5b, INK, 4);
-    rr(g, 8, 10, 74, 50, 5, 0xfff4d6, INK, 2);
+  makeTexture(scene, "prop-board", 120, 130, (g) => {
+    ell(g, 60, 122, 94, 13, 0x000000, null, 0, 0.2);
+    rr(g, 18, 65, 12, 62, 3, 0x8a5a2b, INK, 4);
+    rr(g, 90, 65, 12, 62, 3, 0x8a5a2b, INK, 4);
+    rr(g, 3, 5, 114, 82, 10, 0xc99a5b, INK, 4);
+    rr(g, 11, 13, 98, 66, 6, 0xfff4d6, INK, 2.5);
     const notes = [
-      [14, 16, 0xffd54f],
-      [44, 16, 0x81d4fa],
-      [28, 36, 0xf8bbd0],
+      [18, 20, 0xffd54f],
+      [58, 20, 0x81d4fa],
+      [38, 46, 0xf8bbd0],
     ];
     for (const [x, y, c] of notes) {
-      rr(g, x, y, 28, 22, 2, c, INK, 2);
-      circ(g, x + 14, y + 2, 2.5, 0xe4572e, INK, 1);
+      rr(g, x, y, 36, 28, 3, c, INK, 2);
+      circ(g, x + 18, y + 3, 3, 0xe4572e, INK, 1.5);
     }
-    drawIconShape(g, "check", 66, 48, 14);
+    drawIconShape(g, "check", 88, 62, 18);
   });
 }
 
 function gate(scene) {
-  makeTexture(scene, "prop-gate", 330, 140, (g) => {
-    ell(g, 165, 134, 320, 14, 0x000000, null, 0, 0.18);
-    for (const x of [4, 264]) {
-      rr(g, x, 20, 62, 118, 6, 0xdfe5ec, INK, 4);
-      rr(g, x - 4, 12, 70, 16, 5, 0xc3ccd6, INK, 3);
-      rr(g, x + 8, 40, 46, 16, 3, 0xcdd5df, INK, 2);
+  makeTexture(scene, "prop-gate", 430, 182, (g) => {
+    ell(g, 215, 174, 416, 18, 0x000000, null, 0, 0.18);
+    for (const x of [6, 344]) {
+      rr(g, x, 26, 80, 154, 8, 0xdfe5ec, INK, 5);
+      rr(g, x - 5, 16, 90, 20, 6, 0xc3ccd6, INK, 4);
+      rr(g, x + 10, 52, 60, 20, 4, 0xcdd5df, INK, 3);
     }
     // Cổng sắt mở
-    for (let i = 0; i < 4; i++) {
-      line(g, 76 + i * 9, 70, 76 + i * 9, 132, 0x4a5568, 3);
-      line(g, 254 - i * 9, 70, 254 - i * 9, 132, 0x4a5568, 3);
+    for (let i = 0; i < 5; i++) {
+      line(g, 98 + i * 12, 92, 98 + i * 12, 172, 0x4a5568, 3.5);
+      line(g, 332 - i * 12, 92, 332 - i * 12, 172, 0x4a5568, 3.5);
     }
     // Biển hiệu cổng
-    rr(g, 20, 0, 290, 46, 12, 0x1e6fd9, INK, 4);
-    rr(g, 28, 6, 274, 34, 8, 0xfff9e6, null, 0);
-    PLATE_INFO[`prop-gate`] = { x: 165, y: 23, w: 270, h: 34 };
+    rr(g, 26, 0, 378, 60, 14, 0x1e6fd9, INK, 5);
+    rr(g, 36, 8, 358, 44, 10, 0xfff9e6, null, 0);
+    PLATE_INFO[`prop-gate`] = { x: 215, y: 30, w: 350, h: 44 };
   });
 }
 
@@ -497,8 +499,8 @@ function worldBackground(scene) {
         g.lineBetween(x, r.y + 6, x, r.y + r.h - 6);
     }
     // Sân cột cờ và hồ nước
-    ell(g, FLAGPOLE.x, FLAGPOLE.y - 10, 380, 220, STONE_EDGE, null, 0, 1);
-    ell(g, FLAGPOLE.x, FLAGPOLE.y - 10, 364, 204, 0xf1e9d4, null, 0, 1);
+    ell(g, FLAGPOLE.x, FLAGPOLE.y - 10, 495, 285, STONE_EDGE, null, 0, 1);
+    ell(g, FLAGPOLE.x, FLAGPOLE.y - 10, 475, 265, 0xf1e9d4, null, 0, 1);
     pondRim(g, POND.x, POND.y, POND.rx, POND.ry);
     // Cỏ và hoa nhỏ rải rác ở những chỗ không có đường
     const paths = pathRects();
@@ -514,8 +516,8 @@ function worldBackground(scene) {
       const x = 30 + rng() * (W - 60);
       const y = 110 + rng() * (H - 200);
       if (!free(x, y)) continue;
-      if (Math.hypot((x - POND.x) / (POND.rx + 15), (y - POND.y) / (POND.ry + 15)) < 1) continue;
-      if (Math.hypot((x - FLAGPOLE.x) / 200, (y - (FLAGPOLE.y - 10)) / 120) < 1) continue;
+      if (Math.hypot((x - POND.x) / (POND.rx + 20), (y - POND.y) / (POND.ry + 20)) < 1) continue;
+      if (Math.hypot((x - FLAGPOLE.x) / 260, (y - (FLAGPOLE.y - 10)) / 155) < 1) continue;
       if (rng() < 0.55) {
         line(g, x - 4, y, x, y - 8, 0x58b947, 2.5);
         line(g, x + 4, y, x, y - 8, 0x58b947, 2.5);
@@ -548,7 +550,7 @@ export function generateMapTextures(scene) {
   worldBackground(scene);
   const styles = {
     library: {
-      roofH: 78,
+      roofH: 100,
       wall: 0xf7c59f,
       base: 0xc97a4b,
       roof: 0x1e6fd9,
@@ -557,7 +559,7 @@ export function generateMapTextures(scene) {
       windows: 2,
     },
     literature: {
-      roofH: 78,
+      roofH: 100,
       wall: 0xd3bff5,
       base: 0x9b7fd1,
       roof: 0xe07b00,
@@ -566,7 +568,7 @@ export function generateMapTextures(scene) {
       windows: 2,
     },
     spelling: {
-      roofH: 66,
+      roofH: 86,
       wall: 0xc2ead6,
       base: 0x7fbf9f,
       roof: 0xe4572e,
@@ -575,7 +577,7 @@ export function generateMapTextures(scene) {
       windows: 2,
     },
     pets: {
-      roofH: 56,
+      roofH: 74,
       wall: 0xffe6a8,
       base: 0xd9b55a,
       roof: 0x2fa56b,
@@ -584,7 +586,7 @@ export function generateMapTextures(scene) {
       windows: 1,
     },
     math: {
-      roofH: 56,
+      roofH: 74,
       wall: 0xcfe8ff,
       base: 0x7fb2e6,
       roof: 0x7e57c2,
@@ -593,7 +595,7 @@ export function generateMapTextures(scene) {
       windows: 1,
     },
     arcade: {
-      roofH: 58,
+      roofH: 76,
       wall: 0xfff3c4,
       base: 0xffd54f,
       roof: 0xe65100,
@@ -609,7 +611,7 @@ export function generateMapTextures(scene) {
     else if (b.zone === "soccer") soccerField(scene, b.texture, b.w, b.h);
     else if (b.zone === "shop")
       shopFront(scene, b.texture, b.w, b.h, {
-        roofH: 56,
+        roofH: 74,
         wall: 0xffd1dc,
         base: 0xe08aa0,
         roof: 0x1fa3a3,

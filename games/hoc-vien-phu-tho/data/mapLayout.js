@@ -18,8 +18,8 @@ export const BUILDINGS = [
     texture: "bld-library",
     cx: 650,
     baseY: 850,
-    w: 320,
-    h: 240,
+    w: 420,
+    h: 310,
     ix: 650,
     iy: 930,
   },
@@ -28,8 +28,8 @@ export const BUILDINGS = [
     texture: "bld-grand",
     cx: 2400,
     baseY: 850,
-    w: 420,
-    h: 290,
+    w: 550,
+    h: 380,
     ix: 2400,
     iy: 930,
   },
@@ -38,8 +38,8 @@ export const BUILDINGS = [
     texture: "bld-literature",
     cx: 4150,
     baseY: 850,
-    w: 320,
-    h: 240,
+    w: 420,
+    h: 310,
     ix: 4150,
     iy: 930,
   },
@@ -48,8 +48,8 @@ export const BUILDINGS = [
     texture: "bld-spelling",
     cx: 620,
     baseY: 2050,
-    w: 280,
-    h: 200,
+    w: 370,
+    h: 260,
     ix: 620,
     iy: 2130,
   },
@@ -58,8 +58,8 @@ export const BUILDINGS = [
     texture: "bld-arcade",
     cx: 1450,
     baseY: 2050,
-    w: 280,
-    h: 210,
+    w: 370,
+    h: 270,
     ix: 1450,
     iy: 2130,
   },
@@ -68,8 +68,8 @@ export const BUILDINGS = [
     texture: "bld-arena",
     cx: 2400,
     baseY: 2050,
-    w: 260,
-    h: 210,
+    w: 340,
+    h: 270,
     ix: 2400,
     iy: 2130,
   },
@@ -78,8 +78,8 @@ export const BUILDINGS = [
     texture: "bld-soccer",
     cx: 3350,
     baseY: 2050,
-    w: 320,
-    h: 210,
+    w: 420,
+    h: 275,
     ix: 3350,
     iy: 2130,
   },
@@ -88,8 +88,8 @@ export const BUILDINGS = [
     texture: "bld-idiom",
     cx: 4180,
     baseY: 2050,
-    w: 280,
-    h: 200,
+    w: 370,
+    h: 260,
     ix: 4180,
     iy: 2130,
   },
@@ -98,8 +98,8 @@ export const BUILDINGS = [
     texture: "bld-pets",
     cx: 550,
     baseY: 2950,
-    w: 190,
-    h: 190,
+    w: 250,
+    h: 250,
     ix: 550,
     iy: 3030,
   },
@@ -108,8 +108,8 @@ export const BUILDINGS = [
     texture: "bld-math",
     cx: 3350,
     baseY: 2950,
-    w: 190,
-    h: 190,
+    w: 250,
+    h: 250,
     ix: 3350,
     iy: 3030,
   },
@@ -118,8 +118,8 @@ export const BUILDINGS = [
     texture: "bld-shop",
     cx: 4200,
     baseY: 2950,
-    w: 210,
-    h: 200,
+    w: 275,
+    h: 260,
     ix: 4200,
     iy: 3030,
   },
@@ -131,8 +131,8 @@ export const BOARD = {
   texture: "prop-board",
   x: 1450,
   baseY: 2900,
-  w: 90,
-  h: 100,
+  w: 120,
+  h: 130,
   ix: 1450,
   iy: 2970,
 };
@@ -186,18 +186,18 @@ export const BENCHES = [
 ];
 
 export const FLOWER_BEDS = [
-  { x: 1000, y: 1000, w: 120 },
-  { x: 3800, y: 1000, w: 120 },
-  { x: 2400, y: 1050, w: 140 },
-  { x: 1450, y: 1850, w: 120 },
-  { x: 3350, y: 1850, w: 120 },
-  { x: 2400, y: 2400, w: 140 },
-  { x: 1900, y: 2980, w: 100 },
-  { x: 2900, y: 2980, w: 100 },
+  { x: 1000, y: 1000, w: 160 },
+  { x: 3800, y: 1000, w: 160 },
+  { x: 2400, y: 1050, w: 185 },
+  { x: 1450, y: 1850, w: 160 },
+  { x: 3350, y: 1850, w: 160 },
+  { x: 2400, y: 2400, w: 185 },
+  { x: 1900, y: 2980, w: 130 },
+  { x: 2900, y: 2980, w: 130 },
 ];
 
 export const FLAGPOLE = { x: 1450, y: 1500 };
-export const POND = { x: 3350, y: 1500, rx: 180, ry: 110 };
+export const POND = { x: 3350, y: 1500, rx: 235, ry: 145 };
 
 /** Ổ khóa và nhãn của từng khu vực nằm cao hơn cửa một đoạn. */
 export const GATE = { x: 2400, y: 3450 };
@@ -213,29 +213,29 @@ function buildingRect(b) {
 
 export function buildObstacles() {
   const rects = BUILDINGS.map(buildingRect);
-  rects.push({ x: BOARD.x - 28, y: BOARD.baseY - 22, w: 56, h: 22 });
-  for (const t of TREES) rects.push({ x: t.x - 14, y: t.y - 18, w: 28, h: 18 });
+  rects.push({ x: BOARD.x - 36, y: BOARD.baseY - 28, w: 72, h: 28 });
+  for (const t of TREES) rects.push({ x: t.x - 18, y: t.y - 23, w: 36, h: 23 });
   for (const b of BENCHES)
-    rects.push({ x: b.x - 38, y: b.y - 16, w: 76, h: 18 });
+    rects.push({ x: b.x - 49, y: b.y - 20, w: 98, h: 23 });
   for (const f of FLOWER_BEDS)
-    rects.push({ x: f.x - f.w / 2, y: f.y - 24, w: f.w, h: 24 });
-  rects.push({ x: FLAGPOLE.x - 40, y: FLAGPOLE.y - 30, w: 80, h: 34 });
-  // Hai trụ cổng trường
-  rects.push({ x: GATE.x - 161, y: GATE.y - 60, w: 62, h: 40 });
-  rects.push({ x: GATE.x + 99, y: GATE.y - 60, w: 62, h: 40 });
+    rects.push({ x: f.x - f.w / 2, y: f.y - 30, w: f.w, h: 30 });
+  rects.push({ x: FLAGPOLE.x - 52, y: FLAGPOLE.y - 38, w: 104, h: 44 });
+  // Hai trụ cổng trường (cổng rộng 430, trụ 80x52)
+  rects.push({ x: GATE.x - 209, y: GATE.y - 78, w: 80, h: 52 });
+  rects.push({ x: GATE.x + 129, y: GATE.y - 78, w: 80, h: 52 });
   // Hồ nước
-  rects.push({ x: POND.x - POND.rx, y: POND.y - 16, w: POND.rx * 2, h: 32 });
+  rects.push({ x: POND.x - POND.rx, y: POND.y - 20, w: POND.rx * 2, h: 40 });
   rects.push({
     x: POND.x - POND.rx * 0.72,
     y: POND.y - POND.ry,
     w: POND.rx * 1.44,
-    h: POND.ry - 14,
+    h: POND.ry - 18,
   });
   rects.push({
     x: POND.x - POND.rx * 0.72,
-    y: POND.y + 16,
+    y: POND.y + 20,
     w: POND.rx * 1.44,
-    h: POND.ry - 14,
+    h: POND.ry - 18,
   });
   return rects;
 }
