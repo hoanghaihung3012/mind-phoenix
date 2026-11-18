@@ -18,6 +18,9 @@ const BLUSH = 0xf5a3a3;
 export const SKIN_STYLES = Object.fromEntries(
   shop.skins.map((s) => [s.id, s.style]),
 );
+if (!SKIN_STYLES["sport"]) {
+  SKIN_STYLES["sport"] = { shirt: "#f97316", bottom: "#0284c7", accessory: "none" };
+}
 /** Cô giáo hướng dẫn chỉ dùng ở màn hình chính, không nằm trong cửa hàng. */
 export const TEACHER_STYLE = {
   shirt: "#f48fb1",
@@ -44,6 +47,9 @@ export function drawCharacter(
 ) {
   g.clear();
   const girl = avatar.character === "girl";
+  const skinTone = avatar.skinColor
+    ? hex(avatar.skinColor)
+    : (avatar.skin === "warm" ? 0xf5c798 : avatar.skin === "tan" ? 0xd89a64 : avatar.skin === "peach" ? 0xffd2b0 : SKIN_TONE);
   const hair = HAIR_COLORS[avatar.hairColor] ?? HAIR_COLORS[0];
   const bag = BAG_COLORS[avatar.bagColor] ?? 0xe4572e;
   const shoe = SHOE_COLORS[avatar.shoeColor] ?? 0xffffff;
@@ -78,11 +84,11 @@ export function drawCharacter(
   const lift = (s) => Math.max(0, s) * 5;
   if (side) {
     const reach = swing * 9;
-    drawLeg(g, -3 - reach, oy, lift(-swing), bottom, shoe, girl, true, true);
-    drawLeg(g, -3 + reach, oy, lift(swing), bottom, shoe, girl, true, false);
+    drawLeg(g, -3 - reach, oy, lift(-swing), bottom, shoe, girl, true, true, skinTone);
+    drawLeg(g, -3 + reach, oy, lift(swing), bottom, shoe, girl, true, false, skinTone);
   } else {
-    drawLeg(g, -9, oy, lift(swing), bottom, shoe, girl, false, false);
-    drawLeg(g, 9, oy, lift(-swing), bottom, shoe, girl, false, false);
+    drawLeg(g, -9, oy, lift(swing), bottom, shoe, girl, false, false, skinTone);
+    drawLeg(g, 9, oy, lift(-swing), bottom, shoe, girl, false, false, skinTone);
   }
 
   // Thân
@@ -94,8 +100,14 @@ export function drawCharacter(
       : [-18, -33 + oy, 18, -33 + oy, 23, -14, -23, -14];
     poly(g, pts, bottom, INK, 3);
   }
-  if (!back && !side)
+  if (!back && !side) {
     poly(g, [-6, -63 + oy, 0, -55 + oy, 6, -63 + oy], 0xffffff, INK, 2);
+    // Khăn quàng đỏ học sinh Phú Thọ
+    if (style.scarf || (!acc && (shirt === 0xffffff || shirt === 0x8fd3ff)) || acc === "none") {
+      poly(g, [-5, -57 + oy, 5, -57 + oy, 7, -43 + oy, 0, -38 + oy, -7, -43 + oy], 0xdc2626, INK, 1.5);
+      circ(g, 0, -54 + oy, 2.5, 0xb91c1c, null, 0);
+    }
+  }
   drawOutfit(g, acc, { side, back, oy });
 
   if (acc === "leader" && back) drawCape(g, false, oy);
@@ -111,20 +123,20 @@ export function drawCharacter(
   // Tay
   const armColor = acc === "inventor" ? 0xffffff : shirt;
   if (side) {
-    drawArm(g, 1, -58 + oy, cheering ? 2.6 : swing * 0.75, armColor);
+    drawArm(g, 1, -58 + oy, cheering ? 2.6 : swing * 0.75, armColor, skinTone);
   } else if (cheering) {
     const w = Math.sin(t * 9) * 0.25;
-    drawArm(g, -20, -58 + oy, -(2.45 + w), armColor);
-    drawArm(g, 20, -58 + oy, 2.45 + w, armColor);
+    drawArm(g, -20, -58 + oy, -(2.45 + w), armColor, skinTone);
+    drawArm(g, 20, -58 + oy, 2.45 + w, armColor, skinTone);
   } else {
-    drawArm(g, -20, -58 + oy, -0.12 - swing * 0.35, armColor);
-    drawArm(g, 20, -58 + oy, 0.12 + swing * 0.35, armColor);
+    drawArm(g, -20, -58 + oy, -0.12 - swing * 0.35, armColor, skinTone);
+    drawArm(g, 20, -58 + oy, 0.12 + swing * 0.35, armColor, skinTone);
   }
 
   // Đầu
   const hx = side ? 3 : 0;
   if (!back) drawHairBack(g, avatar.hairStyle, hair, hx, headY, side, false);
-  circ(g, hx, headY, 21, SKIN_TONE, INK, 3);
+  circ(g, hx, headY, 21, skinTone, INK, 3);
   if (back) {
     circ(g, hx, headY, 21.5, hair, INK, 3);
     drawHairBack(g, avatar.hairStyle, hair, hx, headY, false, true);
@@ -142,10 +154,10 @@ function drawCape(g, side, oy) {
   poly(g, pts, 0xb3261e, INK, 3);
 }
 
-function drawLeg(g, x, oy, lift, bottom, shoe, girl, side, far) {
+function drawLeg(g, x, oy, lift, bottom, shoe, girl, side, far, skinTone = SKIN_TONE) {
   const top = -27 + oy;
   const bottomY = -lift;
-  let color = girl ? SKIN_TONE : bottom;
+  let color = girl ? skinTone : bottom;
   if (far) color = shade(color, -0.22);
   rr(g, x - 5.5, top, 11, bottomY - top - 4, 4, color, INK, 3);
   if (girl) rr(g, x - 4, bottomY - 15, 8, 8, 0, 0xffffff, null, 0);
@@ -164,7 +176,7 @@ function drawLeg(g, x, oy, lift, bottom, shoe, girl, side, far) {
 }
 
 /** angle = 0 là buông thẳng xuống; dương là hướng sang phải/trước, π là giơ thẳng lên. */
-function drawArm(g, sx, sy, angle, color) {
+function drawArm(g, sx, sy, angle, color, skinTone = SKIN_TONE) {
   const len = 24;
   const hx = sx + Math.sin(angle) * len;
   const hy = sy + Math.cos(angle) * len;
@@ -172,7 +184,7 @@ function drawArm(g, sx, sy, angle, color) {
   g.lineBetween(sx, sy, hx, hy);
   g.lineStyle(8, color, 1);
   g.lineBetween(sx, sy, hx, hy);
-  circ(g, hx, hy, 5.5, SKIN_TONE, INK, 2.5);
+  circ(g, hx, hy, 5.5, skinTone, INK, 2.5);
 }
 
 function drawFace(g, hx, hy, side, glasses) {

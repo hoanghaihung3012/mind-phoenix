@@ -97,89 +97,132 @@
 
   <!-- MODAL: Customization (Đổi trang phục & nhân vật) -->
   <div id="customizeModal" class="modal-overlay hidden">
-    <div class="modal-card">
+    <div class="modal-card customize-modal-card">
       <div class="modal-header">
-        <h2>🎨 Tùy Biến Nhân Vật Học Sinh</h2>
+        <div class="modal-title-with-badge">
+          <h2>🎨 Tùy Biến Nhân Vật & Trang Phục</h2>
+          <span class="badge active">Phòng Thử Đồ</span>
+        </div>
         <button class="modal-close" id="closeCustomModal">✕</button>
       </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label>Tên nhân vật / Nickname</label>
-          <input type="text" id="customName" class="form-control" placeholder="Nhập tên của bạn...">
-        </div>
-        <div class="form-group">
-          <label>Trường tiểu học</label>
-          <select id="customSchool" class="form-control">
-            <option value="TH Phú Thọ">Trường Tiểu Học Phú Thọ</option>
-            <option value="TH Chu Văn An">Trường Tiểu Học Chu Văn An</option>
-            <option value="TH Lê Quý Đôn">Trường Tiểu Học Lê Quý Đôn</option>
-            <option value="TH Kim Đồng">Trường Tiểu Học Kim Đồng</option>
-            <option value="TH Nguyễn Bỉnh Khiêm">Trường TH Nguyễn Bỉnh Khiêm</option>
-            <option value="TH Võ Thị Sáu">Trường TH Võ Thị Sáu</option>
-            <option value="Trường Bạn Khác">Trường Bạn Khác</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Giới tính nhân vật</label>
-          <div class="choice-grid">
-            <label class="choice-item"><input type="radio" name="custom_character" value="boy" checked> 👦 Bạn Nam</label>
-            <label class="choice-item"><input type="radio" name="custom_character" value="girl"> 👧 Bạn Nữ</label>
+      <div class="modal-body customize-modal-body">
+        <!-- Cột Trái: Xem Trước Nhân Vật Trực Tiếp (Live Character Preview) -->
+        <div class="custom-preview-col">
+          <div class="custom-preview-card">
+            <div class="preview-header">
+              <span class="preview-title">👀 Thử Đồ Trực Tiếp</span>
+              <span id="previewActiveBadge" class="preview-status-pill">Đang mặc</span>
+            </div>
+            <div class="preview-canvas-box">
+              <canvas id="customPreviewCanvas" width="220" height="260" class="custom-preview-canvas"></canvas>
+            </div>
+            <div id="previewOutfitBadge" class="custom-preview-outfit-badge">🎓 Đồng phục Phú Thọ (Khăn quàng đỏ)</div>
+            
+            <div class="preview-angle-controls">
+              <button type="button" class="angle-btn" id="previewAngleLeft" title="Quay trái">◀ Trái</button>
+              <button type="button" class="angle-btn active" id="previewAngleFront" title="Nhìn thẳng">▼ Thẳng</button>
+              <button type="button" class="angle-btn" id="previewAngleRight" title="Quay phải">▶ Phải</button>
+              <button type="button" class="angle-btn" id="previewPoseCheer" title="Cổ vũ vui mừng">🎉 Cổ vũ</button>
+            </div>
+            <p class="preview-hint">💡 Bấm vào bất kỳ trang phục nào bên phải để nhân vật mặc thử ngay tức thì!</p>
           </div>
         </div>
 
-        <div class="form-group">
-          <label>Màu da</label>
-          <div class="choice-grid">
-            <label class="choice-item"><input type="radio" name="custom_skin" value="fair" checked> <span class="color-dot" style="background:#ffd9b8;"></span> Trắng hồng</label>
-            <label class="choice-item"><input type="radio" name="custom_skin" value="warm"> <span class="color-dot" style="background:#f5c798;"></span> Tự nhiên</label>
-            <label class="choice-item"><input type="radio" name="custom_skin" value="tan"> <span class="color-dot" style="background:#d89a64;"></span> Bánh mật</label>
-            <label class="choice-item"><input type="radio" name="custom_skin" value="peach"> <span class="color-dot" style="background:#ffd2b0;"></span> Ấm áp</label>
+        <!-- Cột Phải: Lựa Chọn Trang Phục & Thuộc Tính -->
+        <div class="custom-options-col">
+          <!-- MỤC 1: TRANG PHỤC (Top priority!) -->
+          <div class="form-group custom-section">
+            <label class="section-label">👗 Chọn Trang Phục (Outfits)</label>
+            <div class="choice-grid outfit-picker-grid" id="customOutfitGrid">
+              <!-- Dynamically populated / interactive outfit choices -->
+            </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label>Kiểu tóc</label>
-          <div class="choice-grid">
-            <label class="choice-item"><input type="radio" name="custom_hair" value="short" checked> Tóc ngắn gọn gàng</label>
-            <label class="choice-item"><input type="radio" name="custom_hair" value="spiky"> Tóc vuốt cá tính</label>
-            <label class="choice-item"><input type="radio" name="custom_hair" value="bob"> Tóc bob năng động</label>
-            <label class="choice-item"><input type="radio" name="custom_hair" value="ponytail"> Đuôi ngựa thắt nơ</label>
-            <label class="choice-item"><input type="radio" name="custom_hair" value="twintail"> Hai chùm cột cao</label>
-            <label class="choice-item"><input type="radio" name="custom_hair" value="curly"> Tóc xoăn bồng bềnh</label>
+          <!-- MỤC 2: Giới tính nhân vật -->
+          <div class="form-group custom-section">
+            <label class="section-label">Giới tính nhân vật</label>
+            <div class="choice-grid">
+              <label class="choice-item"><input type="radio" name="custom_character" value="boy" checked> 👦 Bạn Nam</label>
+              <label class="choice-item"><input type="radio" name="custom_character" value="girl"> 👧 Bạn Nữ</label>
+            </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label>Màu tóc</label>
-          <div class="choice-grid">
-            <label class="choice-item"><input type="radio" name="custom_hairColor" value="#1f1f1f" checked> <span class="color-dot" style="background:#1f1f1f;"></span> Đen tuyền</label>
-            <label class="choice-item"><input type="radio" name="custom_hairColor" value="#4a2c11"> <span class="color-dot" style="background:#4a2c11;"></span> Nâu dẻ</label>
-            <label class="choice-item"><input type="radio" name="custom_hairColor" value="#7c3f1d"> <span class="color-dot" style="background:#7c3f1d;"></span> Nâu sáng</label>
-            <label class="choice-item"><input type="radio" name="custom_hairColor" value="#1e3a8a"> <span class="color-dot" style="background:#1e3a8a;"></span> Xanh đêm</label>
-            <label class="choice-item"><input type="radio" name="custom_hairColor" value="#b45309"> <span class="color-dot" style="background:#b45309;"></span> Hổ phách</label>
+          <!-- MỤC 3: Màu da -->
+          <div class="form-group custom-section">
+            <label class="section-label">Màu da</label>
+            <div class="choice-grid">
+              <label class="choice-item"><input type="radio" name="custom_skin" value="fair" checked> <span class="color-dot" style="background:#ffd9b8;"></span> Trắng hồng</label>
+              <label class="choice-item"><input type="radio" name="custom_skin" value="warm"> <span class="color-dot" style="background:#f5c798;"></span> Tự nhiên</label>
+              <label class="choice-item"><input type="radio" name="custom_skin" value="tan"> <span class="color-dot" style="background:#d89a64;"></span> Bánh mật</label>
+              <label class="choice-item"><input type="radio" name="custom_skin" value="peach"> <span class="color-dot" style="background:#ffd2b0;"></span> Ấm áp</label>
+            </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label>Màu Balo 3D</label>
-          <div class="choice-grid">
-            <label class="choice-item"><input type="radio" name="custom_bagColor" value="blue" checked> <span class="color-dot" style="background:#3a7bd5;"></span> Balo Xanh</label>
-            <label class="choice-item"><input type="radio" name="custom_bagColor" value="red"> <span class="color-dot" style="background:#e4572e;"></span> Balo Đỏ</label>
-            <label class="choice-item"><input type="radio" name="custom_bagColor" value="green"> <span class="color-dot" style="background:#2fa56b;"></span> Balo Xanh Lá</label>
-            <label class="choice-item"><input type="radio" name="custom_bagColor" value="purple"> <span class="color-dot" style="background:#8e5bd0;"></span> Balo Tím</label>
-            <label class="choice-item"><input type="radio" name="custom_bagColor" value="yellow"> <span class="color-dot" style="background:#f59e0b;"></span> Balo Vàng</label>
-            <label class="choice-item"><input type="radio" name="custom_bagColor" value="pink"> <span class="color-dot" style="background:#ec4899;"></span> Balo Hồng</label>
+          <!-- MỤC 4: Kiểu tóc -->
+          <div class="form-group custom-section">
+            <label class="section-label">Kiểu tóc</label>
+            <div class="choice-grid">
+              <label class="choice-item"><input type="radio" name="custom_hair" value="short" checked> Tóc ngắn gọn gàng</label>
+              <label class="choice-item"><input type="radio" name="custom_hair" value="spiky"> Tóc vuốt cá tính</label>
+              <label class="choice-item"><input type="radio" name="custom_hair" value="bob"> Tóc bob năng động</label>
+              <label class="choice-item"><input type="radio" name="custom_hair" value="ponytail"> Đuôi ngựa thắt nơ</label>
+              <label class="choice-item"><input type="radio" name="custom_hair" value="twintail"> Hai chùm cột cao</label>
+              <label class="choice-item"><input type="radio" name="custom_hair" value="curly"> Tóc xoăn bồng bềnh</label>
+            </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label>Phụ kiện</label>
-          <div class="choice-grid">
-            <label class="choice-item"><input type="radio" name="custom_accessory" value="star_pin" checked> ⭐ Huy hiệu Phú Thọ</label>
-            <label class="choice-item"><input type="radio" name="custom_accessory" value="glasses"> 👓 Kính cận tri thức</label>
-            <label class="choice-item"><input type="radio" name="custom_accessory" value="headband"> 🎗️ Băng đô thể thao</label>
-            <label class="choice-item"><input type="radio" name="custom_accessory" value="none"> Không phụ kiện</label>
+          <!-- MỤC 5: Màu tóc -->
+          <div class="form-group custom-section">
+            <label class="section-label">Màu tóc</label>
+            <div class="choice-grid">
+              <label class="choice-item"><input type="radio" name="custom_hairColor" value="#1f1f1f" checked> <span class="color-dot" style="background:#1f1f1f;"></span> Đen tuyền</label>
+              <label class="choice-item"><input type="radio" name="custom_hairColor" value="#4a2c11"> <span class="color-dot" style="background:#4a2c11;"></span> Nâu dẻ</label>
+              <label class="choice-item"><input type="radio" name="custom_hairColor" value="#7c3f1d"> <span class="color-dot" style="background:#7c3f1d;"></span> Nâu sáng</label>
+              <label class="choice-item"><input type="radio" name="custom_hairColor" value="#1e3a8a"> <span class="color-dot" style="background:#1e3a8a;"></span> Xanh đêm</label>
+              <label class="choice-item"><input type="radio" name="custom_hairColor" value="#b45309"> <span class="color-dot" style="background:#b45309;"></span> Hổ phách</label>
+            </div>
+          </div>
+
+          <!-- MỤC 6: Màu Balo 3D -->
+          <div class="form-group custom-section">
+            <label class="section-label">Màu Balo 3D</label>
+            <div class="choice-grid">
+              <label class="choice-item"><input type="radio" name="custom_bagColor" value="blue" checked> <span class="color-dot" style="background:#3a7bd5;"></span> Balo Xanh</label>
+              <label class="choice-item"><input type="radio" name="custom_bagColor" value="red"> <span class="color-dot" style="background:#e4572e;"></span> Balo Đỏ</label>
+              <label class="choice-item"><input type="radio" name="custom_bagColor" value="green"> <span class="color-dot" style="background:#2fa56b;"></span> Balo Xanh Lá</label>
+              <label class="choice-item"><input type="radio" name="custom_bagColor" value="purple"> <span class="color-dot" style="background:#8e5bd0;"></span> Balo Tím</label>
+              <label class="choice-item"><input type="radio" name="custom_bagColor" value="yellow"> <span class="color-dot" style="background:#f59e0b;"></span> Balo Vàng</label>
+              <label class="choice-item"><input type="radio" name="custom_bagColor" value="pink"> <span class="color-dot" style="background:#ec4899;"></span> Balo Hồng</label>
+            </div>
+          </div>
+
+          <!-- MỤC 7: Phụ kiện -->
+          <div class="form-group custom-section">
+            <label class="section-label">Phụ kiện</label>
+            <div class="choice-grid">
+              <label class="choice-item"><input type="radio" name="custom_accessory" value="star_pin" checked> ⭐ Huy hiệu Phú Thọ</label>
+              <label class="choice-item"><input type="radio" name="custom_accessory" value="glasses"> 👓 Kính cận tri thức</label>
+              <label class="choice-item"><input type="radio" name="custom_accessory" value="headband"> 🎗️ Băng đô thể thao</label>
+              <label class="choice-item"><input type="radio" name="custom_accessory" value="none"> Không phụ kiện</label>
+            </div>
+          </div>
+
+          <!-- MỤC 8: Tên & Trường học -->
+          <div class="form-group custom-section">
+            <label class="section-label">Tên nhân vật / Nickname</label>
+            <input type="text" id="customName" class="form-control" placeholder="Nhập tên của bạn...">
+          </div>
+          <div class="form-group custom-section">
+            <label class="section-label">Trường tiểu học</label>
+            <select id="customSchool" class="form-control">
+              <option value="TH Phú Thọ">Trường Tiểu Học Phú Thọ</option>
+              <option value="TH Chu Văn An">Trường Tiểu Học Chu Văn An</option>
+              <option value="TH Lê Quý Đôn">Trường Tiểu Học Lê Quý Đôn</option>
+              <option value="TH Kim Đồng">Trường Tiểu Học Kim Đồng</option>
+              <option value="TH Nguyễn Bỉnh Khiêm">Trường TH Nguyễn Bỉnh Khiêm</option>
+              <option value="TH Võ Thị Sáu">Trường TH Võ Thị Sáu</option>
+              <option value="Trường Bạn Khác">Trường Bạn Khác</option>
+            </select>
           </div>
         </div>
       </div>
@@ -191,8 +234,34 @@
 
   <!-- MODAL: Cửa Hàng Học Viện (Shop) -->
   <div id="shopModal" class="modal-overlay hidden">
-    <div class="modal-card">
+    <div class="modal-card shop-modal-card">
       <div class="modal-header">
+        <div class="modal-title-with-badge">
+          <h2>🛍️ Cửa Hàng Học Viện Phú Thọ</h2>
+          <span class="player-coins" id="shopModalCoins">50 🪙</span>
+        </div>
+        <button class="modal-close" id="closeShopModal">✕</button>
+      </div>
+      <div class="modal-body shop-modal-body">
+        <div class="shop-preview-col">
+          <div class="custom-preview-card">
+            <div class="preview-header">
+              <span class="preview-title">👀 Thử Trang Phục</span>
+              <span id="shopPreviewBadge" class="preview-status-pill">Đang thử</span>
+            </div>
+            <div class="preview-canvas-box">
+              <canvas id="shopPreviewCanvas" width="200" height="240" class="custom-preview-canvas"></canvas>
+            </div>
+            <div id="shopPreviewOutfitName" class="custom-preview-outfit-badge">🎓 Đồng phục Phú Thọ</div>
+            <p class="preview-hint">✨ Rê chuột hoặc bấm vào trang phục để ướm thử lên nhân vật!</p>
+          </div>
+        </div>
+        <div class="shop-items-col">
+          <div id="shopItemsContainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
         <h2>🛍️ Cửa Hàng Học Viện Phú Thọ</h2>
         <button class="modal-close" id="closeShopModal">✕</button>
       </div>
@@ -285,40 +354,87 @@
 
   <!-- MODAL: School Directory & Map Guide -->
   <div id="directoryModal" class="modal-overlay hidden">
-    <div class="modal-card">
+    <div class="modal-card directory-modal-card">
       <div class="modal-header">
-        <h2>🗺️ Sơ Đồ Khuôn Viên Trường Tiểu Học Phú Thọ</h2>
+        <div class="modal-title-with-badge">
+          <h2>🗺️ Bản Đồ Khuôn Viên & Hướng Dẫn</h2>
+          <span class="badge active" id="mapPlayerLocationBadge">📍 Bạn đang ở khuôn viên</span>
+        </div>
         <button class="modal-close" id="closeDirBtn">✕</button>
       </div>
-      <div class="modal-body">
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-          <div style="padding: 12px; background: #fffbeb; border-radius: 12px; border: 2px solid #f59e0b;">
-            <strong style="color: #b45309; font-size: 15px;">👑 ĐẠI HỘI TRI THỨC (Trung tâm đỉnh bản đồ)</strong>:
-            <p style="margin-top: 4px; font-size: 13px;">Cung điện Tân Cổ Điển nguy nga nhất trường. Cần Cấp 3 hoặc 60 Sao để mở khóa. Thử thách Olympic đỉnh cao, nhận 100 Xu và mở khóa Áo Choàng Thủ Lĩnh!</p>
+      <div class="modal-body directory-modal-body">
+        <!-- Phần Bản Đồ (Minimap Section) -->
+        <div class="minimap-section">
+          <div class="minimap-toolbar">
+            <div class="minimap-info">
+              <span id="minimapCoordsText" class="minimap-coords">📍 X: 2400 | Y: 3050</span>
+              <span id="minimapNearestText" class="minimap-nearest">🏫 Gần: Cổng Trường</span>
+            </div>
+            <div class="minimap-actions">
+              <button type="button" class="btn sm-btn secondary-btn" id="minimapCenterPlayerBtn">🎯 Về vị trí tôi</button>
+            </div>
           </div>
-          <div style="padding: 10px; background: #f0fdf4; border-radius: 12px; border: 1px solid #bbf7d0;">
-            <strong>📚 Thư Viện Từ Vựng (Nhà A)</strong>: Khám phá từ ghép, từ láy, từ đồng nghĩa và trái nghĩa (+25 Xu).
+          
+          <div class="minimap-canvas-container">
+            <canvas id="minimapCanvas" width="760" height="520" class="minimap-canvas"></canvas>
+            <div id="minimapTooltip" class="minimap-tooltip hidden"></div>
           </div>
-          <div style="padding: 10px; background: #fff7ed; border-radius: 12px; border: 1px solid #fed7aa;">
-            <strong>✏️ Khu Chính Tả</strong>: Soi lỗi s/x, tr/ch, d/gi/r và thanh điệu hỏi ngã (+25 Xu).
+          
+          <div class="minimap-legend">
+            <span class="legend-item"><span class="legend-dot" style="background:#dc2626;"></span> 👑 Đại Hội Tri Thức</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#2563eb;"></span> 📚 Trạm Học Tập</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#8b5cf6;"></span> 🎮 Khu Vui Chơi</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#16a34a;"></span> 🐾 Thú Cưng & Cửa Hàng</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span> 🚩 Cột Cờ & Hồ Sen</span>
+            <span class="legend-item"><span class="legend-dot player-dot"></span> 📍 Bạn ở đây</span>
           </div>
-          <div style="padding: 10px; background: #faf5ff; border-radius: 12px; border: 1px solid #e9d5ff;">
-            <strong>📜 Nhà Ngữ Văn (Nhà B)</strong>: Ghép câu hoàn chỉnh, nhận diện chủ - vị ngữ và biện pháp tu từ (+25 Xu).
+        </div>
+
+        <!-- Phần Hướng Dẫn & Danh Sách Trạm (Guide Section) -->
+        <div class="map-guide-section">
+          <!-- Hướng dẫn điều khiển nhanh -->
+          <div class="guide-controls-card">
+            <div class="guide-controls-title">🎮 Hướng Dẫn Điều Khiển & Khám Phá</div>
+            <div class="guide-controls-grid">
+              <div class="control-box">
+                <span class="ctrl-icon">⌨️</span>
+                <div>
+                  <strong>Phím W, A, S, D / Mũi Tên</strong>
+                  <p>Di chuyển học sinh tự do khắp trường học.</p>
+                </div>
+              </div>
+              <div class="control-box">
+                <span class="ctrl-icon">🖱️</span>
+                <div>
+                  <strong>Chạm hoặc Click</strong>
+                  <p>Bấm trực tiếp vào mặt đất hoặc bản đồ để đi tới.</p>
+                </div>
+              </div>
+              <div class="control-box">
+                <span class="ctrl-icon">⚡</span>
+                <div>
+                  <strong>Phím [E] / Vào Trạm</strong>
+                  <p>Đứng gần cửa trạm để mở thử thách hoặc cửa hàng.</p>
+                </div>
+              </div>
+              <div class="control-box">
+                <span class="ctrl-icon">💬</span>
+                <div>
+                  <strong>Trò Chuyện & Bạn Học</strong>
+                  <p>Giao lưu và tương tác cùng các bạn học sinh trực tuyến.</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div style="padding: 10px; background: #fefce8; border-radius: 12px; border: 1px solid #fef08a;">
-            <strong>🧩 Quảng Trường Thành Ngữ</strong>: Mở ô chữ thành ngữ tục ngữ và ca dao dân gian (+25 Xu).
+
+          <!-- Danh sách trạm khuôn viên trường học -->
+          <div class="guide-stations-header">
+            <h3>🏛️ Danh Sách 13 Địa Điểm & Trạm Học Tập</h3>
+            <span class="guide-stations-count">Bấm "Đi đến đây" để nhân vật tự động bước tới</span>
           </div>
-          <div style="padding: 10px; background: #f0fdf4; border-radius: 12px; border: 1px solid #bbf7d0;">
-            <strong>🧮 Vườn Toán Học</strong>: Bắn bong bóng số học và chuỗi số quy luật (+25 Xu).
-          </div>
-          <div style="padding: 10px; background: #fff1f2; border-radius: 12px; border: 1px solid #fecdd3;">
-            <strong>⚡ Đấu Trường 60s</strong>: Đấu trường tốc độ dồn dập (+35 Xu).
-          </div>
-          <div style="padding: 10px; background: #eff6ff; border-radius: 12px; border: 1px solid #bfdbfe;">
-            <strong>🎮 Khu Trò Chơi Miễn Phí</strong>: Thỏa thích chơi 15+ trò chơi học tập và giải đố (Hứng táo, Đập gạch, Đua vịt, Lập trình...).
-          </div>
-          <div style="padding: 10px; background: #fdf2f8; border-radius: 12px; border: 1px solid #fbcfe8;">
-            <strong>🛍️ Cửa Hàng & 🐾 Khu Thú Cưng</strong>: Mua sắm trang phục mới và nhận nuôi thú cưng đồng hành!
+
+          <div id="directoryStationsList" class="directory-stations-list">
+            <!-- Rendered by JS from POI_LOCATIONS -->
           </div>
         </div>
       </div>

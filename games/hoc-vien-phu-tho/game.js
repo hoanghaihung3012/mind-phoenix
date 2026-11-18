@@ -18,7 +18,10 @@ import {
   calculateLevel,
   SoundController,
   AcademyNetworkManager,
-  clamp
+  clamp,
+  getOutfitDefinition,
+  calculateMinimapCoords,
+  findNearestPOI,
 } from './academy.mjs';
 import { MINIGAME_DATA } from './minigames.mjs';
 import {
@@ -321,17 +324,18 @@ class AcademyGame {
 
     if (customizeBtn && customModal) {
       customizeBtn.addEventListener('click', () => {
-        this.populateCustomizationForm();
-        customModal.classList.remove('hidden');
+        this.openCustomizationModal();
       });
     }
     if (closeCustomBtn && customModal) {
-      closeCustomBtn.addEventListener('click', () => customModal.classList.add('hidden'));
+      closeCustomBtn.addEventListener('click', () => {
+        this.closeCustomizationModal();
+      });
     }
     if (saveCustomBtn && customModal) {
       saveCustomBtn.addEventListener('click', () => {
         this.applyCustomizationForm();
-        customModal.classList.add('hidden');
+        this.closeCustomizationModal();
         this.savePlayerState();
         this.updateHUD();
         this.net.send({
@@ -393,15 +397,19 @@ class AcademyGame {
       closeMissionBtn.addEventListener('click', () => missionModal.classList.add('hidden'));
     }
 
-    // Map Directory Modal
+    // Map Directory Modal (Minimap & Guide)
     const mapBtn = document.getElementById('mapBtn');
     const directoryModal = document.getElementById('directoryModal');
     const closeDirBtn = document.getElementById('closeDirBtn');
     if (mapBtn && directoryModal) {
-      mapBtn.addEventListener('click', () => directoryModal.classList.remove('hidden'));
+      mapBtn.addEventListener('click', () => {
+        this.openDirectoryModal();
+      });
     }
     if (closeDirBtn && directoryModal) {
-      closeDirBtn.addEventListener('click', () => directoryModal.classList.add('hidden'));
+      closeDirBtn.addEventListener('click', () => {
+        this.closeDirectoryModal();
+      });
     }
 
     // Arcade Game Center Modal
@@ -525,17 +533,213 @@ class AcademyGame {
     }
   }
 
+  openCustomizationModal() {
+    const customModal = document.getElementById('customizeModal');
+    if (!customModal) return;
+    this.customPreviewDir = 'down';
+    this.customPreviewPose = 'idle';
+    this.selectedOutfitId = this.player.outfit || 'default-student';
+    this.populateCustomizationForm();
+    customModal.classList.remove('hidden');
+    this.startCustomPreviewLoop();
+  }
+
+  closeCustomizationModal() {
+    const customModal = document.getElementById('customizeModal');
+    if (customModal) customModal.classList.add('hidden');
+    this.stopCustomPreviewLoop();
+  }
+
+  startCustomPreviewLoop() {
+    this.stopCustomPreviewLoop();
+    const loop = () => {
+      this.updateCustomPreview();
+      this.customPreviewAnimId = requestAnimationFrame(loop);
+    };
+    this.customPreviewAnimId = requestAnimationFrame(loop);
+  }
+
+  stopCustomPreviewLoop() {
+    if (this.customPreviewAnimId) {
+      cancelAnimationFrame(this.customPreviewAnimId);
+      this.customPreviewAnimId = null;
+    }
+  }
+
+  updateCustomPreview(previewOutfitId = null) {
+    const canvas = document.getElementById('customPreviewCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const cw = canvas.width;
+    const ch = canvas.height;
+
+    // Subtle stage pedestal
+    const grad = ctx.createRadialGradient(cw / 2, ch - 35, 10, cw / 2, ch - 35, 80);
+    grad.addColorStop(0, 'rgba(56, 189, 248, 0.35)');
+    grad.addColorStop(0.7, 'rgba(186, 230, 253, 0.15)');
+    grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.ellipse(cw / 2, ch - 35, 75, 20, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    const charVal = document.querySelector('input[name="custom_character"]:checked')?.value || this.player.character || 'boy';
+    const skinVal = document.querySelector('input[name="custom_skin"]:checked')?.value || this.player.skin || 'fair';
+    const hairVal = document.querySelector('input[name="custom_hair"]:checked')?.value || this.player.hair || 'short';
+    const hairColorVal = document.querySelector('input[name="custom_hairColor"]:checked')?.value || this.player.hairColor || '#1f1f1f';
+    const bagColorVal = document.querySelector('input[name="custom_bagColor"]:checked')?.value || this.player.bagColor || 'blue';
+    const accessoryVal = document.querySelector('input[name="custom_accessory"]:checked')?.value || this.player.accessory || 'none';
+
+    const currentOutfitId = previewOutfitId || this.selectedOutfitId || this.player.outfit || 'default-student';
+    const outfitDef = getOutfitDefinition(currentOutfitId);
+
+    const hairStyleMap = { short: 0, spiky: 1, bob: 2, ponytail: 2, twintail: 3, curly: 0 };
+    const hairStyle = hairStyleMap[hairVal] ?? (charVal === 'girl' ? 2 : 0);
+
+    const hairColorsList = ['#1f1f1f', '#4a2c11', '#7c3f1d', '#1e3a8a', '#b45309'];
+    let hairColorIdx = hairColorsList.indexOf(hairColorVal);
+    if (hairColorIdx < 0) hairColorIdx = 0;
+
+    const style = outfitDef ? {
+      shirt: outfitDef.shirt,
+      bottom: outfitDef.bottom,
+      accessory: outfitDef.accessory,
+      scarf: outfitDef.scarf
+    } : (SKIN_STYLES[currentOutfitId] || SKIN_STYLES['default-student']);
+
+    const badge = document.getElementById('previewOutfitBadge');
+    if (badge && outfitDef) {
+      badge.textContent = `${outfitDef.icon || '✨'} ${outfitDef.label}`;
+    }
+
+    const statusPill = document.getElementById('previewActiveBadge');
+    if (statusPill) {
+      const isEquipped = currentOutfitId === this.player.outfit;
+      statusPill.textContent = isEquipped ? 'Đang mặc' : 'Mặc thử';
+      statusPill.style.background = isEquipped ? '#0284c7' : '#d97706';
+    }
+
+    ctx.save();
+    ctx.translate(cw / 2, ch - 40);
+    ctx.scale(1.35, 1.35);
+
+    const dir = this.customPreviewDir || 'down';
+    if (dir === 'left') {
+      ctx.scale(-1, 1);
+    }
+
+    const pose = this.customPreviewPose || 'idle';
+    const g = new CanvasGraphics(ctx);
+    drawCharacter(g, {
+      avatar: {
+        character: charVal,
+        hairStyle,
+        hairColor: hairColorIdx,
+        bagColor: bagColorVal,
+        shoeColor: 'white',
+        skin: skinVal,
+        accessory: accessoryVal
+      },
+      style,
+      dir: (dir === 'left' || dir === 'right') ? 'side' : dir,
+      pose,
+      phase: performance.now() * 0.005,
+      t: performance.now() / 1000
+    });
+
+    ctx.restore();
+  }
+
   populateCustomizationForm() {
     const nameInput = document.getElementById('customName');
     const schoolSelect = document.getElementById('customSchool');
     if (nameInput) nameInput.value = this.player.name;
     if (schoolSelect) schoolSelect.value = this.player.school;
 
-    ['character', 'skin', 'hair', 'hairColor', 'outfit', 'bagColor', 'accessory', 'pet'].forEach(prop => {
+    ['character', 'skin', 'hair', 'hairColor', 'bagColor', 'accessory'].forEach(prop => {
       const current = this.player[prop];
       const radio = document.querySelector(`input[name="custom_${prop}"][value="${current}"]`);
       if (radio) radio.checked = true;
     });
+
+    this.selectedOutfitId = this.player.outfit || 'default-student';
+
+    // Render outfit choices in #customOutfitGrid
+    const outfitGrid = document.getElementById('customOutfitGrid');
+    if (outfitGrid) {
+      outfitGrid.innerHTML = CUSTOMIZATION_OPTIONS.outfits.map(o => {
+        const isSelected = this.selectedOutfitId === o.id;
+        const isEquipped = this.player.outfit === o.id;
+        return `
+          <div class="outfit-picker-card ${isSelected ? 'active' : ''}" data-outfit-id="${o.id}">
+            <div class="outfit-card-title">
+              <span>${o.icon || '👗'}</span>
+              <span>${o.label}</span>
+            </div>
+            <div class="outfit-card-desc">${o.desc || ''}</div>
+            <div class="outfit-card-status">
+              <span style="color:${isEquipped ? '#0284c7' : '#64748b'}; font-weight:800;">
+                ${isEquipped ? '✓ Đang mặc' : (isSelected ? '★ Đang chọn' : 'Thử ngay')}
+              </span>
+              ${o.price > 0 ? `<span style="color:#d97706; font-weight:800;">${o.price} 🪙</span>` : '<span style="color:#16a34a; font-weight:800;">Miễn phí</span>'}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      outfitGrid.querySelectorAll('.outfit-picker-card').forEach(card => {
+        const outfitId = card.getAttribute('data-outfit-id');
+        card.addEventListener('click', () => {
+          this.selectedOutfitId = outfitId;
+          outfitGrid.querySelectorAll('.outfit-picker-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          this.updateCustomPreview();
+          this.sound.playClick();
+        });
+        card.addEventListener('mouseenter', () => {
+          this.updateCustomPreview(outfitId);
+        });
+        card.addEventListener('mouseleave', () => {
+          this.updateCustomPreview();
+        });
+      });
+    }
+
+    // Attach listeners on all inputs to immediately redraw preview
+    const inputs = document.querySelectorAll('#customizeModal input[type="radio"], #customizeModal select');
+    inputs.forEach(inp => {
+      inp.onchange = () => this.updateCustomPreview();
+    });
+
+    // Angle controls
+    const setAngle = (dir) => {
+      this.customPreviewDir = dir;
+      ['previewAngleLeft', 'previewAngleFront', 'previewAngleRight'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.remove('active');
+      });
+      const activeBtn = document.getElementById(dir === 'left' ? 'previewAngleLeft' : (dir === 'right' ? 'previewAngleRight' : 'previewAngleFront'));
+      if (activeBtn) activeBtn.classList.add('active');
+      this.updateCustomPreview();
+    };
+
+    const btnLeft = document.getElementById('previewAngleLeft');
+    const btnFront = document.getElementById('previewAngleFront');
+    const btnRight = document.getElementById('previewAngleRight');
+    const btnCheer = document.getElementById('previewPoseCheer');
+
+    if (btnLeft) btnLeft.onclick = () => setAngle('left');
+    if (btnFront) btnFront.onclick = () => setAngle('down');
+    if (btnRight) btnRight.onclick = () => setAngle('right');
+    if (btnCheer) btnCheer.onclick = () => {
+      this.customPreviewPose = this.customPreviewPose === 'cheer' ? 'idle' : 'cheer';
+      btnCheer.classList.toggle('active', this.customPreviewPose === 'cheer');
+      this.updateCustomPreview();
+    };
+
+    this.updateCustomPreview();
   }
 
   applyCustomizationForm() {
@@ -544,19 +748,321 @@ class AcademyGame {
     if (nameInput && nameInput.value.trim()) this.player.name = nameInput.value.trim().slice(0, 24);
     if (schoolSelect) this.player.school = schoolSelect.value;
 
-    ['character', 'skin', 'hair', 'hairColor', 'outfit', 'bagColor', 'accessory', 'pet'].forEach(prop => {
+    ['character', 'skin', 'hair', 'hairColor', 'bagColor', 'accessory'].forEach(prop => {
       const checked = document.querySelector(`input[name="custom_${prop}"]:checked`);
       if (checked) this.player[prop] = checked.value;
     });
+
+    if (this.selectedOutfitId) {
+      this.player.outfit = this.selectedOutfitId;
+      this.player.skinId = this.selectedOutfitId;
+    }
+
+    this.stopCustomPreviewLoop();
 
     if (this.net) {
       this.net.broadcastCustomization(this.player);
     }
   }
 
+  // ==========================================================================
+  // DIRECTORY MODAL: MINIMAP & CAMPUS GUIDE
+  // ==========================================================================
+  openDirectoryModal() {
+    const dirModal = document.getElementById('directoryModal');
+    if (!dirModal) return;
+    dirModal.classList.remove('hidden');
+    this.renderDirectoryGuide();
+    this.startMinimapLoop();
+    this.setupMinimapInteractions();
+  }
+
+  closeDirectoryModal() {
+    const dirModal = document.getElementById('directoryModal');
+    if (dirModal) dirModal.classList.add('hidden');
+    this.stopMinimapLoop();
+  }
+
+  startMinimapLoop() {
+    this.stopMinimapLoop();
+    const loop = () => {
+      this.renderMinimap();
+      this.minimapAnimId = requestAnimationFrame(loop);
+    };
+    this.minimapAnimId = requestAnimationFrame(loop);
+  }
+
+  stopMinimapLoop() {
+    if (this.minimapAnimId) {
+      cancelAnimationFrame(this.minimapAnimId);
+      this.minimapAnimId = null;
+    }
+  }
+
+  renderMinimap() {
+    const canvas = document.getElementById('minimapCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const mw = canvas.width;
+    const mh = canvas.height;
+    ctx.clearRect(0, 0, mw, mh);
+
+    // 1. Draw entire campus background from TEXTURES['map-bg']
+    if (TEXTURES['map-bg']) {
+      ctx.drawImage(TEXTURES['map-bg'], 0, 0, mw, mh);
+    } else {
+      ctx.fillStyle = '#8fd36e';
+      ctx.fillRect(0, 0, mw, mh);
+    }
+
+    // 2. Draw buildings on the minimap
+    for (const b of BUILDINGS) {
+      const bx = (b.cx / 4800) * mw;
+      const by = (b.baseY / 3450) * mh;
+      const bw = (b.w / 4800) * mw;
+      const bh = (b.h / 3450) * mh;
+
+      if (TEXTURES[b.texture]) {
+        ctx.drawImage(TEXTURES[b.texture], bx - bw / 2, by - bh, bw, bh);
+      } else {
+        ctx.fillStyle = '#f1f5f9';
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 1;
+        ctx.fillRect(bx - bw / 2, by - bh, bw, bh);
+        ctx.strokeRect(bx - bw / 2, by - bh, bw, bh);
+      }
+    }
+
+    // 3. Draw POIs as vibrant pins with icons
+    const now = performance.now();
+    for (const poi of POI_LOCATIONS) {
+      const px = (poi.x / 4800) * mw;
+      const py = (poi.y / 3450) * mh;
+
+      const isSelected = this.selectedMapPOI === poi.id;
+
+      // Draw highlighted ring if selected
+      if (isSelected) {
+        ctx.save();
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(px, py, 18 + Math.sin(now / 200) * 3, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Pin badge
+      ctx.save();
+      let pinColor = '#2563eb';
+      if (poi.category === 'special_zone') pinColor = '#dc2626';
+      else if (poi.panelType === 'arcade') pinColor = '#8b5cf6';
+      else if (poi.category === 'panel') pinColor = '#16a34a';
+      else if (poi.category === 'landmark' || poi.category === 'social') pinColor = '#f59e0b';
+
+      ctx.fillStyle = pinColor;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(px, py, 11, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.font = '12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(poi.icon || '📍', px, py);
+
+      // Label below pin
+      ctx.font = 'bold 9px "Nunito", sans-serif';
+      const labelText = poi.name.length > 16 ? poi.name.slice(0, 14) + '...' : poi.name;
+      const lw = ctx.measureText(labelText).width + 8;
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+      ctx.beginPath();
+      ctx.roundRect(px - lw / 2, py + 12, lw, 14, 4);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(labelText, px, py + 19);
+      ctx.restore();
+    }
+
+    // 4. Draw Player Position Beacon & Radar Wave
+    const plX = (this.player.x / 4800) * mw;
+    const plY = (this.player.y / 3450) * mh;
+
+    ctx.save();
+    // Pulsing radar ripple
+    const radar = 8 + (Math.sin(now / 220) + 1) * 7;
+    ctx.strokeStyle = 'rgba(2, 132, 199, 0.6)';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(plX, plY, radar, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Solid player beacon
+    ctx.fillStyle = '#0284c7';
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(plX, plY, 7.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Player tag banner
+    const playerTag = `📍 ${this.player.name || 'Bạn'}`;
+    ctx.font = 'bold 10px "Nunito", sans-serif';
+    const ptw = ctx.measureText(playerTag).width + 10;
+    ctx.fillStyle = '#0284c7';
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(plX - ptw / 2, plY - 24, ptw, 16, 8);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#fef08a';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(playerTag, plX, plY - 16);
+    ctx.restore();
+
+    // 5. Update coordinates & nearest POI in toolbar
+    const coordsEl = document.getElementById('minimapCoordsText');
+    if (coordsEl) {
+      coordsEl.textContent = `📍 X: ${Math.round(this.player.x)} | Y: ${Math.round(this.player.y)}`;
+    }
+
+    const { poi: nearestPOI, distance } = findNearestPOI(this.player.x, this.player.y);
+    const nearestEl = document.getElementById('minimapNearestText');
+    if (nearestEl && nearestPOI) {
+      nearestEl.textContent = `${nearestPOI.icon} Gần: ${nearestPOI.name} (~${distance}m)`;
+    }
+  }
+
+  setupMinimapInteractions() {
+    const canvas = document.getElementById('minimapCanvas');
+    if (!canvas || canvas.dataset.hasEvents) return;
+    canvas.dataset.hasEvents = 'true';
+
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = 4800 / rect.width;
+      const scaleY = 3450 / rect.height;
+      const clickX = (e.clientX - rect.left) * scaleX;
+      const clickY = (e.clientY - rect.top) * scaleY;
+
+      // Check if clicked near a POI
+      let clickedPOI = null;
+      let minDist = 220;
+      for (const poi of POI_LOCATIONS) {
+        const d = Math.hypot(clickX - poi.x, clickY - poi.y);
+        if (d < minDist) {
+          minDist = d;
+          clickedPOI = poi;
+        }
+      }
+
+      if (clickedPOI) {
+        this.selectedMapPOI = clickedPOI.id;
+        this.sound.playClick();
+        this.highlightStationCard(clickedPOI.id);
+      } else {
+        // Player clicks directly to walk to that location on campus!
+        this.player.targetX = clamp(clickX, BOUNDS.x, BOUNDS.x + BOUNDS.w);
+        this.player.targetY = clamp(clickY, BOUNDS.y, BOUNDS.y + BOUNDS.h);
+        this.sound.playClick();
+        this.closeDirectoryModal();
+      }
+    });
+
+    const centerBtn = document.getElementById('minimapCenterPlayerBtn');
+    if (centerBtn) {
+      centerBtn.onclick = () => {
+        this.selectedMapPOI = null;
+        this.camera.x = this.player.x - this.canvas.width / (2 * this.camera.zoom);
+        this.camera.y = this.player.y - this.canvas.height / (2 * this.camera.zoom);
+        this.sound.playClick();
+      };
+    }
+  }
+
+  highlightStationCard(poiId) {
+    const list = document.getElementById('directoryStationsList');
+    if (!list) return;
+    list.querySelectorAll('.station-card').forEach(c => {
+      const isTarget = c.getAttribute('data-id') === poiId;
+      c.classList.toggle('highlighted', isTarget);
+      if (isTarget) {
+        c.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+  }
+
+  renderDirectoryGuide() {
+    const list = document.getElementById('directoryStationsList');
+    if (!list) return;
+
+    list.innerHTML = POI_LOCATIONS.map(poi => {
+      const isSelected = this.selectedMapPOI === poi.id;
+      const unlocked = poi.category === 'special_zone' ? isSpecialZoneUnlocked(this.player) : true;
+      let categoryLabel = 'Trạm Học Tập';
+      if (poi.category === 'special_zone') categoryLabel = 'Đại Hội Tri Thức (Đỉnh cao)';
+      else if (poi.panelType === 'arcade') categoryLabel = 'Khu Giải Trí Miễn Phí';
+      else if (poi.category === 'panel') categoryLabel = 'Tiện Ích Học Đường';
+      else if (poi.category === 'landmark' || poi.category === 'social') categoryLabel = 'Cảnh Quan Phú Thọ';
+
+      return `
+        <div class="station-card ${isSelected ? 'highlighted' : ''}" data-id="${poi.id}">
+          <div class="station-top">
+            <div class="station-icon">${poi.icon}</div>
+            <div class="station-info">
+              <div class="station-name">${poi.name}</div>
+              <div class="station-cat">${categoryLabel}</div>
+            </div>
+          </div>
+          <div class="station-desc">${poi.desc || ''}</div>
+          <div class="station-bottom">
+            <div class="station-reward">
+              ${poi.rewardCoins ? `🪙 +${poi.rewardCoins} Xu | ⭐ +${poi.rewardXP || 0} XP` : (unlocked ? '✨ Tự do khám phá' : '🔒 Cần Cấp 3 hoặc 60⭐')}
+            </div>
+            <button type="button" class="station-goto-btn" data-id="${poi.id}">🚶 Đi đến đây</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    list.querySelectorAll('.station-card').forEach(card => {
+      const id = card.getAttribute('data-id');
+      card.addEventListener('mouseenter', () => {
+        this.selectedMapPOI = id;
+      });
+    });
+
+    list.querySelectorAll('.station-goto-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        const poi = POI_LOCATIONS.find(p => p.id === id);
+        if (poi) {
+          this.player.targetX = poi.x;
+          this.player.targetY = poi.y;
+          this.sound.playSuccess();
+          this.closeDirectoryModal();
+        }
+      });
+    });
+  }
+
+  // ==========================================================================
+  // SHOP & OUTFIT TRY-ON PREVIEW
+  // ==========================================================================
   renderShop() {
     const container = document.getElementById('shopItemsContainer');
     if (!container) return;
+
+    const coinsEl = document.getElementById('shopModalCoins');
+    if (coinsEl) coinsEl.textContent = `${this.player.coins || 0} 🪙 Xu`;
 
     container.innerHTML = `
       <div style="margin-bottom: 12px; font-weight: 800; font-size: 15px; color: #d97706;">
@@ -567,9 +1073,12 @@ class AcademyGame {
           const owned = this.player.ownedSkins?.includes(o.id) || o.price === 0;
           const equipped = this.player.outfit === o.id;
           return `
-            <div class="shop-card ${equipped ? 'equipped' : ''}" style="padding: 12px; border: 2px solid ${equipped ? '#0284c7' : '#e2e8f0'}; border-radius: 14px; background: #fff;">
-              <div style="font-weight: 800; font-size: 14px;">${o.label}</div>
-              <div style="font-size: 12px; color: #64748b; margin: 4px 0;">${o.unlockRequirement || (o.price === 0 ? 'Miễn phí' : `${o.price} 🪙 Xu`)}</div>
+            <div class="shop-card ${equipped ? 'equipped' : ''}" data-outfit-id="${o.id}" style="padding: 12px; border: 2px solid ${equipped ? '#0284c7' : '#e2e8f0'}; border-radius: 14px; background: #fff; cursor: pointer;">
+              <div style="font-weight: 800; font-size: 14px; display:flex; align-items:center; gap:6px;">
+                <span>${o.icon || '👗'}</span>
+                <span>${o.label}</span>
+              </div>
+              <div style="font-size: 12px; color: #64748b; margin: 4px 0;">${o.desc || o.unlockRequirement || (o.price === 0 ? 'Miễn phí' : `${o.price} 🪙 Xu`)}</div>
               ${equipped ? '<span style="color:#0284c7; font-weight:800; font-size:12px;">Đang mặc</span>' :
                 owned ? `<button class="btn secondary-btn equip-outfit-btn" data-id="${o.id}" style="padding:6px 12px; font-size:12px;">Mặc vào</button>` :
                 `<button class="btn primary-btn buy-outfit-btn" data-id="${o.id}" data-price="${o.price}" style="padding:6px 12px; font-size:12px;">Mua ngay</button>`}
@@ -579,9 +1088,21 @@ class AcademyGame {
       </div>
     `;
 
+    // Render live preview in shop modal
+    this.updateShopPreview();
+
+    container.querySelectorAll('.shop-card').forEach(card => {
+      const outfitId = card.getAttribute('data-outfit-id');
+      card.addEventListener('mouseenter', () => this.updateShopPreview(outfitId));
+      card.addEventListener('mouseleave', () => this.updateShopPreview());
+    });
+
     container.querySelectorAll('.equip-outfit-btn').forEach(btn => {
-      btn.onclick = () => {
-        this.player.outfit = btn.getAttribute('data-id');
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        this.player.outfit = id;
+        this.player.skinId = id;
         this.savePlayerState();
         this.updateHUD();
         this.renderShop();
@@ -590,7 +1111,8 @@ class AcademyGame {
     });
 
     container.querySelectorAll('.buy-outfit-btn').forEach(btn => {
-      btn.onclick = () => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
         const price = Number(btn.getAttribute('data-price'));
         const id = btn.getAttribute('data-id');
         if ((this.player.coins || 0) >= price) {
@@ -598,6 +1120,7 @@ class AcademyGame {
           this.player.ownedSkins = this.player.ownedSkins || ['default-student'];
           this.player.ownedSkins.push(id);
           this.player.outfit = id;
+          this.player.skinId = id;
           this.savePlayerState();
           this.updateHUD();
           this.renderShop();
@@ -607,6 +1130,75 @@ class AcademyGame {
         }
       };
     });
+  }
+
+  updateShopPreview(previewOutfitId = null) {
+    const canvas = document.getElementById('shopPreviewCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const cw = canvas.width;
+    const ch = canvas.height;
+
+    // Pedestal
+    const grad = ctx.createRadialGradient(cw / 2, ch - 30, 8, cw / 2, ch - 30, 70);
+    grad.addColorStop(0, 'rgba(56, 189, 248, 0.35)');
+    grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.ellipse(cw / 2, ch - 30, 65, 18, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    const outfitId = previewOutfitId || this.player.outfit || 'default-student';
+    const outfitDef = getOutfitDefinition(outfitId);
+
+    const nameEl = document.getElementById('shopPreviewOutfitName');
+    if (nameEl && outfitDef) {
+      nameEl.textContent = `${outfitDef.icon || '👗'} ${outfitDef.label}`;
+    }
+
+    const badgeEl = document.getElementById('shopPreviewBadge');
+    if (badgeEl) {
+      badgeEl.textContent = outfitId === this.player.outfit ? 'Đang mặc' : 'Mặc thử';
+      badgeEl.style.background = outfitId === this.player.outfit ? '#0284c7' : '#d97706';
+    }
+
+    const isGirl = this.player.character === 'girl';
+    const hairStyle = typeof this.player.hairStyle === 'number' ? this.player.hairStyle : (isGirl ? 2 : 0);
+    const hairColor = typeof this.player.hairColor === 'number' ? this.player.hairColor : 0;
+    const bagColor = this.player.bagColor || 'red';
+    const shoeColor = this.player.shoeColor || 'white';
+    const style = outfitDef ? {
+      shirt: outfitDef.shirt,
+      bottom: outfitDef.bottom,
+      accessory: outfitDef.accessory,
+      scarf: outfitDef.scarf
+    } : (SKIN_STYLES[outfitId] || SKIN_STYLES['default-student']);
+
+    ctx.save();
+    ctx.translate(cw / 2, ch - 35);
+    ctx.scale(1.25, 1.25);
+
+    const g = new CanvasGraphics(ctx);
+    drawCharacter(g, {
+      avatar: {
+        character: isGirl ? 'girl' : 'boy',
+        hairStyle,
+        hairColor,
+        bagColor,
+        shoeColor,
+        skin: this.player.skin,
+        accessory: this.player.accessory
+      },
+      style,
+      dir: 'down',
+      pose: 'idle',
+      phase: 0,
+      t: performance.now() / 1000
+    });
+
+    ctx.restore();
   }
 
   renderPets() {

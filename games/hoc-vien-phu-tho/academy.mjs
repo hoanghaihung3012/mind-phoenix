@@ -61,6 +61,8 @@ export const CUSTOMIZATION_OPTIONS = {
     {
       id: 'default-student',
       label: 'Đồng phục Phú Thọ (Khăn quàng đỏ)',
+      icon: '🎓',
+      desc: 'Áo trắng, quần/váy xanh & khăn quàng đỏ rực rỡ.',
       shirt: '#ffffff',
       bottom: '#2f4b9b',
       scarf: '#dc2626',
@@ -70,6 +72,8 @@ export const CUSTOMIZATION_OPTIONS = {
     {
       id: 'explorer',
       label: 'Nhà Thám Hiểm (Áo gile & Nón)',
+      icon: '🧭',
+      desc: 'Áo gi-lê nhiều túi và nón rộng vành năng động.',
       shirt: '#c9b27a',
       bottom: '#6b5b3a',
       scarf: null,
@@ -79,6 +83,8 @@ export const CUSTOMIZATION_OPTIONS = {
     {
       id: 'scholar',
       label: 'Học Giả Cử Nhân (Mũ tú tài & Nơ)',
+      icon: '📚',
+      desc: 'Mũ tú tài uyên bác cùng chiếc nơ bướm trang nhã.',
       shirt: '#f2efe6',
       bottom: '#3b3b5c',
       scarf: null,
@@ -88,6 +94,8 @@ export const CUSTOMIZATION_OPTIONS = {
     {
       id: 'inventor',
       label: 'Nhà Phát Minh (Áo blouse & Kính)',
+      icon: '🔬',
+      desc: 'Áo choàng nghiên cứu khoa học cùng kính bảo hộ sáng chế.',
       shirt: '#ffffff',
       bottom: '#546e7a',
       scarf: null,
@@ -97,6 +105,8 @@ export const CUSTOMIZATION_OPTIONS = {
     {
       id: 'leader',
       label: 'Thủ Lĩnh Học Viện (Áo hoàng gia & Choàng đỏ)',
+      icon: '👑',
+      desc: 'Vương miện vàng, dải lụa danh dự và áo choàng đỏ quyền uy.',
       shirt: '#fff1a8',
       bottom: '#b3261e',
       scarf: null,
@@ -106,7 +116,9 @@ export const CUSTOMIZATION_OPTIONS = {
     },
     {
       id: 'sport',
-      label: 'Thể Dục Năng Động',
+      label: 'Thể Dục Năng Động (Bộ thể thao)',
+      icon: '⚡',
+      desc: 'Đồng phục thể thao năng động, sẵn sàng bứt phá.',
       shirt: '#f97316',
       bottom: '#0284c7',
       scarf: null,
@@ -505,6 +517,30 @@ export function calculateDistance(x1, y1, x2, y2) {
 
 export function clamp(val, min, max) {
   return Math.max(min, Math.min(max, val));
+}
+
+export function getOutfitDefinition(outfitId) {
+  return CUSTOMIZATION_OPTIONS.outfits.find(o => o.id === outfitId) || CUSTOMIZATION_OPTIONS.outfits[0];
+}
+
+export function calculateMinimapCoords(worldX, worldY, minimapWidth = 720, minimapHeight = 518) {
+  return {
+    x: clamp((worldX / MAP_CONFIG.width) * minimapWidth, 0, minimapWidth),
+    y: clamp((worldY / MAP_CONFIG.height) * minimapHeight, 0, minimapHeight)
+  };
+}
+
+export function findNearestPOI(x, y) {
+  let nearest = null;
+  let minDist = Infinity;
+  for (const poi of POI_LOCATIONS) {
+    const dist = Math.hypot(x - poi.x, y - poi.y);
+    if (dist < minDist) {
+      minDist = dist;
+      nearest = poi;
+    }
+  }
+  return { poi: nearest, distance: Math.round(minDist) };
 }
 
 /**

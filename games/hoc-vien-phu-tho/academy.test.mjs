@@ -13,7 +13,10 @@ import {
   isSpecialZoneUnlocked,
   checkProximityPOI,
   calculateDistance,
-  clamp
+  clamp,
+  getOutfitDefinition,
+  calculateMinimapCoords,
+  findNearestPOI
 } from './academy.mjs';
 import { MINIGAME_DATA } from './minigames.mjs';
 
@@ -245,4 +248,57 @@ test('MINIGAME_DATA has expanded comprehensive question sets (>= 12 questions ea
     const data = MINIGAME_DATA[cat];
     assert.ok(data.questions.length >= 12, `${cat} should have at least 12 questions for variety (got ${data.questions.length})`);
   }
+});
+
+test('getOutfitDefinition retrieves outfit styles and fallback defaults', () => {
+  const student = getOutfitDefinition('default-student');
+  assert.ok(student);
+  assert.equal(student.id, 'default-student');
+  assert.equal(student.shirt, '#ffffff');
+  assert.equal(student.scarf, '#dc2626');
+  assert.ok(student.icon);
+
+  const explorer = getOutfitDefinition('explorer');
+  assert.ok(explorer);
+  assert.equal(explorer.accessory, 'explorer');
+
+  const fallback = getOutfitDefinition('non-existent-outfit');
+  assert.equal(fallback.id, 'default-student');
+});
+
+test('calculateMinimapCoords scales world coordinates accurately into minimap bounds', () => {
+  const origin = calculateMinimapCoords(0, 0, 720, 518);
+  assert.equal(origin.x, 0);
+  assert.equal(origin.y, 0);
+
+  const center = calculateMinimapCoords(2400, 1725, 720, 518);
+  assert.equal(center.x, 360);
+  assert.equal(center.y, 259);
+
+  const maxCoord = calculateMinimapCoords(4800, 3450, 720, 518);
+  assert.equal(maxCoord.x, 720);
+  assert.equal(maxCoord.y, 518);
+
+  const outOfBounds = calculateMinimapCoords(9999, 9999, 720, 518);
+  assert.equal(outOfBounds.x, 720);
+  assert.equal(outOfBounds.y, 518);
+});
+
+test('findNearestPOI locates nearest building or station on campus', () => {
+  // Near the main gate
+  const gateNear = findNearestPOI(2400, 3250);
+  assert.ok(gateNear.poi);
+  assert.equal(gateNear.poi.id, 'gate');
+  assert.ok(gateNear.distance < 50);
+
+  // Near the library
+  const libNear = findNearestPOI(650, 930);
+  assert.ok(libNear.poi);
+  assert.equal(libNear.poi.id, 'library');
+  assert.equal(libNear.distance, 0);
+
+  // Near the grand hall
+  const grandNear = findNearestPOI(2400, 930);
+  assert.ok(grandNear.poi);
+  assert.equal(grandNear.poi.id, 'grand');
 });
