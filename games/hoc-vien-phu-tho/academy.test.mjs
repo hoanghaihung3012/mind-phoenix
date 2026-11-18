@@ -445,7 +445,7 @@ test('FishingMinigame hook swings, extends, catches fish/shrimp/crab and reels w
     score: 25,
     hooked: false
   };
-  game.creatures.push(targetFish);
+  game.creatures = [targetFish];
   game.hook.length = 115; // Ngay sát con cá
 
   game.update(0.05); // Hook tip đi vào tọa độ (380, 55 + 115 + shootSpeed * dt)
