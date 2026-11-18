@@ -1112,7 +1112,7 @@ class AcademyGame {
       y: GATE.y,
       draw: (c) => {
         const img = TEXTURES['prop-gate'];
-        if (img) c.drawImage(img, GATE.x - 210, GATE.y - 170);
+        if (img) c.drawImage(img, GATE.x - 165, GATE.y - 140);
         const gp = PLATE_INFO['prop-gate'];
         if (gp) {
           c.save();
