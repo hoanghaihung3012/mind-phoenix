@@ -210,6 +210,108 @@ function shopFront(scene, key, w, h, o) {
   });
 }
 
+function soccerField(scene, key, w, h) {
+  makeTexture(scene, key, w, h, (g) => {
+    const midX = w / 2;
+    // Bóng đổ
+    ell(g, midX, h - 6, w * 0.98, 24, 0x000000, null, 0, 0.18);
+
+    // Bờ tường / hàng rào bao quanh sân bóng
+    rr(g, 6, 24, w - 12, h - 30, 14, 0xd4c5a9, INK, 4);
+
+    // Nền sân cỏ bóng đá
+    const fieldX = 14;
+    const fieldY = 32;
+    const fieldW = w - 28;
+    const fieldH = h - 46;
+    rr(g, fieldX, fieldY, fieldW, fieldH, 10, 0x2e7d32, INK, 3);
+
+    // Các dải cỏ sáng tối xen kẽ (sọc cỏ sân vận động)
+    const stripeW = 32;
+    let stripeIdx = 0;
+    for (let x = fieldX + 2; x < fieldX + fieldW - 2; x += stripeW) {
+      if (stripeIdx % 2 === 1) {
+        const sw = Math.min(stripeW, fieldX + fieldW - 2 - x);
+        g.fillStyle(0x388e3c, 1);
+        g.fillRect(x, fieldY + 2, sw, fieldH - 4);
+      }
+      stripeIdx++;
+    }
+
+    // Vạch biên ngoài sân cỏ
+    const innerX = fieldX + 12;
+    const innerY = fieldY + 12;
+    const innerW = fieldW - 24;
+    const innerH = fieldH - 24;
+    rr(g, innerX, innerY, innerW, innerH, 4, null, 0xffffff, 2.5);
+
+    // Đường giữa sân
+    const centerY = innerY + innerH / 2;
+    line(g, innerX, centerY, innerX + innerW, centerY, 0xffffff, 2.5);
+
+    // Vòng tròn trung tâm
+    circ(g, midX, centerY, 24, null, 0xffffff, 2.5);
+    circ(g, midX, centerY, 3.5, 0xffffff, null, 0);
+
+    // Khung thành phía trên (Top Goal)
+    const goalW = 76;
+    const goalH = 22;
+    const goalX = midX - goalW / 2;
+    const goalY = innerY - 6;
+
+    // Lưới khung thành phía trên
+    g.fillStyle(0xe2e8f0, 0.7);
+    g.fillRect(goalX + 2, goalY - goalH + 4, goalW - 4, goalH);
+    // Mắt lưới caro
+    for (let lx = goalX + 8; lx < goalX + goalW; lx += 8) {
+      line(g, lx, goalY - goalH + 4, lx, goalY + 4, 0xffffff, 1.2);
+    }
+    for (let ly = goalY - goalH + 8; ly <= goalY; ly += 6) {
+      line(g, goalX + 2, ly, goalX + goalW - 2, ly, 0xffffff, 1.2);
+    }
+    // Cột dọc và xà ngang khung thành trên
+    rr(g, goalX, goalY - goalH + 2, goalW, goalH + 2, 2, null, 0xffffff, 3);
+    rr(g, goalX, goalY - goalH + 2, goalW, goalH + 2, 2, null, INK, 1.5);
+
+    // Vòng cấm địa (Penalty box) phía trên
+    rr(g, midX - 52, innerY, 104, 30, 2, null, 0xffffff, 2);
+    circ(g, midX, innerY + 22, 2.5, 0xffffff, null, 0);
+
+    // Vòng cấm địa phía dưới
+    rr(g, midX - 52, innerY + innerH - 30, 104, 30, 2, null, 0xffffff, 2);
+    circ(g, midX, innerY + innerH - 22, 2.5, 0xffffff, null, 0);
+
+    // Cờ 4 góc sân (vàng & đỏ)
+    for (const [cx, cy, dir] of [
+      [innerX, innerY, 1],
+      [innerX + innerW, innerY, -1],
+      [innerX, innerY + innerH, 1],
+      [innerX + innerW, innerY + innerH, -1],
+    ]) {
+      line(g, cx, cy, cx, cy - 10, 0xfacc15, 2);
+      poly(g, [cx, cy - 10, cx + 8 * dir, cy - 7, cx, cy - 4], 0xef4444, INK, 1);
+    }
+
+    // Quả bóng đá ở trung tâm
+    circ(g, midX, centerY, 8, 0xffffff, INK, 2);
+    circ(g, midX, centerY, 3, 0x1f2937, null, 0);
+    for (let a = 0; a < Math.PI * 2; a += Math.PI / 2.5) {
+      circ(g, midX + Math.cos(a) * 5.2, centerY + Math.sin(a) * 5.2, 1.8, 0x1f2937, null, 0);
+    }
+
+    // Bảng tên sân bóng đá
+    const p = plate(key, w, midX, 4, w - 60, 28);
+    rr(g, p.x, p.y, p.w, p.h, 8, 0x15803d, INK, 3);
+    rr(g, p.x + 3, p.y + 3, p.w - 6, p.h - 6, 6, 0xfff9e6, null, 0);
+
+    // Biểu tượng bóng đá hai bên bảng tên
+    circ(g, p.x + 16, p.y + p.h / 2, 8, 0xffffff, INK, 1.5);
+    circ(g, p.x + 16, p.y + p.h / 2, 2.5, 0x1e293b, null, 0);
+    circ(g, p.x + p.w - 16, p.y + p.h / 2, 8, 0xffffff, INK, 1.5);
+    circ(g, p.x + p.w - 16, p.y + p.h / 2, 2.5, 0x1e293b, null, 0);
+  });
+}
+
 function tree(scene, key, variant) {
   makeTexture(scene, key, 110, 140, (g) => {
     ell(g, 55, 134, 52, 12, 0x000000, null, 0, 0.2);
@@ -504,6 +606,7 @@ export function generateMapTextures(scene) {
     if (b.zone === "grand") grandHall(scene, b.texture, b.w, b.h);
     else if (b.zone === "arena") arenaTent(scene, b.texture, b.w, b.h);
     else if (b.zone === "idiom") idiomStage(scene, b.texture, b.w, b.h);
+    else if (b.zone === "soccer") soccerField(scene, b.texture, b.w, b.h);
     else if (b.zone === "shop")
       shopFront(scene, b.texture, b.w, b.h, {
         roofH: 56,

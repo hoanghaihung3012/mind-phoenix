@@ -302,3 +302,48 @@ test('findNearestPOI locates nearest building or station on campus', () => {
   assert.ok(grandNear.poi);
   assert.equal(grandNear.poi.id, 'grand');
 });
+
+test('soccer pitch POI is registered with soccer icon and correct sports category', () => {
+  const soccer = POI_LOCATIONS.find(p => p.id === 'soccer');
+  assert.ok(soccer, 'Sân Đá Banh (soccer) must be registered in POI_LOCATIONS');
+  assert.equal(soccer.icon, '⚽');
+  assert.equal(soccer.panelType, 'soccer');
+  assert.equal(soccer.category, 'sports');
+  assert.ok(soccer.x > 0 && soccer.y > 0);
+  assert.ok(soccer.radius >= 100);
+});
+
+test('soccer field texture bld-soccer is generated and registered in PLATE_INFO', async () => {
+  const { buildAllTextures, PLATE_INFO } = await import('./art/index.js');
+  const textures = buildAllTextures();
+  assert.ok(textures['bld-soccer'], 'bld-soccer texture must be generated');
+  assert.ok(PLATE_INFO['bld-soccer'], 'PLATE_INFO for bld-soccer must be present');
+});
+
+test('SoccerMinigame operates purely for fun without affecting player XP or level', async () => {
+  const { SoccerMinigame } = await import('./soccer.js');
+  const player = createDefaultPlayer({ xp: 50, level: 1, points: 10 });
+  const initialXP = player.xp;
+  const initialLevel = player.level;
+  const initialPoints = player.points;
+
+  const game = new SoccerMinigame();
+  assert.equal(game.mode, 'penalty');
+  assert.equal(game.shots, 0);
+  assert.equal(game.goals, 0);
+
+  // Shoot a ball
+  game.shootBall(380, 150);
+  assert.equal(game.shots, 1);
+  assert.equal(game.ballState, 'flying');
+
+  // Verify player XP and level are 100% untouched
+  assert.equal(player.xp, initialXP, 'Soccer game must not add XP');
+  assert.equal(player.level, initialLevel, 'Soccer game must not change level');
+  assert.equal(player.points, initialPoints, 'Soccer game must not change honor stars');
+
+  // Switch to free practice mode
+  game.setMode('free');
+  assert.equal(game.mode, 'free');
+  assert.equal(game.shots, 0);
+});

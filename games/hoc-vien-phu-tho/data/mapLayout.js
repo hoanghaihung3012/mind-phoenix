@@ -74,6 +74,16 @@ export const BUILDINGS = [
     iy: 2130,
   },
   {
+    zone: "soccer",
+    texture: "bld-soccer",
+    cx: 3350,
+    baseY: 2050,
+    w: 320,
+    h: 210,
+    ix: 3350,
+    iy: 2130,
+  },
+  {
     zone: "idiom",
     texture: "bld-idiom",
     cx: 4180,

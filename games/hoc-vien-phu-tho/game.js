@@ -24,6 +24,7 @@ import {
   findNearestPOI,
 } from './academy.mjs';
 import { MINIGAME_DATA } from './minigames.mjs';
+import { SoccerMinigame } from './soccer.js';
 import {
   buildAllTextures,
   TEXTURES,
@@ -58,6 +59,7 @@ export const BUILDING_SIGN_NAMES = {
   pets: 'KHU THÚ CƯNG',
   shop: 'CỬA HÀNG',
   arcade: 'KHU TRÒ CHƠI',
+  soccer: 'SÂN BÓNG ĐÁ',
 };
 
 export const ARCADE_GAMES = [
@@ -143,6 +145,10 @@ class AcademyGame {
     // Controls
     this.keys = {};
     this.activePOI = null;
+
+    // Soccer Minigame & Campus Football
+    this.soccerGame = null;
+    this.campusBall = { x: 3350, y: 2020, vx: 0, vy: 0, r: 12, rot: 0 };
 
     // Network
     this.net = new AcademyNetworkManager(
@@ -424,6 +430,44 @@ class AcademyGame {
     const arcadeBackToListBtn = document.getElementById('arcadeBackToListBtn');
     if (arcadeBackToListBtn) {
       arcadeBackToListBtn.addEventListener('click', () => this.backToArcadeList());
+    }
+
+    // Soccer Stadium Penalty Minigame Modal
+    const closeSoccerModal = document.getElementById('closeSoccerModal');
+    if (closeSoccerModal) {
+      closeSoccerModal.addEventListener('click', () => this.closeSoccerModal());
+    }
+    const soccerModeBtn = document.getElementById('soccerModeBtn');
+    if (soccerModeBtn) {
+      soccerModeBtn.addEventListener('click', () => {
+        if (!this.soccerGame) return;
+        const newMode = this.soccerGame.mode === 'penalty' ? 'free' : 'penalty';
+        this.soccerGame.setMode(newMode);
+        soccerModeBtn.textContent = newMode === 'penalty' ? '🎯 Chế độ: 5 Lượt' : '♾️ Chế độ: Tự do';
+        this.sound.playClick();
+      });
+    }
+    const soccerResetBtn = document.getElementById('soccerResetBtn');
+    if (soccerResetBtn) {
+      soccerResetBtn.addEventListener('click', () => {
+        if (this.soccerGame) this.soccerGame.resetMatch();
+        const resOverlay = document.getElementById('soccerResultOverlay');
+        if (resOverlay) resOverlay.classList.add('hidden');
+        this.sound.playClick();
+      });
+    }
+    const soccerPlayAgainBtn = document.getElementById('soccerPlayAgainBtn');
+    if (soccerPlayAgainBtn) {
+      soccerPlayAgainBtn.addEventListener('click', () => {
+        const resOverlay = document.getElementById('soccerResultOverlay');
+        if (resOverlay) resOverlay.classList.add('hidden');
+        if (this.soccerGame) this.soccerGame.resetMatch();
+        this.sound.playClick();
+      });
+    }
+    const soccerExitBtn = document.getElementById('soccerExitBtn');
+    if (soccerExitBtn) {
+      soccerExitBtn.addEventListener('click', () => this.closeSoccerModal());
     }
 
     // Chat Minimize & Expand Toggle
@@ -857,6 +901,7 @@ class AcademyGame {
       let pinColor = '#2563eb';
       if (poi.category === 'special_zone') pinColor = '#dc2626';
       else if (poi.panelType === 'arcade') pinColor = '#8b5cf6';
+      else if (poi.panelType === 'soccer' || poi.category === 'sports') pinColor = '#10b981';
       else if (poi.category === 'panel') pinColor = '#16a34a';
       else if (poi.category === 'landmark' || poi.category === 'social') pinColor = '#f59e0b';
 
@@ -1009,6 +1054,7 @@ class AcademyGame {
       let categoryLabel = 'Trạm Học Tập';
       if (poi.category === 'special_zone') categoryLabel = 'Đại Hội Tri Thức (Đỉnh cao)';
       else if (poi.panelType === 'arcade') categoryLabel = 'Khu Giải Trí Miễn Phí';
+      else if (poi.panelType === 'soccer' || poi.category === 'sports') categoryLabel = 'Sân Đá Banh Thể Thao (Chơi Vui)';
       else if (poi.category === 'panel') categoryLabel = 'Tiện Ích Học Đường';
       else if (poi.category === 'landmark' || poi.category === 'social') categoryLabel = 'Cảnh Quan Phú Thọ';
 
@@ -1024,7 +1070,7 @@ class AcademyGame {
           <div class="station-desc">${poi.desc || ''}</div>
           <div class="station-bottom">
             <div class="station-reward">
-              ${poi.rewardCoins ? `🪙 +${poi.rewardCoins} Xu | ⭐ +${poi.rewardXP || 0} XP` : (unlocked ? '✨ Tự do khám phá' : '🔒 Cần Cấp 3 hoặc 60⭐')}
+              ${(poi.panelType === 'soccer' || poi.category === 'sports') ? '⚽ Chơi vui rèn luyện • Không tính điểm level' : (poi.rewardCoins ? `🪙 +${poi.rewardCoins} Xu | ⭐ +${poi.rewardXP || 0} XP` : (unlocked ? '✨ Tự do khám phá' : '🔒 Cần Cấp 3 hoặc 60⭐'))}
             </div>
             <button type="button" class="station-goto-btn" data-id="${poi.id}">🚶 Đi đến đây</button>
           </div>
@@ -1440,11 +1486,47 @@ class AcademyGame {
         document.getElementById('missionModal').classList.remove('hidden');
       } else if (poi.panelType === 'arcade') {
         this.openArcadeModal();
+      } else if (poi.panelType === 'soccer') {
+        this.openSoccerModal();
       }
-    } else if (poi.category === 'landmark' || poi.category === 'welcome' || poi.category === 'social' || poi.category === 'sports') {
+    } else if (poi.category === 'sports' || poi.panelType === 'soccer') {
+      this.openSoccerModal();
+    } else if (poi.category === 'landmark' || poi.category === 'welcome' || poi.category === 'social') {
       this.showSpeechBubble(this.player.id, `Đang ở ${poi.name}: ${poi.desc}`, 5000);
       this.sound.playClick();
     }
+  }
+
+  openSoccerModal() {
+    const modal = document.getElementById('soccerModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+
+    const resOverlay = document.getElementById('soccerResultOverlay');
+    if (resOverlay) resOverlay.classList.add('hidden');
+
+    const canvas = document.getElementById('soccerCanvas');
+    if (!this.soccerGame && canvas) {
+      this.soccerGame = new SoccerMinigame({
+        canvas,
+        sound: this.sound,
+        onClose: () => this.closeSoccerModal()
+      });
+    }
+
+    if (this.soccerGame) {
+      this.soccerGame.start();
+    }
+    this.sound.playClick();
+  }
+
+  closeSoccerModal() {
+    const modal = document.getElementById('soccerModal');
+    if (modal) modal.classList.add('hidden');
+    if (this.soccerGame) {
+      this.soccerGame.stop();
+    }
+    this.sound.playClick();
   }
 
   openArcadeModal() {
@@ -1845,6 +1927,48 @@ class AcademyGame {
       }
     }
 
+    // Campus soccer ball physics (trên sân đá banh trường)
+    if (this.campusBall) {
+      const cb = this.campusBall;
+      const bdx = cb.x - this.player.x;
+      const bdy = cb.y - this.player.y;
+      const bdist = Math.hypot(bdx, bdy);
+      const kickDist = cb.r + 22;
+
+      if (bdist < kickDist && bdist > 0.1) {
+        const nx = bdx / bdist;
+        const ny = bdy / bdist;
+        const kickPower = this.player.moving ? 260 : 130;
+        cb.vx = nx * kickPower;
+        cb.vy = ny * kickPower;
+        if (Math.hypot(cb.vx, cb.vy) > 70 && this.sound && this.sound.playKick) {
+          this.sound.playKick();
+        }
+      }
+
+      cb.x += cb.vx * dt;
+      cb.y += cb.vy * dt;
+      cb.vx *= Math.pow(0.88, dt * 60);
+      cb.vy *= Math.pow(0.88, dt * 60);
+      if (Math.abs(cb.vx) < 1) cb.vx = 0;
+      if (Math.abs(cb.vy) < 1) cb.vy = 0;
+
+      const speed = Math.hypot(cb.vx, cb.vy);
+      if (speed > 1) {
+        cb.rot += (cb.vx > 0 ? 1 : -1) * speed * dt * 0.05;
+      }
+
+      // Giữ bóng trong sân bóng đá (cx: 3350, baseY: 2050, w: 320, h: 210)
+      const minBx = 3350 - 145;
+      const maxBx = 3350 + 145;
+      const minBy = 2050 - 180;
+      const maxBy = 2050 + 10;
+      if (cb.x < minBx) { cb.x = minBx; cb.vx = -cb.vx * 0.6; }
+      if (cb.x > maxBx) { cb.x = maxBx; cb.vx = -cb.vx * 0.6; }
+      if (cb.y < minBy) { cb.y = minBy; cb.vy = -cb.vy * 0.6; }
+      if (cb.y > maxBy) { cb.y = maxBy; cb.vy = -cb.vy * 0.6; }
+    }
+
     // Check POI Proximity
     const prox = checkProximityPOI(this.player.x, this.player.y);
     const promptEl = document.getElementById('interactionPrompt');
@@ -2059,6 +2183,49 @@ class AcademyGame {
         }
       }
     });
+
+    // Campus Soccer Ball (Quả bóng đá trên sân trường)
+    if (this.campusBall) {
+      const cb = this.campusBall;
+      renderList.push({
+        y: cb.y,
+        draw: (c) => {
+          c.save();
+          // Bóng đổ
+          c.fillStyle = 'rgba(0, 0, 0, 0.25)';
+          c.beginPath();
+          c.ellipse(cb.x, cb.y + cb.r * 0.7, cb.r * 1.1, cb.r * 0.4, 0, 0, Math.PI * 2);
+          c.fill();
+
+          c.translate(cb.x, cb.y);
+          c.rotate(cb.rot || 0);
+
+          // Thân bóng trắng
+          c.fillStyle = '#ffffff';
+          c.beginPath();
+          c.arc(0, 0, cb.r, 0, Math.PI * 2);
+          c.fill();
+          c.strokeStyle = '#0f172a';
+          c.lineWidth = 1.8;
+          c.stroke();
+
+          // Họa tiết đen lục giác
+          c.fillStyle = '#1e293b';
+          c.beginPath();
+          c.arc(0, 0, cb.r * 0.38, 0, Math.PI * 2);
+          c.fill();
+
+          for (let i = 0; i < 4; i++) {
+            const a = (Math.PI * 2 * i) / 4;
+            c.beginPath();
+            c.arc(Math.cos(a) * cb.r * 0.78, Math.sin(a) * cb.r * 0.78, cb.r * 0.24, 0, Math.PI * 2);
+            c.fill();
+          }
+
+          c.restore();
+        }
+      });
+    }
 
     // Local player
     renderList.push({

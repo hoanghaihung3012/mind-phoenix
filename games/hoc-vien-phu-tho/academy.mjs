@@ -266,6 +266,18 @@ export const POI_LOCATIONS = [
     rewardXP: 45,
   },
   {
+    id: 'soccer',
+    name: 'Sân Đá Banh Phú Thọ',
+    nameEn: 'Phu Tho Soccer Field',
+    x: 3350,
+    y: 2130,
+    radius: 140,
+    icon: '⚽',
+    category: 'sports',
+    panelType: 'soccer',
+    desc: 'Sân bóng đá cỏ xanh Phú Thọ - Thỏa sức sút bóng cầu môn giải trí vui vẻ (chơi vui không tính điểm level)!',
+  },
+  {
     id: 'idiom',
     name: 'Quảng Trường Thành Ngữ',
     nameEn: 'Idiom & Folklore Plaza',
@@ -682,6 +694,87 @@ export class SoundController {
       gain.connect(ctx.destination);
       osc.start(now);
       osc.stop(now + 0.32);
+    } catch (_) {}
+  }
+
+  playKick() {
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(180, now);
+      osc.frequency.exponentialRampToValueAtTime(45, now + 0.12);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.15);
+    } catch (_) {}
+  }
+
+  playCrossbar() {
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, now);
+      osc.frequency.exponentialRampToValueAtTime(320, now + 0.25);
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.3);
+    } catch (_) {}
+  }
+
+  playWhistle() {
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      for (const offset of [0, 0.14]) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(2400, now + offset);
+        osc.frequency.linearRampToValueAtTime(2600, now + offset + 0.08);
+        gain.gain.setValueAtTime(0.1, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.1);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + offset);
+        osc.stop(now + offset + 0.11);
+      }
+    } catch (_) {}
+  }
+
+  playGoal() {
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    try {
+      this.playSuccess();
+      const now = ctx.currentTime;
+      const chord = [523.25, 659.25, 783.99, 1046.5];
+      chord.forEach((freq) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.08, now + 0.2);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + 0.2);
+        osc.stop(now + 0.85);
+      });
     } catch (_) {}
   }
 }

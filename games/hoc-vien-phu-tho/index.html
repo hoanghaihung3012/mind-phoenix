@@ -471,6 +471,75 @@
     </div>
   </div>
 
+  <!-- MODAL: Sân Đá Banh Phú Thọ (Soccer Penalty Minigame) -->
+  <div id="soccerModal" class="modal-overlay hidden">
+    <div class="modal-card soccer-modal-card">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 28px;">⚽</span>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <h2 style="margin: 0; font-size: 19px;">Sân Đá Banh Học Viện Phú Thọ</h2>
+              <span class="soccer-badge-free">Chơi Vui • Không Tính Điểm Level</span>
+            </div>
+            <p style="margin: 2px 0 0; font-size: 12px; color: #64748b;">Thử tài sút phạt đền 11m, hạ gục thủ môn và tận hưởng niềm vui bóng đá!</p>
+          </div>
+        </div>
+        <button class="modal-close" id="closeSoccerModal">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding: 12px 16px 16px;">
+        <!-- Top bar scoreboard -->
+        <div class="soccer-scoreboard">
+          <div class="soccer-stat-box">
+            <span class="soccer-stat-label">Bàn thắng</span>
+            <span class="soccer-stat-val" id="soccerGoals">0</span>
+          </div>
+          <div class="soccer-stat-box">
+            <span class="soccer-stat-label">Lượt sút</span>
+            <span class="soccer-stat-val"><span id="soccerShots">0</span> / <span id="soccerMaxShots">5</span></span>
+          </div>
+          <div class="soccer-stat-box">
+            <span class="soccer-stat-label">Chuỗi ghi bàn</span>
+            <span class="soccer-stat-val" id="soccerStreak" style="color: #ea580c;">0</span>
+          </div>
+          <div class="soccer-actions">
+            <button id="soccerModeBtn" class="soccer-ctrl-btn" title="Chuyển chế độ sút bóng">🎯 Chế độ: 5 Lượt</button>
+            <button id="soccerResetBtn" class="soccer-ctrl-btn" title="Bắt đầu lại">🔄 Đá lại</button>
+          </div>
+        </div>
+
+        <!-- Soccer Canvas Container -->
+        <div class="soccer-canvas-container">
+          <canvas id="soccerCanvas" width="760" height="440"></canvas>
+          <div id="soccerAnnounce" class="soccer-announce hidden"></div>
+
+          <!-- Result Overlay for 5-shot round -->
+          <div id="soccerResultOverlay" class="soccer-result-overlay hidden">
+            <div class="soccer-result-box">
+              <div style="font-size: 52px; margin-bottom: 6px;">🏆⚽🌟</div>
+              <h3 id="soccerResultTitle" style="color:#0f172a; margin: 0 0 4px; font-size: 22px;">Kết Thúc Vòng Sút!</h3>
+              <div id="soccerResultScore" style="font-size: 28px; font-weight: 800; color: #15803d; margin: 8px 0;">4/5 Bàn Thắng</div>
+              <p id="soccerResultDesc" style="color:#64748b; font-size: 13.5px; margin: 0 0 16px;">Những cú sút điệu nghệ của một tiền đạo cừ khôi!</p>
+              <div class="soccer-free-note">
+                ✨ Trận giao hữu rèn luyện thể chất & giải trí - Điểm số không ảnh hưởng đến Cấp độ (Level) học viện của bạn.
+              </div>
+              <div style="display: flex; gap: 10px; justify-content: center; margin-top: 16px;">
+                <button id="soccerPlayAgainBtn" class="btn primary-btn">Sút Vòng Mới ⚽</button>
+                <button id="soccerExitBtn" class="btn" style="background:#e2e8f0; color:#334155;">Rời Sân Bóng 🏃</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footnote reminder -->
+        <div class="soccer-footer-hint">
+          <span>💡 <strong>Hướng dẫn:</strong> Nhấp chuột hoặc chạm vào bất kỳ điểm nào trong khung thành để sút bóng! Hãy nhắm vào các góc hiểm để thủ môn không thể với tới.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: Leaderboard -->
   <div id="leaderboardModal" class="modal-overlay hidden">
     <div class="modal-card">
