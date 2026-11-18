@@ -55,7 +55,25 @@
     .wheel-preview span { padding: 6px; border: 2px solid var(--ink); border-radius: 50%; background: #fffaf5; }
     footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; padding: 24px 0; border-top: 1px solid #ded7e8; color: var(--muted); font-size: 12px; }
     footer nav { display: flex; flex-wrap: wrap; gap: 18px; }
-    @media (max-width: 650px) { .tools { grid-template-columns: 1fr; } main { padding-top: 32px; } .brand { font-size: 21px; } .cover { height: 170px; } }
+    @media (max-width: 650px) {
+      .wrap { width: calc(100% - 24px); }
+      header { padding: 14px 0; gap: 10px; }
+      .brand { font-size: 19px; gap: 8px; }
+      .brand img { width: 32px; height: 38px; }
+      .home-link { font-size: 12px; }
+      main { padding: 24px 0 36px; }
+      h1 { font-size: clamp(28px, 6vw, 42px); }
+      .intro { font-size: 13.5px; margin: 10px 0 22px; }
+      .tools { grid-template-columns: 1fr; gap: 18px; }
+      .tool { border-radius: 18px; }
+      .cover { height: 155px; }
+      .copy { padding: 18px 16px; }
+      h2 { font-size: 22px; margin: 8px 0; }
+      .copy p { font-size: 13px; margin: 0 0 16px; }
+      .open { padding: 8px 14px; font-size: 13px; border-radius: 8px; }
+      footer { flex-direction: column; text-align: center; gap: 12px; padding: 20px 0; font-size: 12px; }
+      footer nav { justify-content: center; gap: 14px; }
+    }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
   </style>
 </head>

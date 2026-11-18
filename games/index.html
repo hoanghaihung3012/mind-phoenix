@@ -389,28 +389,43 @@
     footer { padding: 18px 0 32px; color: #a0a497; font-size: 10px; text-align: center; }
     footer nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px 20px; margin-top: 10px; color: #304b4a; font-size: 12px; }
     @media (max-width: 600px) {
-      .games { grid-template-columns: 1fr; gap: 22px; }
-      main { padding: 24px 0 36px; }
-      header { min-height: 76px; }
-      .brand { font-size: 19px; }
-      .cover { height: 180px; }
-      .category-head { flex-direction: column; align-items: flex-start; padding: 14px 18px; }
-      .category-head-left { width: 100%; }
-      .category-count { align-self: flex-end; }
+      .wrap { width: calc(100% - 24px); }
+      header { min-height: 64px; padding: 10px 0; gap: 10px; flex-wrap: wrap; }
+      .brand { font-size: 18px; gap: 6px; }
+      .brand img { width: 34px; height: 34px; }
+      .game-language { gap: 6px; }
+      .home-link { font-size: 12px; }
+      main { padding: 20px 0 32px; }
+      h1 { font-size: clamp(28px, 6vw, 40px); }
+      .intro { font-size: 13.5px; margin: 10px 0 20px; }
+      .games { grid-template-columns: 1fr; gap: 18px; }
+      .game { border-radius: 18px; }
+      .cover { height: 160px; }
+      .body { padding: 16px 14px; }
+      .body h3 { font-size: 19px; }
+      .body p { font-size: 13px; }
+      .play { padding: 8px 14px; font-size: 12px; border-radius: 8px; margin-top: 14px; }
+      .category-head { flex-direction: column; align-items: flex-start; padding: 14px 14px; border-radius: 18px; gap: 10px; }
+      .category-head-left { width: 100%; gap: 12px; }
+      .category-icon { width: 44px; height: 44px; font-size: 24px; border-radius: 14px; }
+      .category-info h2 { font-size: 19px; }
+      .category-info p { font-size: 13px; }
+      .category-count { align-self: flex-start; }
       .category-nav-wrap {
-        top: 8px;
-        margin: 0 -8px 24px;
+        top: 6px;
+        margin: 0 -6px 20px;
         border-radius: 14px;
-        padding: 6px 8px;
+        padding: 5px 6px;
       }
       .nav-chip {
-        padding: 7px 12px;
-        font-size: 12.5px;
-        gap: 6px;
+        padding: 6px 10px;
+        font-size: 12px;
+        border-radius: 10px;
+        gap: 5px;
       }
       .category-section {
-        scroll-margin-top: 72px;
-        margin-bottom: 40px;
+        scroll-margin-top: 68px;
+        margin-bottom: 36px;
       }
     }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

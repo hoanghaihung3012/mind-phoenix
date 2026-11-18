@@ -272,3 +272,82 @@
   font-weight: 600;
   margin-bottom: 12px;
 }
+
+/* Mobile Responsive Optimization */
+@media (max-width: 640px) {
+  .nav-auth-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    gap: 4px;
+  }
+
+  .nav-user-profile {
+    padding: 3px 8px 3px 4px;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .nav-user-avatar {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+
+  .nav-user-name {
+    max-width: 75px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nav-user-level-badge {
+    font-size: 9.5px;
+    padding: 2px 6px;
+  }
+
+  .nav-logout-btn {
+    padding: 2px 4px;
+    font-size: 11px;
+  }
+
+  .auth-modal-card {
+    padding: 24px 18px;
+    border-radius: 20px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .auth-mascot {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    margin-bottom: 8px;
+  }
+
+  .auth-title {
+    font-size: 19px;
+  }
+
+  .auth-subtitle {
+    font-size: 12px;
+  }
+
+  .auth-tabs {
+    margin-bottom: 16px;
+  }
+
+  .auth-tab-btn {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+
+  .auth-field input {
+    padding: 9px 12px;
+    font-size: 13.5px;
+  }
+
+  .auth-submit-btn {
+    padding: 11px;
+    font-size: 13.5px;
+  }
+}

@@ -1482,6 +1482,66 @@ body {
 }
 
 @media (max-width: 768px) {
+  .topbar-hud {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .hud-left {
+    justify-content: space-between;
+    width: 100%;
+    gap: 6px;
+  }
+
+  .player-card {
+    padding: 4px 10px 4px 6px;
+    gap: 6px;
+  }
+
+  .player-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+
+  .player-name {
+    max-width: 105px;
+    font-size: 12px;
+  }
+
+  .player-sub {
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  .hud-right {
+    overflow-x: auto;
+    width: 100%;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    gap: 6px;
+  }
+
+  .hud-right::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hud-btn {
+    padding: 5px 9px;
+    font-size: 11.5px;
+    flex-shrink: 0;
+  }
+
+  .back-link {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
   .customize-modal-body,
   .shop-modal-body {
     flex-direction: column;
@@ -1492,6 +1552,29 @@ body {
     flex: auto;
     width: 100%;
     position: static;
+  }
+
+  .soccer-scoreboard {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+
+  .soccer-stat-val {
+    font-size: 15px;
+  }
+
+  .soccer-ctrl-btn {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+
+  .soccer-result-box {
+    padding: 18px 16px;
+  }
+
+  .soccer-announce {
+    font-size: 15px;
+    padding: 6px 16px;
   }
 }
 
