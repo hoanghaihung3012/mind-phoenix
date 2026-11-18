@@ -317,237 +317,8 @@ export const DAILY_MISSIONS = [
   { id: 'm-grand-1', text: 'Chinh phục thử thách Đại Hội Tri Thức', target: 1, category: 'grand', current: 0, rewardCoins: 50, rewardXP: 80 }
 ];
 
-export const DEFAULT_NPCS = [
-  {
-    id: 'npc_minh',
-    name: 'Bạn Minh (Lớp 4A Phú Thọ)',
-    school: 'TH Phú Thọ',
-    character: 'boy',
-    skin: 'fair',
-    hair: 'short',
-    hairStyle: 0,
-    hairColor: 0,
-    outfit: 'default-student',
-    skinId: 'default-student',
-    bagColor: 'blue',
-    shoeColor: 'white',
-    pet: 'dog',
-    x: 2400,
-    y: 3010,
-    direction: 'down',
-    messages: [
-      'Chào mừng bạn đến với Trường Tiểu học Phú Thọ!',
-      'Sân trường chúng mình rộng rãi, thoáng mát và có rất nhiều điều kỳ thú!',
-      'Bạn hãy vào Thư viện và Khu Chính tả để kiếm thêm Xu mua thú cưng nhé!'
-    ]
-  },
-  {
-    id: 'npc_lan',
-    name: 'Bạn Lan (Lớp 4B Phú Thọ)',
-    school: 'TH Phú Thọ',
-    character: 'girl',
-    skin: 'warm',
-    hair: 'ponytail',
-    hairStyle: 2,
-    hairColor: 1,
-    outfit: 'default-student',
-    skinId: 'default-student',
-    bagColor: 'red',
-    shoeColor: 'white',
-    pet: 'duck',
-    x: 1520,
-    y: 1520,
-    direction: 'left',
-    messages: [
-      'Chào bạn! Đứng dưới bóng Cột Cờ Tổ Quốc thật tự hào!',
-      'Cậu đã đạt Cấp độ 3 để mở khóa Đại Hội Tri Thức chưa?',
-      'Đại Hội Tri Thức ở tòa nhà trung tâm mái vòm vàng lộng lẫy đó!'
-    ]
-  },
-  {
-    id: 'npc_khoi',
-    name: 'Bạn Khôi (TH Chu Văn An)',
-    school: 'TH Chu Văn An',
-    character: 'boy',
-    skin: 'tan',
-    hair: 'spiky',
-    hairStyle: 1,
-    hairColor: 2,
-    outfit: 'explorer',
-    skinId: 'explorer',
-    bagColor: 'green',
-    shoeColor: 'black',
-    pet: 'rabbit',
-    x: 4120,
-    y: 2150,
-    direction: 'up',
-    messages: [
-      'Trường Phú Thọ vừa rộng vừa đẹp, khuôn viên xanh mát tuyệt vời!',
-      'Tớ từ trường Chu Văn An sang đây giao lưu học tập.',
-      'Quảng trường Thành ngữ có nhiều câu đố thú vị lắm đó bạn ơi!'
-    ]
-  },
-  {
-    id: 'npc_mai',
-    name: 'Bạn Mai (TH Lê Quý Đôn)',
-    school: 'TH Lê Quý Đôn',
-    character: 'girl',
-    skin: 'peach',
-    hair: 'twintail',
-    hairStyle: 3,
-    hairColor: 0,
-    outfit: 'scholar',
-    skinId: 'scholar',
-    bagColor: 'pink',
-    shoeColor: 'pink',
-    pet: 'chicken',
-    x: 720,
-    y: 950,
-    direction: 'right',
-    messages: [
-      'Tớ vừa mua mũ cử nhân ở Cửa hàng Học viện nè, xinh không?',
-      'Hãy ghé Thư Viện Từ Vựng giải đố từ ghép và từ láy với tớ nhé!'
-    ]
-  },
-  {
-    id: 'npc_thay_hieu_truong',
-    name: 'Thầy Hiệu Trưởng (TH Phú Thọ)',
-    school: 'TH Phú Thọ',
-    character: 'boy',
-    skin: 'warm',
-    hair: 'short',
-    hairStyle: 0,
-    hairColor: 5,
-    outfit: 'scholar',
-    skinId: 'scholar',
-    bagColor: 'purple',
-    shoeColor: 'black',
-    pet: 'dog',
-    x: 2400,
-    y: 960,
-    direction: 'down',
-    messages: [
-      'Chào mừng các em học sinh thân mến đến với Đại Hội Tri Thức!',
-      'Học tập là hành trình khám phá không ngừng nghỉ.',
-      'Chúc các em đạt được thật nhiều Sao Danh Dự và niềm vui!'
-    ]
-  },
-  {
-    id: 'npc_an',
-    name: 'Bạn An (Lớp 3C Phú Thọ)',
-    school: 'TH Phú Thọ',
-    character: 'boy',
-    skin: 'fair',
-    hair: 'spiky',
-    hairStyle: 1,
-    hairColor: 3,
-    outfit: 'default-student',
-    skinId: 'default-student',
-    bagColor: 'orange',
-    shoeColor: 'yellow',
-    pet: 'rabbit',
-    x: 2400,
-    y: 2180,
-    direction: 'up',
-    messages: [
-      'Đấu trường 60 giây dồn dập và nghẹt thở cực kỳ!',
-      'Cậu có tự tin phản xạ nhanh hơn tớ không nào?',
-      'Vào thi đấu để thử thách giới hạn bản thân nhé!'
-    ]
-  },
-  {
-    id: 'npc_ngoc',
-    name: 'Bạn Ngọc (TH Nguyễn Bỉnh Khiêm)',
-    school: 'TH Nguyễn Bỉnh Khiêm',
-    character: 'girl',
-    skin: 'warm',
-    hair: 'bob',
-    hairStyle: 1,
-    hairColor: 2,
-    outfit: 'explorer',
-    skinId: 'explorer',
-    bagColor: 'red',
-    shoeColor: 'white',
-    pet: 'duck',
-    x: 3450,
-    y: 1520,
-    direction: 'left',
-    messages: [
-      'Hồ sen Phú Thọ mát quá! Cá bơi lội dưới hoa súng nở rộ.',
-      'Tớ thích ngắm đàn vịt vàng bơi cùng đàn cá ở đây.',
-      'Sau giờ học được thư giãn bên hồ thật là sảng khoái!'
-    ]
-  },
-  {
-    id: 'npc_duc',
-    name: 'Bạn Đức (Lớp 5A Phú Thọ)',
-    school: 'TH Phú Thọ',
-    character: 'boy',
-    skin: 'fair',
-    hair: 'short',
-    hairStyle: 0,
-    hairColor: 4,
-    outfit: 'leader',
-    skinId: 'leader',
-    bagColor: 'red',
-    shoeColor: 'mint',
-    pet: 'chicken',
-    x: 2540,
-    y: 950,
-    direction: 'left',
-    messages: [
-      'Tớ đã xuất sắc chinh phục Đại Hội Tri Thức và nhận Áo Choàng Thủ Lĩnh!',
-      'Các câu hỏi rất thú vị, bao quát kiến thức cả tiểu học.',
-      'Cố gắng lên nhé bạn ơi, danh hiệu Thủ Lĩnh đang chờ bạn!'
-    ]
-  },
-  {
-    id: 'npc_ha',
-    name: 'Bạn Hà (TH Kim Đồng)',
-    school: 'TH Kim Đồng',
-    character: 'girl',
-    skin: 'peach',
-    hair: 'twintail',
-    hairStyle: 2,
-    hairColor: 1,
-    outfit: 'inventor',
-    skinId: 'inventor',
-    bagColor: 'purple',
-    shoeColor: 'white',
-    pet: 'rabbit',
-    x: 3420,
-    y: 3030,
-    direction: 'down',
-    messages: [
-      'Kính bảo hộ sáng chế giúp tớ tập trung giải toán siêu nhanh!',
-      'Vườn Toán học có trò bắn bong bóng số học vui lắm.',
-      'Cùng thi xem ai đạt chuỗi trả lời đúng dài nhất nhé!'
-    ]
-  },
-  {
-    id: 'npc_linh',
-    name: 'Bạn Linh (TH Võ Thị Sáu)',
-    school: 'TH Võ Thị Sáu',
-    character: 'girl',
-    skin: 'fair',
-    hair: 'ponytail',
-    hairStyle: 3,
-    hairColor: 0,
-    outfit: 'default-student',
-    skinId: 'default-student',
-    bagColor: 'pink',
-    shoeColor: 'pink',
-    pet: 'dog',
-    x: 4150,
-    y: 950,
-    direction: 'down',
-    messages: [
-      'Chào bạn! Tớ rất mê những câu văn hay ở Nhà Ngữ Văn.',
-      'Ghép câu đúng ngữ pháp giúp bài văn của chúng mình giàu cảm xúc hơn!',
-      'Học viện Phú Thọ thật sự là sân chơi tri thức bổ ích cho học sinh chúng mình.'
-    ]
-  }
-];
+// Fake users removed: only real online players interact in the academy world
+export const DEFAULT_NPCS = [];
 
 export function calculateLevel(xp = 0) {
   // Level threshold: 50 XP per level
@@ -780,6 +551,8 @@ export class AcademyNetworkManager {
     this.connected = false;
     this.remotePlayers = new Map();
     this.lastBroadcastMove = 0;
+    this.reconnectTimer = null;
+    this.heartbeatTimer = null;
 
     if (typeof window !== 'undefined' && window.BroadcastChannel) {
       try {
@@ -792,16 +565,29 @@ export class AcademyNetworkManager {
   connect(wsUrl) {
     if (typeof window === 'undefined') return;
     try {
-      const url = wsUrl || (
-        window.location.protocol === 'https:'
-          ? `wss://${window.location.host}/ws/academy`
-          : `ws://${window.location.hostname}:5005/ws/academy`
-      );
+      if (this.reconnectTimer) {
+        clearTimeout(this.reconnectTimer);
+        this.reconnectTimer = null;
+      }
 
+      let defaultUrl = '';
+      if (window.MINDPHOENIX_WS_URL) {
+        defaultUrl = window.MINDPHOENIX_WS_URL;
+      } else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        defaultUrl = `${proto}//${window.location.hostname}:5005/ws/academy`;
+      } else if (window.location.protocol === 'https:') {
+        defaultUrl = 'wss://api-production-c2686e59.up.railway.app/ws/academy';
+      } else {
+        defaultUrl = `ws://${window.location.hostname}:5005/ws/academy`;
+      }
+
+      const url = wsUrl || defaultUrl;
       this.ws = new WebSocket(url);
 
       this.ws.onopen = () => {
         this.connected = true;
+        this.startHeartbeat();
         this.send({
           type: 'join',
           player: {
@@ -811,9 +597,12 @@ export class AcademyNetworkManager {
             character: this.localPlayer.character,
             skin: this.localPlayer.skin,
             hair: this.localPlayer.hair,
+            hairStyle: this.localPlayer.hairStyle,
             hairColor: this.localPlayer.hairColor,
             outfit: this.localPlayer.outfit,
+            skinId: this.localPlayer.skinId,
             bagColor: this.localPlayer.bagColor,
+            shoeColor: this.localPlayer.shoeColor,
             accessory: this.localPlayer.accessory,
             pet: this.localPlayer.pet,
             x: this.localPlayer.x,
@@ -832,10 +621,44 @@ export class AcademyNetworkManager {
         } catch (_) {}
       };
 
-      this.ws.onclose = () => { this.connected = false; };
-      this.ws.onerror = () => { this.connected = false; };
+      this.ws.onclose = () => {
+        this.connected = false;
+        this.stopHeartbeat();
+        this.scheduleReconnect();
+      };
+
+      this.ws.onerror = () => {
+        this.connected = false;
+      };
     } catch (e) {
       this.connected = false;
+      this.scheduleReconnect();
+    }
+  }
+
+  scheduleReconnect() {
+    if (this.reconnectTimer) return;
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = null;
+      if (!this.connected) {
+        this.connect();
+      }
+    }, 3000);
+  }
+
+  startHeartbeat() {
+    this.stopHeartbeat();
+    this.heartbeatTimer = setInterval(() => {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify({ type: 'ping' }));
+      }
+    }, 15000);
+  }
+
+  stopHeartbeat() {
+    if (this.heartbeatTimer) {
+      clearInterval(this.heartbeatTimer);
+      this.heartbeatTimer = null;
     }
   }
 
@@ -851,24 +674,40 @@ export class AcademyNetworkManager {
   handleServerMessage(msg) {
     if (msg.type === 'welcome') {
       if (Array.isArray(msg.players)) {
+        this.remotePlayers.clear();
         msg.players.forEach(p => {
-          this.remotePlayers.set(p.id, { ...p, lastActive: Date.now() });
+          this.remotePlayers.set(p.id, {
+            ...p,
+            targetX: p.x,
+            targetY: p.y,
+            moving: Boolean(p.moving),
+            anim: p.anim || 'idle',
+            lastActive: Date.now()
+          });
         });
-        if (this.onRemotePlayerUpdate) this.onRemotePlayerUpdate(this.remotePlayers);
+        if (this.onRemotePlayerUpdate) this.onRemotePlayerUpdate(this.remotePlayers, msg.onlineCount);
       }
     } else if (msg.type === 'player_joined') {
       if (msg.player && msg.player.id !== this.localPlayer.id) {
-        this.remotePlayers.set(msg.player.id, { ...msg.player, lastActive: Date.now() });
-        if (this.onRemotePlayerUpdate) this.onRemotePlayerUpdate(this.remotePlayers);
+        this.remotePlayers.set(msg.player.id, {
+          ...msg.player,
+          targetX: msg.player.x,
+          targetY: msg.player.y,
+          moving: Boolean(msg.player.moving),
+          anim: msg.player.anim || 'idle',
+          lastActive: Date.now()
+        });
+        if (this.onRemotePlayerUpdate) this.onRemotePlayerUpdate(this.remotePlayers, msg.onlineCount);
       }
     } else if (msg.type === 'player_moved') {
       if (msg.id && msg.id !== this.localPlayer.id) {
         let p = this.remotePlayers.get(msg.id);
         if (p) {
-          p.x = msg.x;
-          p.y = msg.y;
+          p.targetX = msg.x;
+          p.targetY = msg.y;
           p.direction = msg.direction || p.direction;
           p.anim = msg.anim || p.anim;
+          p.moving = (msg.anim === 'walk');
           p.lastActive = Date.now();
         }
       }
@@ -876,15 +715,27 @@ export class AcademyNetworkManager {
       if (this.onChatReceived) this.onChatReceived(msg);
     } else if (msg.type === 'player_interacted') {
       if (this.onInteractionReceived) this.onInteractionReceived(msg);
+    } else if (msg.type === 'player_customized') {
+      if (msg.player && msg.player.id !== this.localPlayer.id) {
+        let p = this.remotePlayers.get(msg.player.id);
+        if (p) {
+          Object.assign(p, msg.player);
+          if (this.onRemotePlayerUpdate) this.onRemotePlayerUpdate(this.remotePlayers);
+        }
+      }
     } else if (msg.type === 'player_left') {
       this.remotePlayers.delete(msg.id);
-      if (this.onRemotePlayerUpdate) this.onRemotePlayerUpdate(this.remotePlayers);
+      if (this.onRemotePlayerUpdate) this.onRemotePlayerUpdate(this.remotePlayers, msg.onlineCount);
     } else if (msg.type === 'score_updated') {
       const p = this.remotePlayers.get(msg.id);
       if (p) {
         p.points = msg.points;
-        p.level = msg.level;
-        p.specialUnlocked = msg.specialUnlocked;
+        if (msg.level !== undefined) p.level = msg.level;
+        if (msg.specialUnlocked !== undefined) p.specialUnlocked = msg.specialUnlocked;
+      }
+    } else if (msg.type === 'pong') {
+      if (msg.onlineCount && this.onRemotePlayerUpdate) {
+        this.onRemotePlayerUpdate(this.remotePlayers, msg.onlineCount);
       }
     }
   }
@@ -892,7 +743,14 @@ export class AcademyNetworkManager {
   handleLocalMessage(msg) {
     if (!msg || typeof msg !== 'object') return;
     if (msg.type === 'join' && msg.player && msg.player.id !== this.localPlayer.id) {
-      this.remotePlayers.set(msg.player.id, { ...msg.player, lastActive: Date.now() });
+      this.remotePlayers.set(msg.player.id, {
+        ...msg.player,
+        targetX: msg.player.x,
+        targetY: msg.player.y,
+        moving: false,
+        anim: 'idle',
+        lastActive: Date.now()
+      });
       if (this.onRemotePlayerUpdate) this.onRemotePlayerUpdate(this.remotePlayers);
       if (this.bc) {
         this.bc.postMessage({
@@ -904,9 +762,12 @@ export class AcademyNetworkManager {
             character: this.localPlayer.character,
             skin: this.localPlayer.skin,
             hair: this.localPlayer.hair,
+            hairStyle: this.localPlayer.hairStyle,
             hairColor: this.localPlayer.hairColor,
             outfit: this.localPlayer.outfit,
+            skinId: this.localPlayer.skinId,
             bagColor: this.localPlayer.bagColor,
+            shoeColor: this.localPlayer.shoeColor,
             accessory: this.localPlayer.accessory,
             pet: this.localPlayer.pet,
             x: this.localPlayer.x,
@@ -918,16 +779,30 @@ export class AcademyNetworkManager {
         });
       }
     } else if (msg.type === 'peer_presence' && msg.player && msg.player.id !== this.localPlayer.id) {
-      this.remotePlayers.set(msg.player.id, { ...msg.player, lastActive: Date.now() });
+      this.remotePlayers.set(msg.player.id, {
+        ...msg.player,
+        targetX: msg.player.x,
+        targetY: msg.player.y,
+        moving: false,
+        anim: 'idle',
+        lastActive: Date.now()
+      });
       if (this.onRemotePlayerUpdate) this.onRemotePlayerUpdate(this.remotePlayers);
     } else if (msg.type === 'move' && msg.id && msg.id !== this.localPlayer.id) {
       const p = this.remotePlayers.get(msg.id);
       if (p) {
-        p.x = msg.x;
-        p.y = msg.y;
+        p.targetX = msg.x;
+        p.targetY = msg.y;
         p.direction = msg.direction || p.direction;
         p.anim = msg.anim || p.anim;
+        p.moving = (msg.anim === 'walk');
         p.lastActive = Date.now();
+      }
+    } else if (msg.type === 'customization' && msg.player && msg.player.id !== this.localPlayer.id) {
+      const p = this.remotePlayers.get(msg.player.id);
+      if (p) {
+        Object.assign(p, msg.player);
+        if (this.onRemotePlayerUpdate) this.onRemotePlayerUpdate(this.remotePlayers);
       }
     } else if (msg.type === 'chat' && msg.senderId !== this.localPlayer.id) {
       if (this.onChatReceived) {
@@ -946,7 +821,7 @@ export class AcademyNetworkManager {
 
   broadcastMove(x, y, direction, anim) {
     const now = Date.now();
-    if (now - this.lastBroadcastMove < 50) return;
+    if (anim !== 'idle' && now - this.lastBroadcastMove < 40) return;
     this.lastBroadcastMove = now;
 
     const payload = {
@@ -956,6 +831,29 @@ export class AcademyNetworkManager {
       y: Math.round(y),
       direction,
       anim
+    };
+    this.send(payload);
+  }
+
+  broadcastCustomization(player) {
+    const payload = {
+      type: 'customization',
+      player: {
+        id: player.id,
+        name: player.name,
+        school: player.school,
+        character: player.character,
+        skin: player.skin,
+        hair: player.hair,
+        hairStyle: player.hairStyle,
+        hairColor: player.hairColor,
+        outfit: player.outfit,
+        skinId: player.skinId,
+        bagColor: player.bagColor,
+        shoeColor: player.shoeColor,
+        accessory: player.accessory,
+        pet: player.pet
+      }
     };
     this.send(payload);
   }
@@ -988,6 +886,8 @@ export class AcademyNetworkManager {
     const payload = {
       type: 'score_update',
       id: this.localPlayer.id,
+      deltaPoints,
+      deltaXP,
       points: this.localPlayer.points,
       xp: this.localPlayer.xp,
       level,

@@ -155,15 +155,9 @@ test('MINIGAME_DATA contains comprehensive questions from Phu Tho educational cu
   }
 });
 
-test('DEFAULT_NPCS contains welcoming students with pets and speech messages', () => {
-  assert.ok(DEFAULT_NPCS.length >= 3);
-  for (const npc of DEFAULT_NPCS) {
-    assert.ok(npc.id.startsWith('npc_'));
-    assert.ok(npc.name);
-    assert.ok(npc.school);
-    assert.ok(npc.pet, `${npc.id} must have a follower pet`);
-    assert.ok(Array.isArray(npc.messages) && npc.messages.length > 0);
-  }
+test('DEFAULT_NPCS has fake users removed so only real multiplayer socket players appear', () => {
+  assert.ok(Array.isArray(DEFAULT_NPCS));
+  assert.strictEqual(DEFAULT_NPCS.length, 0, 'Fake bot users must be removed');
 });
 
 test('Phu Tho procedural textures and character/pet art render flawlessly', async () => {

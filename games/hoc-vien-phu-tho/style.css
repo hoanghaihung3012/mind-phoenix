@@ -116,6 +116,10 @@ body {
   font-weight: 800;
   font-size: 14px;
   color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
 }
 
 .badge {
@@ -124,6 +128,7 @@ body {
   padding: 2px 8px;
   border-radius: 999px;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .badge.active {
@@ -168,6 +173,7 @@ body {
   border-radius: 999px;
   font-size: 11px;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .hud-btn {
@@ -186,6 +192,7 @@ body {
   display: flex;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
 }
 
 .hud-btn:hover {
@@ -325,6 +332,10 @@ body {
   z-index: 10;
   pointer-events: none;
   animation: bounce 1.4s infinite;
+  white-space: nowrap;
+  max-width: calc(100vw - 32px);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .interaction-prompt strong {
@@ -632,12 +643,20 @@ body {
   font-weight: 800;
   font-size: 14px;
   color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
 }
 
 .lb-school {
   font-size: 11px;
   font-weight: 700;
   color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
 }
 
 .lb-points {

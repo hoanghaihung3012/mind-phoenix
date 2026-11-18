@@ -43,6 +43,32 @@ import {
   OBSTACLES,
 } from './data/mapLayout.js';
 
+export const BUILDING_SIGN_NAMES = {
+  grand: 'TRƯỜNG TIỂU HỌC PHÚ THỌ',
+  library: 'THƯ VIỆN TỪ VỰNG',
+  literature: 'NHÀ NGỮ VĂN',
+  spelling: 'KHU CHÍNH TẢ',
+  arena: 'ĐẤU TRƯỜNG 60S',
+  idiom: 'THÀNH NGỮ',
+  math: 'VƯỜN TOÁN HỌC',
+  pets: 'KHU THÚ CƯNG',
+  shop: 'CỬA HÀNG',
+};
+
+function drawFittedText(ctx, text, cx, cy, maxW, baseFontSize, fontFace, color, minFontSize = 8.5) {
+  let size = baseFontSize;
+  const targetW = Math.max(20, maxW - 8);
+  ctx.font = `bold ${size}px ${fontFace}`;
+  while (size > minFontSize && ctx.measureText(text).width > targetW) {
+    size -= 0.5;
+    ctx.font = `bold ${size}px ${fontFace}`;
+  }
+  ctx.fillStyle = color;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, cx, cy, targetW);
+}
+
 class AcademyGame {
   constructor() {
     this.canvas = document.getElementById('gameCanvas');
@@ -88,10 +114,12 @@ class AcademyGame {
     // Network
     this.net = new AcademyNetworkManager(
       this.player,
-      (remoteMap) => {
+      (remoteMap, onlineCount) => {
+        this.remotePlayers.clear();
         for (const [id, data] of remoteMap.entries()) {
           this.remotePlayers.set(id, data);
         }
+        this.updateOnlineBadge(onlineCount);
       },
       (chatMsg) => {
         this.addChatMessage(chatMsg.name, chatMsg.school, chatMsg.text);
@@ -114,10 +142,25 @@ class AcademyGame {
     requestAnimationFrame((t) => this.loop(t));
   }
 
+  updateOnlineBadge(count) {
+    const total = typeof count === 'number' ? count : (this.remotePlayers.size + 1);
+    const badge = document.getElementById('onlineCountBadge');
+    if (badge) {
+      badge.textContent = `🟢 ${total} người chơi online`;
+    }
+  }
+
   loadLocalPlayer() {
     try {
       const raw = localStorage.getItem('phutho_academy_player');
-      if (raw) return JSON.parse(raw);
+      const data = raw ? JSON.parse(raw) : {};
+      let tabId = sessionStorage.getItem('phutho_tab_player_id');
+      if (!tabId) {
+        tabId = (data.id || `pt_${Math.random().toString(36).slice(2, 8)}`) + '_' + Math.random().toString(36).slice(2, 6);
+        sessionStorage.setItem('phutho_tab_player_id', tabId);
+      }
+      data.id = tabId;
+      return data;
     } catch (_) {}
     return {};
   }
@@ -207,13 +250,7 @@ class AcademyGame {
   }
 
   setupNPCBehavior() {
-    setInterval(() => {
-      const npc = this.npcs[Math.floor(Math.random() * this.npcs.length)];
-      if (npc && npc.messages && npc.messages.length > 0) {
-        const msg = npc.messages[Math.floor(Math.random() * npc.messages.length)];
-        this.showSpeechBubble(npc.id, msg, 7000);
-      }
-    }, 7500);
+    // Fake users removed: automated fake NPC messages disabled
   }
 
   setupUI() {
@@ -418,6 +455,10 @@ class AcademyGame {
       const checked = document.querySelector(`input[name="custom_${prop}"]:checked`);
       if (checked) this.player[prop] = checked.value;
     });
+
+    if (this.net) {
+      this.net.broadcastCustomization(this.player);
+    }
   }
 
   renderShop() {
@@ -627,12 +668,37 @@ class AcademyGame {
   }
 
   handleRemoteInteraction(interaction) {
+    const emojis = { wave: '👋', heart: '❤️', clap: '👏' };
+    const icon = emojis[interaction.action] || '✨';
+    const actionLabels = {
+      wave: 'vẫy tay chào',
+      heart: 'thả tim cho',
+      clap: 'vỗ tay khen ngợi'
+    };
+    const actionText = actionLabels[interaction.action] || 'tương tác với';
+
     if (interaction.targetId === this.player.id) {
-      const emojis = { wave: '👋', heart: '❤️', clap: '👏' };
-      const icon = emojis[interaction.action] || '✨';
       this.showSpeechBubble(this.player.id, `${icon} Cảm ơn bạn ${interaction.fromName}!`);
-      this.addChatMessage(interaction.fromName, 'Bạn', `${icon} đã tương tác với bạn!`);
+      this.addChatMessage(interaction.fromName, 'Bạn', `${icon} đã ${actionText} bạn!`, true);
       this.sound.playSuccess();
+
+      for (let i = 0; i < 8; i++) {
+        this.particles.push({
+          x: this.player.x + (Math.random() - 0.5) * 30,
+          y: this.player.y - 40 + (Math.random() - 0.5) * 30,
+          vx: (Math.random() - 0.5) * 60,
+          vy: -40 - Math.random() * 60,
+          color: interaction.action === 'heart' ? '#ef4444' : '#fbbf24',
+          size: 5 + Math.random() * 4,
+          life: 1,
+          alpha: 1
+        });
+      }
+    } else {
+      const targetPlayer = this.remotePlayers.get(interaction.targetId);
+      const targetName = targetPlayer ? targetPlayer.name : 'bạn học';
+      this.showSpeechBubble(interaction.fromId, `${icon} -> ${targetName}`);
+      this.addChatMessage(interaction.fromName, targetName, `${icon} đã ${actionText} ${targetName}!`, false);
     }
   }
 
@@ -920,11 +986,57 @@ class AcademyGame {
     this.player.x = clamp(this.player.x, minX, maxX);
     this.player.y = clamp(this.player.y, minY, maxY);
 
+    const wasMoving = this.player.wasMoving || false;
     if (this.player.moving) {
       this.player.animFrame += dt * 9;
       this.net.broadcastMove(this.player.x, this.player.y, this.player.direction, 'walk');
+      this.player.wasMoving = true;
     } else {
       this.player.animFrame = 0;
+      if (wasMoving) {
+        this.net.broadcastMove(this.player.x, this.player.y, this.player.direction, 'idle');
+        this.player.wasMoving = false;
+      }
+    }
+
+    // Smooth movement interpolation & walk animations for remote players
+    for (const [_, rp] of this.remotePlayers.entries()) {
+      if (typeof rp.targetX === 'number' && typeof rp.targetY === 'number') {
+        const rdx = rp.targetX - rp.x;
+        const rdy = rp.targetY - rp.y;
+        const rdist = Math.hypot(rdx, rdy);
+        if (rdist > 3) {
+          const step = Math.min(rdist, (rp.speed || 250) * dt * 1.5);
+          rp.x += (rdx / rdist) * step;
+          rp.y += (rdy / rdist) * step;
+          rp.moving = true;
+          rp.animFrame = (rp.animFrame || 0) + dt * 9;
+        } else {
+          rp.x = rp.targetX;
+          rp.y = rp.targetY;
+          rp.moving = rp.anim === 'walk';
+          if (!rp.moving) rp.animFrame = 0;
+        }
+      }
+
+      // Remote player follower pet animation & physics
+      if (rp.pet && rp.pet !== 'none') {
+        if (!rp.petPos) {
+          rp.petPos = { x: rp.x - 35, y: rp.y, animFrame: 0 };
+        }
+        const targetPetX = rp.direction === 'left' ? rp.x + 36 : rp.x - 36;
+        const targetPetY = rp.y + 6;
+        const pdx = targetPetX - rp.petPos.x;
+        const pdy = targetPetY - rp.petPos.y;
+        const pdist = Math.hypot(pdx, pdy);
+        if (pdist > 8) {
+          rp.petPos.x += pdx * Math.min(1, dt * 7);
+          rp.petPos.y += pdy * Math.min(1, dt * 7);
+          rp.petPos.animFrame += dt * 10;
+        } else {
+          rp.petPos.animFrame = 0;
+        }
+      }
     }
 
     // Follower Pet physics (leash follow with elastic delay)
@@ -1015,13 +1127,20 @@ class AcademyGame {
           const plate = PLATE_INFO[b.texture];
           if (plate) {
             c.save();
-            c.font = b.zone === 'grand' ? 'bold 18px "Baloo 2", "Nunito", sans-serif' : 'bold 14px "Baloo 2", "Nunito", sans-serif';
-            c.textAlign = 'center';
-            c.textBaseline = 'middle';
-            c.fillStyle = '#1558b0';
             const poi = POI_LOCATIONS.find(p => p.id === b.zone);
-            const label = b.zone === 'grand' ? 'TRƯỜNG TIỂU HỌC PHÚ THỌ' : (poi?.name || b.zone).toUpperCase();
-            c.fillText(label, b.cx - b.w / 2 + plate.x, b.baseY - b.h + plate.y);
+            const label = BUILDING_SIGN_NAMES[b.zone] || (poi?.name || b.zone).toUpperCase();
+            const baseFontSize = b.zone === 'grand' ? 18 : 13.5;
+            drawFittedText(
+              c,
+              label,
+              b.cx - b.w / 2 + plate.x,
+              b.baseY - b.h + plate.y,
+              plate.w,
+              baseFontSize,
+              '"Baloo 2", "Nunito", sans-serif',
+              '#1558b0',
+              8.5
+            );
             c.restore();
           }
           if (b.zone === 'grand') {
@@ -1032,9 +1151,22 @@ class AcademyGame {
               c.font = '28px sans-serif';
               c.textAlign = 'center';
               c.fillText('🔒', b.cx, b.baseY - 70 + pulse);
-              c.fillStyle = '#dc2626';
+              
+              const lockText = 'Cần Cấp 3 hoặc 60 ⭐';
               c.font = 'bold 12px "Nunito", sans-serif';
-              c.fillText('Cần Cấp 3 hoặc 60 ⭐', b.cx, b.baseY - 45 + pulse);
+              const tw = c.measureText(lockText).width;
+              const pw = tw + 20;
+              c.fillStyle = 'rgba(255, 255, 255, 0.95)';
+              c.strokeStyle = '#dc2626';
+              c.lineWidth = 1.5;
+              c.beginPath();
+              c.roundRect(b.cx - pw / 2, b.baseY - 57 + pulse, pw, 22, 11);
+              c.fill();
+              c.stroke();
+              
+              c.fillStyle = '#dc2626';
+              c.textBaseline = 'middle';
+              c.fillText(lockText, b.cx, b.baseY - 46 + pulse, pw - 8);
               c.restore();
             }
           }
@@ -1091,18 +1223,20 @@ class AcademyGame {
         const img = TEXTURES['prop-board'];
         if (img) c.drawImage(img, BOARD.x - BOARD.w / 2, BOARD.baseY - img.height * 0.94);
         c.save();
+        const boardTitle = 'BẢNG NHIỆM VỤ';
+        c.font = 'bold 12px "Nunito", sans-serif';
+        const bw = Math.max(130, c.measureText(boardTitle).width + 24);
         c.fillStyle = '#fff9e6';
         c.strokeStyle = '#1f2a44';
         c.lineWidth = 2;
         c.beginPath();
-        c.roundRect(BOARD.x - 65, BOARD.baseY - BOARD.h - 14, 130, 24, 12);
+        c.roundRect(BOARD.x - bw / 2, BOARD.baseY - BOARD.h - 14, bw, 24, 12);
         c.fill();
         c.stroke();
-        c.font = 'bold 12px "Nunito", sans-serif';
         c.textAlign = 'center';
         c.textBaseline = 'middle';
         c.fillStyle = '#1f2a44';
-        c.fillText('BẢNG NHIỆM VỤ', BOARD.x, BOARD.baseY - BOARD.h - 2);
+        c.fillText(boardTitle, BOARD.x, BOARD.baseY - BOARD.h - 2, bw - 8);
         c.restore();
       }
     });
@@ -1116,11 +1250,17 @@ class AcademyGame {
         const gp = PLATE_INFO['prop-gate'];
         if (gp) {
           c.save();
-          c.font = 'bold 16px "Baloo 2", "Nunito", sans-serif';
-          c.textAlign = 'center';
-          c.textBaseline = 'middle';
-          c.fillStyle = '#1558b0';
-          c.fillText('TRƯỜNG TIỂU HỌC PHÚ THỌ', GATE.x - 165 + gp.x, GATE.y - 140 + gp.y);
+          drawFittedText(
+            c,
+            'TRƯỜNG TIỂU HỌC PHÚ THỌ',
+            GATE.x - 165 + gp.x,
+            GATE.y - 140 + gp.y,
+            gp.w,
+            16,
+            '"Baloo 2", "Nunito", sans-serif',
+            '#1558b0',
+            10
+          );
           c.restore();
         }
       }
@@ -1168,6 +1308,15 @@ class AcademyGame {
           this.renderCharacterChibi(c, rp, false, false);
         }
       });
+      if (rp.pet && rp.pet !== 'none') {
+        const petPos = rp.petPos || { x: rp.x - 35, y: rp.y, animFrame: 0 };
+        renderList.push({
+          y: petPos.y,
+          draw: (c) => {
+            this.renderPet(c, petPos.x, petPos.y, rp.pet, petPos.animFrame || 0);
+          }
+        });
+      }
     }
 
     // Sort all by depth y
@@ -1183,19 +1332,27 @@ class AcademyGame {
       const floatY = Math.sin(performance.now() / 260) * 6;
       ctx.save();
       ctx.translate(poi.x, poi.y - 60 + floatY);
-      ctx.fillStyle = 'rgba(2, 132, 199, 0.92)';
+
+      const promptText = poi.icon + ' ' + poi.name;
+      ctx.font = 'bold 13px "Nunito", sans-serif';
+      const textW = ctx.measureText(promptText).width;
+      const pillW = Math.max(160, Math.min(320, textW + 36));
+
+      ctx.fillStyle = 'rgba(2, 132, 199, 0.94)';
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 2;
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+      ctx.shadowBlur = 8;
       ctx.beginPath();
-      ctx.roundRect(-100, -18, 200, 36, 18);
+      ctx.roundRect(-pillW / 2, -18, pillW, 36, 18);
       ctx.fill();
       ctx.stroke();
 
+      ctx.shadowBlur = 0;
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 13px "Nunito", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(poi.icon + ' ' + poi.name, 0, 0);
+      ctx.fillText(promptText, 0, 0, pillW - 16);
       ctx.restore();
     }
 
@@ -1336,13 +1493,37 @@ class AcademyGame {
       if (!target) continue;
 
       ctx.save();
-      ctx.translate(target.x, target.y - 82);
-
-      ctx.font = 'bold 13px "Nunito", sans-serif';
+      ctx.font = 'bold 12.5px "Nunito", sans-serif';
       const text = bubble.text;
-      const metrics = ctx.measureText(text);
-      const bubbleWidth = Math.min(260, metrics.width + 24);
-      const bubbleHeight = 32;
+
+      // Wrap text into multiple lines if longer than 220px
+      const words = text.split(' ');
+      const lines = [];
+      let curLine = '';
+      const maxLineW = 220;
+
+      for (const w of words) {
+        const test = curLine ? curLine + ' ' + w : w;
+        if (ctx.measureText(test).width <= maxLineW) {
+          curLine = test;
+        } else {
+          if (curLine) lines.push(curLine);
+          curLine = w;
+        }
+      }
+      if (curLine) lines.push(curLine);
+      if (lines.length === 0) lines.push(text);
+
+      let maxW = 60;
+      for (const l of lines) {
+        maxW = Math.max(maxW, ctx.measureText(l).width);
+      }
+
+      const bubbleWidth = maxW + 24;
+      const lineHeight = 18;
+      const bubbleHeight = 16 + lines.length * lineHeight;
+
+      ctx.translate(target.x, target.y - 75);
 
       ctx.fillStyle = '#ffffff';
       ctx.strokeStyle = '#0284c7';
@@ -1350,14 +1531,14 @@ class AcademyGame {
       ctx.shadowColor = 'rgba(0,0,0,0.18)';
       ctx.shadowBlur = 8;
       ctx.beginPath();
-      ctx.roundRect(-bubbleWidth / 2, -bubbleHeight, bubbleWidth, bubbleHeight, 10);
+      ctx.roundRect(-bubbleWidth / 2, -bubbleHeight, bubbleWidth, bubbleHeight, 12);
       ctx.fill();
       ctx.stroke();
 
       ctx.beginPath();
-      ctx.moveTo(-5, 0);
-      ctx.lineTo(0, 7);
-      ctx.lineTo(5, 0);
+      ctx.moveTo(-6, 0);
+      ctx.lineTo(0, 8);
+      ctx.lineTo(6, 0);
       ctx.fillStyle = '#ffffff';
       ctx.fill();
       ctx.stroke();
@@ -1365,7 +1546,12 @@ class AcademyGame {
       ctx.shadowBlur = 0;
       ctx.fillStyle = '#0f172a';
       ctx.textAlign = 'center';
-      ctx.fillText(text, 0, -11, bubbleWidth - 12);
+      ctx.textBaseline = 'middle';
+
+      const startY = -bubbleHeight + 12 + lineHeight / 2;
+      for (let i = 0; i < lines.length; i++) {
+        ctx.fillText(lines[i], 0, startY + i * lineHeight, bubbleWidth - 12);
+      }
 
       ctx.restore();
     }

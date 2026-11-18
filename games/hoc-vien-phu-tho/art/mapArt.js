@@ -75,7 +75,7 @@ function genericBuilding(scene, key, w, h, o) {
       line(g, inset + 4, yy, w - inset - 4, yy, shade(o.roof, -0.3), 3);
     }
     // Bảng tên
-    const p = plate(key, w, w / 2, roofH + 4, bw * 0.86, 36);
+    const p = plate(key, w, w / 2, roofH + 4, bw * 0.90, 36);
     rr(g, p.x, p.y, p.w, p.h, 10, 0xfff9e6, INK, 3);
     // Biểu tượng trên mái
     const iconY = 8 + (roofH - 8) * 0.48;
@@ -149,7 +149,7 @@ function arenaTent(scene, key, w, h) {
     circ(g, mid, 70, 16, 0xfff9e6, INK, 3);
     drawIconShape(g, "flame", mid, 70, 22);
     door(g, mid, h - 6, 56, 80, 0x7b3f1d);
-    const p = plate(key, w, mid, 110, w - 60, 32);
+    const p = plate(key, w, mid, 110, w - 50, 32);
     rr(g, p.x, p.y, p.w, p.h, 10, 0xfff9e6, INK, 3);
   });
 }
@@ -175,7 +175,7 @@ function idiomStage(scene, key, w, h) {
     const tiles = [0xff8a65, 0xffd54f, 0x81c784, 0x64b5f6, 0xba68c8];
     for (let i = 0; i < 5; i++)
       rr(g, 94 + i * 20, h - 108, 17, 24, 3, tiles[i], INK, 2);
-    const p = plate(key, w, w / 2, 66, w - 150, 30);
+    const p = plate(key, w, w / 2, 66, w - 60, 32);
     rr(g, p.x, p.y, p.w, p.h, 10, 0xfff9e6, INK, 3);
     circ(g, w / 2, 30, 17, 0xfff9e6, INK, 3);
     drawIconShape(g, "scroll", w / 2, 30, 24);
