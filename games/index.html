@@ -17,6 +17,7 @@
   <style>
     :root { color-scheme: light; }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body { margin: 0; background: #faf8f2; color: #304b4a; font: 600 15px/1.6 "Nunito", system-ui, sans-serif; }
     a { color: inherit; text-decoration: none; }
     a:focus-visible { outline: 3px solid #d9963d; outline-offset: 5px; }
@@ -29,10 +30,91 @@
     .eyebrow { margin: 0 0 12px; color: #ae8760; font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
     h1 { margin: 0; font: 800 clamp(34px, 6vw, 52px)/1.15 "Baloo 2", system-ui, sans-serif; letter-spacing: -.03em; }
     h1 span { color: #358b79; }
-    .intro { margin: 14px 0 40px; color: #7b8882; font-size: 14px; }
+    .intro { margin: 14px 0 28px; color: #7b8882; font-size: 14px; }
+
+    /* STICKY QUICK CATEGORY NAVIGATION */
+    .category-nav-wrap {
+      position: sticky;
+      top: 14px;
+      z-index: 50;
+      margin: 0 0 36px;
+      padding: 8px 10px;
+      background: rgba(250, 248, 242, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 2px solid #e7e5dc;
+      border-radius: 18px;
+      box-shadow: 0 4px 16px rgba(48, 75, 74, 0.06);
+    }
+    .category-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding: 2px;
+    }
+    .category-nav::-webkit-scrollbar {
+      display: none;
+    }
+    .nav-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      color: #475569;
+      font: 700 13.5px/1.2 "Nunito", sans-serif;
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+      box-shadow: 0 2px 0 #ede9dd;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .nav-chip:hover {
+      background: #f8fafc;
+      color: #1e293b;
+      border-color: #cbd5e1;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 0 #dedad0;
+    }
+    .nav-chip.active {
+      background: #358b79;
+      border-color: #266b5c;
+      color: #ffffff;
+      box-shadow: 0 3px 0 #1f574b;
+      transform: translateY(-1px);
+    }
+    .nav-chip-icon {
+      font-size: 16px;
+      line-height: 1;
+    }
+    .nav-chip-count {
+      display: inline-grid;
+      place-items: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #64748b;
+      font: 800 11.5px/1 "Baloo 2", sans-serif;
+      transition: all 0.2s ease;
+    }
+    .nav-chip.active .nav-chip-count {
+      background: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+    }
     
     /* VIBRANT CATEGORY SECTIONS */
-    .category-section { margin-bottom: 56px; }
+    .category-section {
+      margin-bottom: 56px;
+      scroll-margin-top: 86px;
+    }
     
     .category-head {
       display: flex;
@@ -101,6 +183,34 @@
       flex-shrink: 0;
     }
     
+    /* THEME: TÂM ĐIỂM (ĐẤU TRƯỜNG & HỌC VIỆN PHÚ THỌ) */
+    .theme-top-featured {
+      border-color: #f59e0b;
+      background: linear-gradient(135deg, #1e1b4b 0%, #0c4a6e 100%);
+      color: #fff;
+      box-shadow: 0 6px 0 #0f172a;
+    }
+    .theme-top-featured .category-icon {
+      background: linear-gradient(135deg, #fef3c7, #bae6fd);
+      border-color: #f59e0b;
+      box-shadow: 0 3px 0 #d97706;
+    }
+    .theme-top-featured .category-badge-pill {
+      background: #fde047;
+      color: #78350f;
+    }
+    .theme-top-featured .category-info h2 {
+      color: #fef08a;
+    }
+    .theme-top-featured .category-info p {
+      color: #e2e8f0;
+    }
+    .theme-top-featured .category-count {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fde047;
+      border: 1.5px solid rgba(253, 224, 71, 0.5);
+    }
+
     /* THEME: ĐẤU TRƯỜNG MIND PHOENIX */
     .theme-arena {
       border-color: #f59e0b;
@@ -228,10 +338,20 @@
     
     /* GAME CARDS GRID */
     .games { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
-    .game { overflow: hidden; border: 1.5px solid #e4e5db; border-radius: 22px; background: #fffefa; box-shadow: 0 5px 0 #e9e7dd; transition: transform .18s, border-color .18s; }
-    .game:hover { transform: translateY(-4px); border-color: #7bb7a1; }
+    .game {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1.5px solid #e4e5db;
+      border-radius: 22px;
+      background: #fffefa;
+      box-shadow: 0 5px 0 #e9e7dd;
+      transition: transform .18s, border-color .18s, box-shadow .18s;
+    }
+    .game:hover { transform: translateY(-4px); border-color: #7bb7a1; box-shadow: 0 8px 0 #dedad0; }
     .cover { display: grid; place-items: center; height: 210px; background-color: #edf3e9; background-image: radial-gradient(#d4dfce 1px, transparent 1px); background-size: 22px 22px; }
     .cover svg { width: 230px; height: 160px; overflow: visible; }
+    .arena-cover svg, .academy-cover svg { width: 100%; max-width: 330px; height: 160px; }
     .duck-cover { background-color: #e5f1f3; background-image: radial-gradient(#cbdfe3 1px, transparent 1px); }
     .sky-cover { background: linear-gradient(#69bdf3, #c9ecff); }
     .apple-cover { background: linear-gradient(#7cc8f5, #e6f8ff); }
@@ -243,22 +363,55 @@
     .spell-cover { background: linear-gradient(135deg, #e0f2fe, #f0fdf4); }
     .sentence-cover { background: linear-gradient(135deg, #ede9fe, #fae8ff); }
     .safari-cover { background: linear-gradient(135deg, #ecfdf5, #fef3c7); }
-    .game-copy { padding: 23px; }
+    .game-copy {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      padding: 23px;
+    }
     .tag { color: #9caa91; font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
-    .game-copy h3 { margin: 9px 0; font: 700 28px/1.1 "Baloo 2", system-ui, sans-serif; }
-    .game-copy p { min-height: 47px; margin: 0; color: #84907f; font-size: 12px; }
-    .play { display: inline-flex; align-items: center; gap: 9px; margin-top: 20px; padding: 9px 16px; border-radius: 10px; background: #358b79; color: white; font-size: 12px; font-weight: 800; }
+    .game-copy h3 { margin: 9px 0; font: 700 26px/1.15 "Baloo 2", system-ui, sans-serif; }
+    .game-copy p { margin: 0; color: #84907f; font-size: 13px; line-height: 1.5; }
+    .play {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin-top: auto;
+      padding: 10px 18px;
+      border-radius: 10px;
+      background: #358b79;
+      color: white;
+      font-size: 12.5px;
+      font-weight: 800;
+      align-self: flex-start;
+      margin-top: 18px;
+    }
     footer { padding: 18px 0 32px; color: #a0a497; font-size: 10px; text-align: center; }
     footer nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px 20px; margin-top: 10px; color: #304b4a; font-size: 12px; }
     @media (max-width: 600px) {
       .games { grid-template-columns: 1fr; gap: 22px; }
-      main { padding: 30px 0; }
+      main { padding: 24px 0 36px; }
       header { min-height: 76px; }
       .brand { font-size: 19px; }
       .cover { height: 180px; }
       .category-head { flex-direction: column; align-items: flex-start; padding: 14px 18px; }
       .category-head-left { width: 100%; }
       .category-count { align-self: flex-end; }
+      .category-nav-wrap {
+        top: 8px;
+        margin: 0 -8px 24px;
+        border-radius: 14px;
+        padding: 6px 8px;
+      }
+      .nav-chip {
+        padding: 7px 12px;
+        font-size: 12.5px;
+        gap: 6px;
+      }
+      .category-section {
+        scroll-margin-top: 72px;
+        margin-bottom: 40px;
+      }
     }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
   </style>
@@ -284,68 +437,57 @@
       <h1>Một chút chơi,<br><span>cả trời khám phá.</span></h1>
       <p class="intro" data-en="Small games, big fun. Pick a subject and explore!">Những trò chơi nhỏ, niềm vui lớn. Chọn môn học yêu thích và cùng khám phá nào!</p>
 
-      <!-- SECTION: THẾ GIỚI TRỰC TUYẾN - HỌC VIỆN PHÚ THỌ -->
-      <section class="category-section">
-        <div class="category-head" style="background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%); border: 2.5px solid #0284c7;">
-          <div class="category-head-left">
-            <div class="category-icon" aria-hidden="true" style="background: #e0f2fe; color: #0284c7; font-size: 30px;">🏫</div>
-            <div class="category-info">
-              <span class="category-badge-pill" style="background: #0284c7; color: #ffffff;" data-en="Multiplayer Online World">Mới · Thế Giới Online Đa Người Chơi</span>
-              <h2 data-en="Phu Tho Academy Online">Học Viện Phú Thọ Online</h2>
-              <p data-en="Explore the sprawling primary school campus, customize your student character, meet friends, solve mini-games and unlock the Elite Tower!">Hòa mình vào ngôi trường tiểu học khang trang rực rỡ, tùy biến nhân vật, gặp gỡ giao lưu cùng các bạn, chinh phục trạm trò chơi và mở khóa Tháp Tinh Hoa!</p>
-            </div>
-          </div>
-          <div class="category-count">
-            <span style="background: #dcfce7; color: #15803d; font-weight: 800; padding: 6px 14px; border-radius: 999px;">🌐 Realtime Online</span>
-          </div>
-        </div>
-        <div class="games" style="grid-template-columns: 1fr;">
-          <a class="game" href="hoc-vien-phu-tho/" style="border: 2.5px solid #0284c7; background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);">
-            <div class="cover" style="background: linear-gradient(135deg, #bbf7d0 0%, #bae6fd 100%); display: flex; align-items: center; justify-content: center; min-height: 180px;" aria-hidden="true">
-              <svg viewBox="0 0 400 180" style="width: 100%; max-width: 360px; height: 160px;">
-                <rect x="50" y="50" width="300" height="100" rx="12" fill="#ffffff" stroke="#0284c7" stroke-width="3"/>
-                <polygon points="40,55 200,15 360,55" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
-                <text x="200" y="40" font-family="Baloo 2, sans-serif" font-weight="800" font-size="12" fill="#ffffff" text-anchor="middle">★ TRƯỜNG TIỂU HỌC PHÚ THỌ ★</text>
-                <circle cx="200" cy="110" r="28" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
-                <text x="200" y="118" font-size="24" text-anchor="middle">⛲</text>
-                <text x="100" y="115" font-size="26">🧮</text>
-                <text x="300" y="115" font-size="26">📚</text>
-                <text x="140" y="145" font-size="22">⚽</text>
-                <text x="260" y="145" font-size="22">👑</text>
-              </svg>
-            </div>
-            <div class="game-copy" style="padding: 24px 28px;">
-              <span class="tag" style="color: #0284c7;" data-en="Primary School World · Character Customization · Real-time Multiplayer">Thế Giới Trường Học · Tùy Biến Nhân Vật · Đa Người Chơi Trực Tuyến</span>
-              <h3 style="font-size: 32px; color: #0c4a6e;">Học Viện Phú Thọ <span style="font-size: 16px; color: #0284c7; vertical-align: middle;">✦ Khám Phá & Đố Vui Sân Trường</span></h3>
-              <p style="font-size: 14px; color: #475569;" data-en="Join Phu Tho students and peer schools in a lively campus world. Move with mouse or keys, customize clothes, chat live, play Math, Vietnamese, Coding & Sports minigames, and unlock the secret Elite Tower for double points!">Vào vai học sinh trường Tiểu học Phú Thọ hoặc các trường bạn, dạo bước qua sân trường rợp bóng cây, tùy chỉnh màu da, kiểu tóc, khăn quàng đỏ, chat trực tiếp với bạn bè, tham gia minigame đố vui tại các trạm và mở khóa Tháp Học Giả Tinh Hoa!</p>
-              <span class="play" style="background: #0284c7; font-size: 13.5px; padding: 11px 22px; border-radius: 12px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);">
-                <span data-en="Enter Phu Tho Academy">Vào Học Viện Phú Thọ</span>
-                <span aria-hidden="true">🎒 →</span>
-              </span>
-            </div>
+      <!-- QUICK CATEGORY NAVIGATION -->
+      <nav class="category-nav-wrap" aria-label="Danh mục trò chơi" data-en-aria-label="Game categories">
+        <div class="category-nav" role="tablist">
+          <a href="#group-arena" class="nav-chip active" data-target="group-arena">
+            <span class="nav-chip-icon" aria-hidden="true">🏆</span>
+            <span class="nav-chip-label" data-en="Arena & Academy">Đấu Trường & Học Viện</span>
+            <span class="nav-chip-count">2</span>
+          </a>
+          <a href="#group-english" class="nav-chip" data-target="group-english">
+            <span class="nav-chip-icon" aria-hidden="true">🌍</span>
+            <span class="nav-chip-label" data-en="English">Tiếng Anh</span>
+            <span class="nav-chip-count">4</span>
+          </a>
+          <a href="#group-vietnamese" class="nav-chip" data-target="group-vietnamese">
+            <span class="nav-chip-icon" aria-hidden="true">👑</span>
+            <span class="nav-chip-label" data-en="Vietnamese">Tiếng Việt</span>
+            <span class="nav-chip-count">3</span>
+          </a>
+          <a href="#group-math" class="nav-chip" data-target="group-math">
+            <span class="nav-chip-icon" aria-hidden="true">🧮</span>
+            <span class="nav-chip-label" data-en="Math & Logic">Toán & Logic</span>
+            <span class="nav-chip-count">7</span>
+          </a>
+          <a href="#group-recess" class="nav-chip" data-target="group-recess">
+            <span class="nav-chip-icon" aria-hidden="true">🦆</span>
+            <span class="nav-chip-label" data-en="Recess & Fun">Giờ Ra Chơi</span>
+            <span class="nav-chip-count">1</span>
           </a>
         </div>
-      </section>
+      </nav>
 
-      <!-- SECTION: ĐẤU TRƯỜNG MIND PHOENIX -->
-      <section class="category-section">
-        <div class="category-head theme-arena">
+      <!-- SECTION: ĐẤU TRƯỜNG MIND & HỌC VIỆN PHÚ THỌ (CHIA 2 CỘT TRÊN CÙNG) -->
+      <section id="group-arena" class="category-section">
+        <div class="category-head theme-top-featured">
           <div class="category-head-left">
             <div class="category-icon" aria-hidden="true">🏆</div>
             <div class="category-info">
-              <span class="category-badge-pill" data-en="Intellectual Arena">Đấu Trường Trí Tuệ</span>
-              <h2 data-en="Mind Phoenix Arena">Đấu Trường Mind Phoenix</h2>
-              <p data-en="Multi-stage battles across Math, Vietnamese & English. Speed bonus, combo streaks and national rankings!">Thi đấu kịch tính 3 chặng: Khởi Động ⚡ Tăng Tốc 🚀 Về Đích 👑. Chủ đề Toán, Tiếng Việt & Tiếng Anh, tính điểm tốc độ và bảng xếp hạng!</p>
+              <span class="category-badge-pill" data-en="Top Highlights · Arena & Realtime">Tâm Điểm · Đấu Trường & Trực Tuyến</span>
+              <h2 data-en="Mind Arena & Phu Tho Academy">Đấu Trường Mind & Học Viện Phú Thọ</h2>
+              <p data-en="Compete across multi-stage subject battles or explore the lively 2D multiplayer campus in realtime!">Đấu trường trí tuệ đối kháng liên môn kịch tính và thế giới trường học online đa người chơi rực rỡ!</p>
             </div>
           </div>
           <div class="category-count">
-            <span>🔥 8+ Bài thi đấu</span>
+            <span data-en="🔥 2 Featured">🔥 2 Siêu phẩm</span>
           </div>
         </div>
-        <div class="games" style="grid-template-columns: 1fr;">
+        <div class="games">
+          <!-- Cột 1: Đấu Trường Mind -->
           <a class="game" href="mind-arena/" style="border: 2.5px solid #f59e0b; background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%);">
             <div class="cover arena-cover" aria-hidden="true">
-              <svg viewBox="0 0 400 180" style="width: 100%; max-width: 360px; height: 160px;">
+              <svg viewBox="0 0 400 180">
                 <circle cx="200" cy="90" r="70" fill="rgba(245, 158, 11, 0.15)"/>
                 <polygon points="200,30 220,75 270,75 230,105 245,150 200,122 155,150 170,105 130,75 180,75" fill="#fde047" stroke="#eab308" stroke-width="2"/>
                 <text x="75" y="95" font-size="32">🧮</text>
@@ -361,13 +503,39 @@
                 </g>
               </svg>
             </div>
-            <div class="game-copy" style="padding: 24px 28px;">
+            <div class="game-copy">
               <span class="tag" style="color: #d97706;" data-en="Mind Arena · Math · Vietnamese · English">Đấu Trường Trí Tuệ · Toán · Tiếng Việt · Tiếng Anh</span>
-              <h3 style="font-size: 32px; color: #1e1b4b;">Đấu Trường Mind <span style="font-size: 16px; color: #d97706; vertical-align: middle;">✦ 3 Chặng Thi Đấu</span></h3>
-              <p style="font-size: 14px; color: #475569;" data-en="Choose your subject and lesson, battle through Sprint Start, Speed Surge, and Summit Dash. Race against live rivals on the national leaderboard!">Chọn bài học theo môn (Toán, Tiếng Việt, Tiếng Anh hoặc Siêu đấu trường Toàn Năng), vượt qua 3 chặng thử thách với đồng hồ đếm ngược, tích lũy điểm thưởng tốc độ, nhân chuỗi streak combo và so tài cùng các đấu thủ trên Bảng Vàng!</p>
-              <span class="play" style="background: #312e81; font-size: 13.5px; padding: 11px 22px; border-radius: 12px; box-shadow: 0 4px 12px rgba(49, 46, 129, 0.25);">
+              <h3 style="color: #1e1b4b;">Đấu Trường Mind <span style="font-size: 15px; color: #d97706; vertical-align: middle;">✦ 3 Chặng Thi Đấu</span></h3>
+              <p data-en="Choose your subject and lesson, battle through Sprint Start, Speed Surge, and Summit Dash. Race against live rivals on the national leaderboard!">Chọn bài học theo môn (Toán, Tiếng Việt, Tiếng Anh hoặc Siêu đấu trường Toàn Năng), vượt qua 3 chặng thử thách với đồng hồ đếm ngược, tích lũy điểm thưởng tốc độ, nhân chuỗi streak combo và so tài cùng các đấu thủ trên Bảng Vàng!</p>
+              <span class="play" style="background: #312e81; box-shadow: 0 4px 12px rgba(49, 46, 129, 0.25);">
                 <span data-en="Enter Mind Arena Now">Vào Đấu Trường Ngay</span>
                 <span aria-hidden="true">⚔️ →</span>
+              </span>
+            </div>
+          </a>
+
+          <!-- Cột 2: Học Viện Phú Thọ -->
+          <a class="game" href="hoc-vien-phu-tho/" style="border: 2.5px solid #0284c7; background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);">
+            <div class="cover academy-cover" style="background: linear-gradient(135deg, #bbf7d0 0%, #bae6fd 100%);" aria-hidden="true">
+              <svg viewBox="0 0 400 180">
+                <rect x="50" y="50" width="300" height="100" rx="12" fill="#ffffff" stroke="#0284c7" stroke-width="3"/>
+                <polygon points="40,55 200,15 360,55" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
+                <text x="200" y="40" font-family="Baloo 2, sans-serif" font-weight="800" font-size="12" fill="#ffffff" text-anchor="middle">★ TRƯỜNG TIỂU HỌC PHÚ THỌ ★</text>
+                <circle cx="200" cy="110" r="28" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+                <text x="200" y="118" font-size="24" text-anchor="middle">⛲</text>
+                <text x="100" y="115" font-size="26">🧮</text>
+                <text x="300" y="115" font-size="26">📚</text>
+                <text x="140" y="145" font-size="22">⚽</text>
+                <text x="260" y="145" font-size="22">👑</text>
+              </svg>
+            </div>
+            <div class="game-copy">
+              <span class="tag" style="color: #0284c7;" data-en="Primary School World · Character Customization · Real-time Multiplayer">Thế Giới Trường Học · Tùy Biến Nhân Vật · Đa Người Chơi Trực Tuyến</span>
+              <h3 style="color: #0c4a6e;">Học Viện Phú Thọ <span style="font-size: 15px; color: #0284c7; vertical-align: middle;">✦ Khám Phá Sân Trường</span></h3>
+              <p data-en="Join Phu Tho students and peer schools in a lively campus world. Move with mouse or keys, customize clothes, chat live, play Math, Vietnamese, Coding & Sports minigames, and unlock the secret Elite Tower for double points!">Vào vai học sinh trường Tiểu học Phú Thọ hoặc các trường bạn, dạo bước qua sân trường rợp bóng cây, tùy chỉnh màu da, kiểu tóc, khăn quàng đỏ, chat trực tiếp với bạn bè, tham gia minigame đố vui tại các trạm và mở khóa Tháp Học Giả Tinh Hoa!</p>
+              <span class="play" style="background: #0284c7; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);">
+                <span data-en="Enter Phu Tho Academy">Vào Học Viện Phú Thọ</span>
+                <span aria-hidden="true">🎒 →</span>
               </span>
             </div>
           </a>
@@ -375,7 +543,7 @@
       </section>
 
       <!-- SECTION: MÔN TIẾNG ANH (ENGLISH ADVENTURES) -->
-      <section class="category-section">
+      <section id="group-english" class="category-section">
         <div class="category-head theme-english">
           <div class="category-head-left">
             <div class="category-icon" aria-hidden="true">🌍</div>
@@ -437,7 +605,7 @@
       </section>
 
       <!-- SECTION: MÔN TIẾNG VIỆT -->
-      <section class="category-section">
+      <section id="group-vietnamese" class="category-section">
         <div class="category-head theme-viet">
           <div class="category-head-left">
             <div class="category-icon" aria-hidden="true">👑</div>
@@ -485,7 +653,7 @@
       </section>
 
       <!-- SECTION: TOÁN & TƯ DUY LOGIC -->
-      <section class="category-section">
+      <section id="group-math" class="category-section">
         <div class="category-head theme-math">
           <div class="category-head-left">
             <div class="category-icon" aria-hidden="true">🧮</div>
@@ -573,7 +741,7 @@
       </section>
 
       <!-- SECTION: GIỜ RA CHƠI & LỚP HỌC -->
-      <section class="category-section">
+      <section id="group-recess" class="category-section">
         <div class="category-head theme-fun">
           <div class="category-head-left">
             <div class="category-icon" aria-hidden="true">🦆</div>
@@ -606,6 +774,54 @@
   <script type="module">
     import { auth } from '../shared/auth/auth.mjs';
     auth.initUI('nav-auth-container');
+
+    // Quick category navigation & scrollspy
+    const navChips = Array.from(document.querySelectorAll('.nav-chip'));
+    const sections = Array.from(document.querySelectorAll('.category-section'));
+
+    function setActiveChip(targetId) {
+      navChips.forEach(chip => {
+        const isActive = chip.dataset.target === targetId;
+        chip.classList.toggle('active', isActive);
+        chip.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        if (isActive) {
+          chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+      });
+    }
+
+    navChips.forEach(chip => {
+      chip.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = chip.dataset.target;
+        const targetElem = document.getElementById(targetId);
+        if (targetElem) {
+          setActiveChip(targetId);
+          targetElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (history.pushState) {
+            history.pushState(null, '', '#' + targetId);
+          }
+        }
+      });
+    });
+
+    if ('IntersectionObserver' in window) {
+      let isScrollingViaClick = false;
+      const observer = new IntersectionObserver((entries) => {
+        const intersecting = entries
+          .filter(entry => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (intersecting.length > 0) {
+          setActiveChip(intersecting[0].target.id);
+        }
+      }, {
+        root: null,
+        rootMargin: '-15% 0px -65% 0px',
+        threshold: [0, 0.2, 0.5]
+      });
+
+      sections.forEach(sec => observer.observe(sec));
+    }
   </script>
 </body>
 </html>
