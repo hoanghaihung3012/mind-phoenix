@@ -184,6 +184,7 @@ class WordPopGame {
       if (this.score > this.highScore) {
         this.highScore = this.score;
         localStorage.setItem('mind_phoenix_wordpop_high', String(this.highScore));
+        try { window.MindPhoenixAnalytics?.trackScore('word-pop', 'Word Pop', this.score); } catch {}
       }
 
       this.remainingCorrect--;

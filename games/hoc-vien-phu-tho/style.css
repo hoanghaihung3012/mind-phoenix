@@ -2130,4 +2130,183 @@ body {
   border: 1px solid #fca5a5;
 }
 
+/* ==========================================================================
+   BASKETBALL COURT & SHOOTING MINIGAME MODAL
+   ========================================================================== */
+.basketball-modal-card {
+  max-width: 820px;
+  width: 95vw;
+}
+
+.basketball-badge-free {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ffedd5;
+  color: #c2410c;
+  border: 1.5px solid #fdba74;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.basketball-scoreboard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1e293b;
+  color: #ffffff;
+  border-radius: 14px;
+  padding: 8px 16px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.basketball-stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.basketball-stat-label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.basketball-stat-val {
+  font-size: 18px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.basketball-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.basketball-ctrl-btn {
+  background: #334155;
+  color: #ffffff;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.basketball-ctrl-btn:hover {
+  background: #ea580c;
+  border-color: #f97316;
+  color: #ffffff;
+}
+
+.basketball-canvas-container {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+  background: #0f172a;
+  aspect-ratio: 760 / 440;
+}
+
+.basketball-canvas-container canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: crosshair;
+}
+
+.basketball-announce {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(15, 23, 42, 0.92);
+  border: 2.5px solid #f97316;
+  padding: 8px 24px;
+  border-radius: 999px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #f97316;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  animation: announcePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 5;
+}
+
+.basketball-result-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 10;
+}
+
+.basketball-result-box {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px 28px;
+  text-align: center;
+  max-width: 440px;
+  width: 90%;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+  border: 2.5px solid #fb923c;
+}
+
+.basketball-free-note {
+  background: #fff7ed;
+  border: 1.5px solid #ffedd5;
+  color: #9a3412;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 10px;
+  line-height: 1.4;
+}
+
+.basketball-footer-hint {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+  .basketball-scoreboard {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+  .basketball-stat-val {
+    font-size: 15px;
+  }
+  .basketball-ctrl-btn {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+  .basketball-result-box {
+    padding: 18px 16px;
+  }
+  .basketball-announce {
+    font-size: 15px;
+    padding: 6px 16px;
+  }
+}
+
+
 

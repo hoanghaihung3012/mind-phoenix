@@ -1135,10 +1135,12 @@
   <script type="module">
     import { auth } from './shared/auth/auth.mjs';
     import { contact } from './shared/contact/contact.mjs';
+    import { analytics } from './shared/analytics/analytics.mjs';
 
     auth.initUI('nav-auth-container');
     contact.init();
     contact.mountInlineForm('inline-contact-form-container');
+    analytics.init();
   </script>
 </body>
 </html>

@@ -84,6 +84,16 @@ export const BUILDINGS = [
     iy: 2130,
   },
   {
+    zone: "basketball",
+    texture: "bld-basketball",
+    cx: 1950,
+    baseY: 1520,
+    w: 420,
+    h: 275,
+    ix: 1950,
+    iy: 1520,
+  },
+  {
     zone: "idiom",
     texture: "bld-idiom",
     cx: 4180,
@@ -160,12 +170,14 @@ export const TREES = [
   { x: 3100, y: 1020, v: 0 },
   { x: 3950, y: 1020, v: 1 },
   { x: 1100, y: 1300, v: 0 },
-  { x: 1950, y: 1300, v: 1 },
+  { x: 1680, y: 1300, v: 1 }, // Cây ven sân bóng rổ phía Tây Bắc
+  { x: 2220, y: 1300, v: 0 }, // Cây ven sân bóng rổ phía Đông Bắc
   { x: 2580, y: 1310, v: 0 }, // Cây ven vườn hoa phía Tây Bắc
   { x: 3120, y: 1310, v: 1 }, // Cây ven vườn hoa phía Đông Bắc
   { x: 3700, y: 1300, v: 1 },
   { x: 1100, y: 1750, v: 1 },
-  { x: 1950, y: 1750, v: 0 },
+  { x: 1680, y: 1740, v: 0 }, // Cây ven sân bóng rổ phía Tây Nam
+  { x: 2220, y: 1740, v: 1 }, // Cây ven sân bóng rổ phía Đông Nam
   { x: 2580, y: 1730, v: 1 }, // Cây ven vườn hoa phía Tây Nam
   { x: 3120, y: 1730, v: 0 }, // Cây ven vườn hoa phía Đông Nam
   { x: 3700, y: 1750, v: 0 },

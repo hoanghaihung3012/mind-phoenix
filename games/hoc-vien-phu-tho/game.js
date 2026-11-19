@@ -25,6 +25,7 @@ import {
 } from './academy.mjs';
 import { MINIGAME_DATA } from './minigames.mjs';
 import { SoccerMinigame } from './soccer.js';
+import { BasketballMinigame } from './basketball.js';
 import { FishingMinigame } from './fishing.js';
 import { FlowerGardenMinigame } from './flowerGame.js';
 import { WildlifeSystem } from './wildlife.js';
@@ -64,6 +65,7 @@ export const BUILDING_SIGN_NAMES = {
   shop: 'CỬA HÀNG',
   arcade: 'KHU TRÒ CHƠI',
   soccer: 'SÂN BÓNG ĐÁ',
+  basketball: 'SÂN BÓNG RỔ',
   pond: 'HỒ CÁ PHÚ THỌ',
   flower_garden: 'VƯỜN HOA PHÚ THỌ',
 };
@@ -152,11 +154,13 @@ class AcademyGame {
     this.keys = {};
     this.activePOI = null;
 
-    // Soccer, Fishing & Flower Garden Minigames
+    // Soccer, Basketball, Fishing & Flower Garden Minigames
     this.soccerGame = null;
+    this.basketballGame = null;
     this.fishingGame = null;
     this.flowerGardenGame = null;
     this.campusBall = { x: 3350, y: 2020, vx: 0, vy: 0, r: 12, rot: 0 };
+    this.campusBasketball = { x: 1950, y: 1520, vx: 0, vy: 0, r: 12, rot: 0 };
 
     // Hệ thống thiên nhiên: Chim & Bướm bay lượn trên sân trường
     this.wildlife = new WildlifeSystem({
@@ -306,24 +310,31 @@ class AcademyGame {
   }
 
   setupNPCBehavior() {
-    // Nhân viên học viện (Thầy cô, Bác bảo vệ, Bác làm vườn) lâu lâu mới nói
+    // Nhân viên học viện (Thầy cô, Bác bảo vệ, Bác làm vườn) nói rất ít và hiếm để giữ không gian yên tĩnh
+    const startNow = performance.now();
+    for (const npc of this.campusNpcs || []) {
+      npc.lastSpeakTime = startNow + 30000 + Math.random() * 45000; // Đợi ít nhất 30-75s sau khi vào game mới nói
+      npc.speakInterval = 80000 + Math.random() * 70000; // 80 - 150 giây (1.3 - 2.5 phút) mới nói tiếp
+    }
     this.npcSpeakTimer = setInterval(() => {
       if (!this.campusNpcs || this.campusNpcs.length === 0) return;
       const now = performance.now();
+      // Tỉ lệ nói thấp (chỉ 40% cơ hội mỗi lần timer kích hoạt)
+      if (Math.random() > 0.4) return;
       for (const npc of this.campusNpcs) {
-        if (now > (npc.lastSpeakTime || 0) + (npc.speakInterval || 22000)) {
+        if (now > (npc.lastSpeakTime || 0) + (npc.speakInterval || 90000)) {
           const quotes = npc.quotes || [];
           if (quotes.length > 0) {
             const quote = quotes[Math.floor(Math.random() * quotes.length)];
-            this.showSpeechBubble(npc.id, quote, 6500);
-            this.addChatMessage(npc.name, npc.title || 'Học Viện Phú Thọ', quote, false, npc.role || '');
+            this.showSpeechBubble(npc.id, quote, 4200);
+            this.addChatMessage(npc.name, '', quote, false, npc.role || '');
           }
           npc.lastSpeakTime = now;
-          npc.speakInterval = 18000 + Math.random() * 16000; // 18-34 giây sau mới nói tiếp
-          break; // Chỉ 1 người nói mỗi lượt để tự nhiên, không spam
+          npc.speakInterval = 85000 + Math.random() * 80000; // 1.4 - 2.75 phút sau mới nói tiếp
+          break; // Chỉ 1 người nói mỗi lượt
         }
       }
-    }, 4000);
+    }, 12000);
   }
 
   setupUI() {
@@ -483,6 +494,51 @@ class AcademyGame {
     const soccerExitBtn = document.getElementById('soccerExitBtn');
     if (soccerExitBtn) {
       soccerExitBtn.addEventListener('click', () => this.closeSoccerModal());
+    }
+
+    // Basketball Stadium Minigame Modal
+    const closeBasketballModal = document.getElementById('closeBasketballModal');
+    if (closeBasketballModal) {
+      closeBasketballModal.addEventListener('click', () => this.closeBasketballModal());
+    }
+    const basketballModeBtn = document.getElementById('basketballModeBtn');
+    if (basketballModeBtn) {
+      basketballModeBtn.addEventListener('click', () => {
+        if (!this.basketballGame) return;
+        const modes = ['challenge', 'free', 'timed'];
+        const curIdx = modes.indexOf(this.basketballGame.mode);
+        const nextMode = modes[(curIdx + 1) % modes.length];
+        this.basketballGame.setMode(nextMode);
+        const modeLabels = {
+          challenge: '🎯 Chế độ: 10 Lượt',
+          free: '♾️ Chế độ: Tự do',
+          timed: '⏱️ Chế độ: 60 Giây'
+        };
+        basketballModeBtn.textContent = modeLabels[nextMode] || '🎯 Chế độ: 10 Lượt';
+        this.sound.playClick();
+      });
+    }
+    const basketballResetBtn = document.getElementById('basketballResetBtn');
+    if (basketballResetBtn) {
+      basketballResetBtn.addEventListener('click', () => {
+        if (this.basketballGame) this.basketballGame.resetMatch();
+        const resOverlay = document.getElementById('basketballResultOverlay');
+        if (resOverlay) resOverlay.classList.add('hidden');
+        this.sound.playClick();
+      });
+    }
+    const basketballPlayAgainBtn = document.getElementById('basketballPlayAgainBtn');
+    if (basketballPlayAgainBtn) {
+      basketballPlayAgainBtn.addEventListener('click', () => {
+        const resOverlay = document.getElementById('basketballResultOverlay');
+        if (resOverlay) resOverlay.classList.add('hidden');
+        if (this.basketballGame) this.basketballGame.resetMatch();
+        this.sound.playClick();
+      });
+    }
+    const basketballExitBtn = document.getElementById('basketballExitBtn');
+    if (basketballExitBtn) {
+      basketballExitBtn.addEventListener('click', () => this.closeBasketballModal());
     }
 
     // Fishing Pond Minigame Modal (Gold Miner Style)
@@ -1451,8 +1507,7 @@ class AcademyGame {
 
     const row = document.createElement('div');
     row.className = `chat-msg ${isSelf ? 'self' : ''}`;
-    const tagClass = role ? `tag tag-${this.escapeHtml(role)}` : 'tag';
-    row.innerHTML = `<span class="${tagClass}">[${this.escapeHtml(school)}]</span> <strong>${this.escapeHtml(name)}:</strong> ${this.escapeHtml(text)}`;
+    row.innerHTML = `<strong>${this.escapeHtml(name)}:</strong> ${this.escapeHtml(text)}`;
     box.appendChild(row);
     box.scrollTop = box.scrollHeight;
 
@@ -1610,8 +1665,10 @@ class AcademyGame {
         document.getElementById('missionModal').classList.remove('hidden');
       } else if (poi.panelType === 'arcade') {
         this.openArcadeModal();
-      } else if (poi.panelType === 'soccer') {
+      } else if (poi.panelType === 'soccer' || poi.id === 'soccer') {
         this.openSoccerModal();
+      } else if (poi.panelType === 'basketball' || poi.id === 'basketball') {
+        this.openBasketballModal();
       } else if (poi.panelType === 'fishing' || poi.id === 'pond') {
         this.openFishingModal();
       } else if (poi.panelType === 'flower_garden' || poi.id === 'flower_garden') {
@@ -1621,6 +1678,8 @@ class AcademyGame {
       this.openFlowerGardenModal();
     } else if (poi.panelType === 'fishing' || poi.id === 'pond') {
       this.openFishingModal();
+    } else if (poi.panelType === 'basketball' || poi.id === 'basketball') {
+      this.openBasketballModal();
     } else if (poi.category === 'sports' || poi.panelType === 'soccer') {
       this.openSoccerModal();
     } else if (poi.category === 'landmark' || poi.category === 'welcome' || poi.category === 'social') {
@@ -1732,6 +1791,38 @@ class AcademyGame {
     if (modal) modal.classList.add('hidden');
     if (this.soccerGame) {
       this.soccerGame.stop();
+    }
+    this.sound.playClick();
+  }
+
+  openBasketballModal() {
+    const modal = document.getElementById('basketballModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+
+    const resOverlay = document.getElementById('basketballResultOverlay');
+    if (resOverlay) resOverlay.classList.add('hidden');
+
+    const canvas = document.getElementById('basketballCanvas');
+    if (!this.basketballGame && canvas) {
+      this.basketballGame = new BasketballMinigame({
+        canvas,
+        sound: this.sound,
+        onClose: () => this.closeBasketballModal()
+      });
+    }
+
+    if (this.basketballGame) {
+      this.basketballGame.start();
+    }
+    this.sound.playClick();
+  }
+
+  closeBasketballModal() {
+    const modal = document.getElementById('basketballModal');
+    if (modal) modal.classList.add('hidden');
+    if (this.basketballGame) {
+      this.basketballGame.stop();
     }
     this.sound.playClick();
   }
@@ -2212,6 +2303,48 @@ class AcademyGame {
       if (cb.y > maxBy) { cb.y = maxBy; cb.vy = -cb.vy * 0.6; }
     }
 
+    // Campus basketball physics (trên sân bóng rổ trường cx: 1950, baseY: 1520)
+    if (this.campusBasketball) {
+      const cbb = this.campusBasketball;
+      const bdx = cbb.x - this.player.x;
+      const bdy = cbb.y - this.player.y;
+      const bdist = Math.hypot(bdx, bdy);
+      const kickDist = cbb.r + 22;
+
+      if (bdist < kickDist && bdist > 0.1) {
+        const nx = bdx / bdist;
+        const ny = bdy / bdist;
+        const dribblePower = this.player.moving ? 250 : 120;
+        cbb.vx = nx * dribblePower;
+        cbb.vy = ny * dribblePower;
+        if (Math.hypot(cbb.vx, cbb.vy) > 70 && this.sound && this.sound.playBasketballBounce) {
+          this.sound.playBasketballBounce();
+        }
+      }
+
+      cbb.x += cbb.vx * dt;
+      cbb.y += cbb.vy * dt;
+      cbb.vx *= Math.pow(0.88, dt * 60);
+      cbb.vy *= Math.pow(0.88, dt * 60);
+      if (Math.abs(cbb.vx) < 1) cbb.vx = 0;
+      if (Math.abs(cbb.vy) < 1) cbb.vy = 0;
+
+      const speed = Math.hypot(cbb.vx, cbb.vy);
+      if (speed > 1) {
+        cbb.rot += (cbb.vx > 0 ? 1 : -1) * speed * dt * 0.05;
+      }
+
+      // Giữ bóng trong sân bóng rổ (cx: 1950, baseY: 1520, w: 320, h: 210)
+      const minBx = 1950 - 150;
+      const maxBx = 1950 + 150;
+      const minBy = 1520 - 190;
+      const maxBy = 1520 + 20;
+      if (cbb.x < minBx) { cbb.x = minBx; cbb.vx = -cbb.vx * 0.6; }
+      if (cbb.x > maxBx) { cbb.x = maxBx; cbb.vx = -cbb.vx * 0.6; }
+      if (cbb.y < minBy) { cbb.y = minBy; cbb.vy = -cbb.vy * 0.6; }
+      if (cbb.y > maxBy) { cbb.y = maxBy; cbb.vy = -cbb.vy * 0.6; }
+    }
+
     // Check POI Proximity
     const prox = checkProximityPOI(this.player.x, this.player.y);
     const promptEl = document.getElementById('interactionPrompt');
@@ -2475,6 +2608,57 @@ class AcademyGame {
       });
     }
 
+    // Campus Basketball (Quả bóng rổ trên sân trường cx: 1950, baseY: 1520)
+    if (this.campusBasketball) {
+      const cbb = this.campusBasketball;
+      renderList.push({
+        y: cbb.y,
+        draw: (c) => {
+          c.save();
+          // Bóng đổ
+          c.fillStyle = 'rgba(0, 0, 0, 0.25)';
+          c.beginPath();
+          c.ellipse(cbb.x, cbb.y + cbb.r * 0.7, cbb.r * 1.1, cbb.r * 0.4, 0, 0, Math.PI * 2);
+          c.fill();
+
+          c.translate(cbb.x, cbb.y);
+          c.rotate(cbb.rot || 0);
+
+          // Thân bóng rổ cam
+          c.fillStyle = '#ea580c';
+          c.beginPath();
+          c.arc(0, 0, cbb.r, 0, Math.PI * 2);
+          c.fill();
+          c.strokeStyle = '#1e1b18';
+          c.lineWidth = 1.8;
+          c.stroke();
+
+          // Các đường gân đen
+          c.strokeStyle = '#291e14';
+          c.lineWidth = 1.6;
+          c.beginPath();
+          c.moveTo(-cbb.r + 2, 0);
+          c.lineTo(cbb.r - 2, 0);
+          c.stroke();
+
+          c.beginPath();
+          c.moveTo(0, -cbb.r + 2);
+          c.lineTo(0, cbb.r - 2);
+          c.stroke();
+
+          c.beginPath();
+          c.arc(-cbb.r * 0.75, 0, cbb.r * 0.85, -Math.PI / 3, Math.PI / 3);
+          c.stroke();
+
+          c.beginPath();
+          c.arc(cbb.r * 0.75, 0, cbb.r * 0.85, (Math.PI * 2) / 3, (Math.PI * 4) / 3);
+          c.stroke();
+
+          c.restore();
+        }
+      });
+    }
+
     // Local player
     renderList.push({
       y: this.player.y,
@@ -2655,7 +2839,7 @@ class AcademyGame {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    const tagText = isNpc ? (char.title ? `[${char.title}] ${char.name}` : char.name) : '[' + char.school + '] ' + char.name;
+    const tagText = char.name;
     const tagWidth = ctx.measureText(tagText).width + 16;
 
     let bg = 'rgba(15, 23, 42, 0.8)';

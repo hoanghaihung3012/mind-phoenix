@@ -232,6 +232,7 @@ class SentenceBuilderGame {
       if (this.score > this.highScore) {
         this.highScore = this.score;
         localStorage.setItem('mind_phoenix_sentence_high', String(this.highScore));
+        try { window.MindPhoenixAnalytics?.trackScore('sentence-builder', 'Sentence Builder', this.score); } catch {}
       }
 
       this.audio?.chime([440, 554, 659, 880], 0.1);

@@ -183,6 +183,7 @@ class SoiChinhTaGame {
       if (this.score > this.highScore) {
         this.highScore = this.score;
         localStorage.setItem('mind_phoenix_chinhta_high', String(this.highScore));
+        try { window.MindPhoenixAnalytics?.trackScore('soi-chinh-ta', 'Soi Lỗi Chính Tả', this.score); } catch {}
       }
 
       this.updateStatsDOM();

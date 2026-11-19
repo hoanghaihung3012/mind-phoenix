@@ -440,6 +440,8 @@ test('FishingMinigame hook swings, extends, catches fish/shrimp/crab and reels w
   assert.ok(game.hook.length > prevLength, 'Hook length should increase when shooting');
 
   // 3. Collision detection: Place a fish right in the hook path
+  game.hook.state = 'shooting';
+  game.hook.hookedItem = null;
   const targetFish = {
     id: 'test_fish',
     type: 'fish_small',
@@ -577,4 +579,72 @@ test('MINIGAME_DATA questions are properly graded with difficulty levels from ea
     }
   }
 });
+
+test('basketball court POI is registered with basketball icon and correct sports category', () => {
+  const basketball = POI_LOCATIONS.find(p => p.id === 'basketball');
+  assert.ok(basketball, 'basketball court POI must be present in POI_LOCATIONS');
+  assert.equal(basketball.icon, '🏀');
+  assert.equal(basketball.panelType, 'basketball');
+  assert.equal(basketball.category, 'sports');
+  assert.equal(basketball.x, 1950);
+  assert.equal(basketball.y, 1520);
+  assert.ok(basketball.radius >= 120);
+});
+
+test('basketball court texture bld-basketball is generated and registered in PLATE_INFO', async () => {
+  const { buildAllTextures, PLATE_INFO } = await import('./art/index.js');
+  const textures = buildAllTextures();
+  assert.ok(textures['bld-basketball'], 'bld-basketball texture must be generated');
+  assert.ok(PLATE_INFO['bld-basketball'], 'PLATE_INFO for bld-basketball must be present');
+});
+
+test('BasketballMinigame operates purely for fun without affecting player XP or level', async () => {
+  const { BasketballMinigame } = await import('./basketball.js');
+  const player = createDefaultPlayer({ xp: 50, level: 1, points: 10 });
+  const initialXP = player.xp;
+  const initialLevel = player.level;
+  const initialPoints = player.points;
+
+  const game = new BasketballMinigame();
+  assert.equal(game.mode, 'challenge');
+  assert.equal(game.shots, 0);
+  assert.equal(game.baskets, 0);
+  assert.equal(game.points, 0);
+
+  // Shoot a ball
+  game.shootBall(10, -500);
+  assert.equal(game.shots, 1);
+  assert.equal(game.ball.state, 'flying');
+
+  // Verify player XP and level are 100% untouched
+  assert.equal(player.xp, initialXP, 'Basketball game must not add XP');
+  assert.equal(player.level, initialLevel, 'Basketball game must not change level');
+  assert.equal(player.points, initialPoints, 'Basketball game must not change honor stars');
+
+  // Switch to free practice mode
+  game.setMode('free');
+  assert.equal(game.mode, 'free');
+  assert.equal(game.shots, 0);
+});
+
+test('BasketballMinigame physics handles swish goal, rim collision, and score calculation', async () => {
+  const { BasketballMinigame } = await import('./basketball.js');
+  const game = new BasketballMinigame();
+
+  // Test Swish: Drop ball directly through the hoop from above (x: 380, vy > 0)
+  game.ball.x = 380;
+  game.ball.y = game.hoop.rimY - 2;
+  game.ball.vx = 0;
+  game.ball.vy = 120;
+  game.ball.state = 'flying';
+  game.ball.touchedRim = false;
+  game.ball.scored = false;
+
+  game.update(0.04);
+  assert.equal(game.ball.scored, true, 'Ball dropping through hoop center should score');
+  assert.equal(game.baskets, 1, 'Baskets count should increment');
+  assert.equal(game.points, 3, 'Untouched shot should award swish 3 points');
+  assert.equal(game.streak, 1, 'Streak should increment');
+});
+
 

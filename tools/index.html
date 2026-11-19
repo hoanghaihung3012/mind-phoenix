@@ -107,7 +107,9 @@
   </div>
   <script type="module">
     import { initLanguage } from './i18n.mjs';
+    import { analytics } from '../shared/analytics/analytics.mjs';
     initLanguage();
+    analytics.init();
   </script>
 </body>
 </html>

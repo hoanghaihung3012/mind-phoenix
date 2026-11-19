@@ -207,6 +207,7 @@ class MemorySafariGame {
       if (this.score > this.highScore) {
         this.highScore = this.score;
         localStorage.setItem('mind_phoenix_memory_high', String(this.highScore));
+        try { window.MindPhoenixAnalytics?.trackScore('memory-safari', 'Memory Safari', this.score); } catch {}
       }
 
       this.matchedPairIds.add(c1.card.pairId);

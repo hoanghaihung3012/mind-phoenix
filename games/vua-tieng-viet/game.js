@@ -341,6 +341,7 @@ class VuaTiengVietGame {
       if (this.score > this.highScore) {
         this.highScore = this.score;
         localStorage.setItem('mind_phoenix_vua_highscore', String(this.highScore));
+        try { window.MindPhoenixAnalytics?.trackScore('vua-tieng-viet', 'Vua Tiếng Việt', this.score); } catch {}
       }
 
       this.playChime();

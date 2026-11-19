@@ -291,6 +291,18 @@ export const POI_LOCATIONS = [
     desc: 'Sân bóng đá cỏ xanh Phú Thọ - Thỏa sức sút bóng cầu môn giải trí vui vẻ (chơi vui không tính điểm level)!',
   },
   {
+    id: 'basketball',
+    name: 'Sân Bóng Rổ Phú Thọ',
+    nameEn: 'Phu Tho Basketball Court',
+    x: 1950,
+    y: 1520,
+    radius: 145,
+    icon: '🏀',
+    category: 'sports',
+    panelType: 'basketball',
+    desc: 'Sân bóng rổ Phú Thọ - Thỏa sức ném bóng vào rổ giải trí vui vẻ (chơi vui không tính điểm level)!',
+  },
+  {
     id: 'idiom',
     name: 'Quảng Trường Thành Ngữ',
     nameEn: 'Idiom & Folklore Plaza',
@@ -847,6 +859,83 @@ export class SoundController {
         gain.connect(ctx.destination);
         osc.start(now + idx * 0.06);
         osc.stop(now + idx * 0.06 + 0.16);
+      });
+    } catch (_) {}
+  }
+
+  playBasketballShoot() {
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(320, now);
+      osc.frequency.exponentialRampToValueAtTime(140, now + 0.14);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.16);
+    } catch (_) {}
+  }
+
+  playBasketballBounce() {
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(160, now);
+      osc.frequency.exponentialRampToValueAtTime(65, now + 0.09);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.11);
+    } catch (_) {}
+  }
+
+  playBasketballRim() {
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(920, now);
+      osc.frequency.exponentialRampToValueAtTime(450, now + 0.18);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.21);
+    } catch (_) {}
+  }
+
+  playBasketballSwish() {
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      [659.25, 830.61, 987.77, 1318.51].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+        gain.gain.setValueAtTime(0.14, now + idx * 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.28);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.05);
+        osc.stop(now + idx * 0.05 + 0.3);
       });
     } catch (_) {}
   }

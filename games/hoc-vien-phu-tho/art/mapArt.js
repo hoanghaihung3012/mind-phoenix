@@ -314,6 +314,103 @@ function soccerField(scene, key, w, h) {
   });
 }
 
+function basketballCourt(scene, key, w, h) {
+  makeTexture(scene, key, w, h, (g) => {
+    const midX = w / 2;
+    // Bóng đổ
+    ell(g, midX, h - 6, w * 0.98, 30, 0x000000, null, 0, 0.18);
+
+    // Bờ tường / gạch bo viền quanh sân bóng rổ
+    rr(g, 6, 28, w - 12, h - 36, 16, 0xd4c5a9, INK, 4);
+
+    // Vùng viền ngoài sân (Apron ngoài - Xanh navy thể thao rực rỡ)
+    const fieldX = 16;
+    const fieldY = 38;
+    const fieldW = w - 32;
+    const fieldH = h - 54;
+    rr(g, fieldX, fieldY, fieldW, fieldH, 12, 0x1e3a8a, INK, 3);
+
+    // Mặt sân thi đấu chính (Màu gạch nung / cam gỗ bóng rổ tiêu chuẩn)
+    const innerX = fieldX + 16;
+    const innerY = fieldY + 16;
+    const innerW = fieldW - 32;
+    const innerH = fieldH - 32;
+    rr(g, innerX, innerY, innerW, innerH, 8, 0xd97706, INK, 2.5);
+
+    // Các đường vân gỗ ngang bóng rổ
+    for (let y = innerY + 12; y < innerY + innerH; y += 14) {
+      line(g, innerX + 2, y, innerX + innerW - 2, y, 0xb45309, 1);
+    }
+
+    // Đường vạch biên ngoài màu trắng
+    rr(g, innerX, innerY, innerW, innerH, 6, null, 0xffffff, 3);
+
+    // Vạch giữa sân (Half-court line)
+    const centerY = innerY + innerH / 2;
+    line(g, innerX, centerY, innerX + innerW, centerY, 0xffffff, 3);
+
+    // Vòng tròn trung tâm
+    circ(g, midX, centerY, 32, null, 0xffffff, 3);
+    circ(g, midX, centerY, 32, 0x1e40af, null, 0, 0.35);
+    circ(g, midX, centerY, 4.5, 0xffffff, null, 0);
+
+    // Khu vực hình thang / vùng cấm địa (Key / Paint) màu xanh navy
+    // 1. Phía trên (Top Key)
+    const keyW = 86;
+    const keyH = 50;
+    const topKeyX = midX - keyW / 2;
+    rr(g, topKeyX, innerY, keyW, keyH, 2, 0x1e40af, 0xffffff, 2.5);
+    // Vòng ném phạt trên
+    circ(g, midX, innerY + keyH, 24, null, 0xffffff, 2.5);
+
+    // 2. Phía dưới (Bottom Key)
+    const btmKeyY = innerY + innerH - keyH;
+    rr(g, topKeyX, btmKeyY, keyW, keyH, 2, 0x1e40af, 0xffffff, 2.5);
+    // Vòng ném phạt dưới
+    circ(g, midX, btmKeyY, 24, null, 0xffffff, 2.5);
+
+    // Trụ và Bảng rổ phía trên (Top Hoop)
+    rr(g, midX - 5, innerY - 14, 10, 14, 2, 0x475569, INK, 2);
+    rr(g, midX - 32, innerY - 4, 64, 6, 2, 0xffffff, INK, 2);
+    rr(g, midX - 12, innerY - 4, 24, 4, 1, 0xef4444, null, 0);
+    circ(g, midX, innerY + 6, 9, null, 0xe65100, 3);
+    line(g, midX - 7, innerY + 6, midX - 4, innerY + 16, 0xffffff, 1.5);
+    line(g, midX + 7, innerY + 6, midX + 4, innerY + 16, 0xffffff, 1.5);
+    line(g, midX, innerY + 7, midX, innerY + 17, 0xffffff, 1.5);
+    line(g, midX - 5, innerY + 12, midX + 5, innerY + 12, 0xffffff, 1.2);
+
+    // Trụ và Bảng rổ phía dưới (Bottom Hoop)
+    rr(g, midX - 5, innerY + innerH, 10, 14, 2, 0x475569, INK, 2);
+    rr(g, midX - 32, innerY + innerH - 2, 64, 6, 2, 0xffffff, INK, 2);
+    rr(g, midX - 12, innerY + innerH - 2, 24, 4, 1, 0xef4444, null, 0);
+    circ(g, midX, innerY + innerH - 6, 9, null, 0xe65100, 3);
+    line(g, midX - 7, innerY + innerH - 6, midX - 4, innerY + innerH - 16, 0xffffff, 1.5);
+    line(g, midX + 7, innerY + innerH - 6, midX + 4, innerY + innerH - 16, 0xffffff, 1.5);
+    line(g, midX, innerY + innerH - 7, midX, innerY + innerH - 17, 0xffffff, 1.5);
+    line(g, midX - 5, innerY + innerH - 12, midX + 5, innerY + innerH - 12, 0xffffff, 1.2);
+
+    // Quả bóng rổ ở giữa sân
+    circ(g, midX, centerY, 10, 0xe65100, INK, 2.5);
+    line(g, midX - 9, centerY, midX + 9, centerY, INK, 1.5);
+    line(g, midX, centerY - 9, midX, centerY + 9, INK, 1.5);
+    ell(g, midX, centerY, 14, 18, null, INK, 1.2);
+
+    // Bảng tên sân bóng rổ
+    const p = plate(key, w, midX, 4, w - 75, 36);
+    rr(g, p.x, p.y, p.w, p.h, 10, 0xc2410c, INK, 3.5);
+    rr(g, p.x + 3, p.y + 3, p.w - 6, p.h - 6, 8, 0xfff9e6, null, 0);
+
+    // Biểu tượng bóng rổ hai bên bảng tên
+    circ(g, p.x + 20, p.y + p.h / 2, 10, 0xe65100, INK, 2);
+    line(g, p.x + 11, p.y + p.h / 2, p.x + 29, p.y + p.h / 2, INK, 1.2);
+    line(g, p.x + 20, p.y + p.h / 2 - 9, p.x + 20, p.y + p.h / 2 + 9, INK, 1.2);
+
+    circ(g, p.x + p.w - 20, p.y + p.h / 2, 10, 0xe65100, INK, 2);
+    line(g, p.x + p.w - 29, p.y + p.h / 2, p.x + p.w - 11, p.y + p.h / 2, INK, 1.2);
+    line(g, p.x + p.w - 20, p.y + p.h / 2 - 9, p.x + p.w - 20, p.y + p.h / 2 + 9, INK, 1.2);
+  });
+}
+
 function tree(scene, key, variant) {
   makeTexture(scene, key, 145, 185, (g) => {
     ell(g, 72, 178, 70, 16, 0x000000, null, 0, 0.2);
@@ -780,6 +877,7 @@ export function generateMapTextures(scene) {
     else if (b.zone === "arena") arenaTent(scene, b.texture, b.w, b.h);
     else if (b.zone === "idiom") idiomStage(scene, b.texture, b.w, b.h);
     else if (b.zone === "soccer") soccerField(scene, b.texture, b.w, b.h);
+    else if (b.zone === "basketball") basketballCourt(scene, b.texture, b.w, b.h);
     else if (b.zone === "shop")
       shopFront(scene, b.texture, b.w, b.h, {
         roofH: 74,

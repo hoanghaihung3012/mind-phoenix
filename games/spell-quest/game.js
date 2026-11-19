@@ -252,6 +252,7 @@ class SpellQuestGame {
       if (this.score > this.highScore) {
         this.highScore = this.score;
         localStorage.setItem('mind_phoenix_spellquest_high', String(this.highScore));
+        try { window.MindPhoenixAnalytics?.trackScore('spell-quest', 'Spell Quest', this.score); } catch {}
       }
 
       this.audio?.chime([523, 659, 784, 1047], 0.1);
