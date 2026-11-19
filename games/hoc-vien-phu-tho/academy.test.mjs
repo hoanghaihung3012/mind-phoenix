@@ -242,11 +242,17 @@ test('arcade POI is properly registered and accessible', () => {
   assert.ok(arcade.radius >= 100);
 });
 
-test('MINIGAME_DATA has expanded comprehensive question sets (>= 12 questions each)', () => {
+test('MINIGAME_DATA has expanded comprehensive question sets (>= 30 questions each, 10 per difficulty)', () => {
   const categories = ['vocabulary', 'spelling', 'literature', 'idiom', 'math', 'arena', 'grand'];
   for (const cat of categories) {
     const data = MINIGAME_DATA[cat];
-    assert.ok(data.questions.length >= 12, `${cat} should have at least 12 questions for variety (got ${data.questions.length})`);
+    assert.ok(data.questions.length >= 30, `${cat} should have at least 30 questions for rich variety (got ${data.questions.length})`);
+    const easyCount = data.questions.filter(q => q.difficulty === 'easy').length;
+    const medCount = data.questions.filter(q => q.difficulty === 'medium').length;
+    const hardCount = data.questions.filter(q => q.difficulty === 'hard').length;
+    assert.ok(easyCount >= 10, `${cat} must have at least 10 easy questions (got ${easyCount})`);
+    assert.ok(medCount >= 10, `${cat} must have at least 10 medium questions (got ${medCount})`);
+    assert.ok(hardCount >= 10, `${cat} must have at least 10 hard questions (got ${hardCount})`);
   }
 });
 
