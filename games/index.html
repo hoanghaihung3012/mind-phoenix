@@ -789,8 +789,10 @@
   <script type="module">
     import { auth } from '../shared/auth/auth.mjs';
     import { analytics } from '../shared/analytics/analytics.mjs';
+    import { chat } from '../shared/chat/chat.mjs';
     auth.initUI('nav-auth-container');
     analytics.init();
+    chat.init();
 
     // Quick category navigation & scrollspy
     const navChips = Array.from(document.querySelectorAll('.nav-chip'));

@@ -1136,11 +1136,13 @@
     import { auth } from './shared/auth/auth.mjs';
     import { contact } from './shared/contact/contact.mjs';
     import { analytics } from './shared/analytics/analytics.mjs';
+    import { chat } from './shared/chat/chat.mjs';
 
     auth.initUI('nav-auth-container');
     contact.init();
     contact.mountInlineForm('inline-contact-form-container');
     analytics.init();
+    chat.init();
   </script>
 </body>
 </html>
