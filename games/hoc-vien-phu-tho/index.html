@@ -613,6 +613,80 @@
     </div>
   </div>
 
+  <!-- MODAL: Vườn Hoa Học Viện Phú Thọ (Flower Garden Minigame) -->
+  <div id="flowerGardenModal" class="modal-overlay hidden">
+    <div class="modal-card flower-modal-card">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 28px;">🌸</span>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <h2 style="margin: 0; font-size: 19px;">Vườn Hoa Học Viện Phú Thọ</h2>
+              <span class="flower-badge-free">Hái Hoa Muôn Sắc • Game Giải Trí</span>
+            </div>
+            <p style="margin: 2px 0 0; font-size: 12px; color: #64748b;">Chạm vào những đóa hoa đang bung nở rực rỡ để thu hoạch vào giỏ mây, bắt bướm vàng may mắn và cẩn thận chú ong mật!</p>
+          </div>
+        </div>
+        <button class="modal-close" id="closeFlowerGardenModal">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding: 12px 16px 16px;">
+        <!-- Top bar scoreboard -->
+        <div class="flower-scoreboard">
+          <div class="flower-stat-box">
+            <span class="flower-stat-label">Điểm số</span>
+            <span class="flower-stat-val" id="flowerScore" style="color: #e11d48;">0</span>
+          </div>
+          <div class="flower-stat-box">
+            <span class="flower-stat-label">Đã hái</span>
+            <span class="flower-stat-val"><span id="flowerCount">0</span> bông</span>
+          </div>
+          <div class="flower-stat-box">
+            <span class="flower-stat-label">Chuỗi hoa</span>
+            <span class="flower-stat-val" id="flowerStreak" style="color: #ea580c;">x0</span>
+          </div>
+          <div class="flower-stat-box">
+            <span class="flower-stat-label">Thời gian / Mục tiêu</span>
+            <span class="flower-stat-val" id="flowerTimer" style="color: #15803d; font-size: 14px;">60s ⏱️</span>
+          </div>
+          <div class="flower-actions">
+            <button id="flowerTimedModeBtn" class="flower-ctrl-btn active" title="Chế độ 60 giây thử thách">⏱️ 60 Giây</button>
+            <button id="flowerBouquetModeBtn" class="flower-ctrl-btn" title="Chế độ kết bó hoa nhiệm vụ">💐 Bó Hoa</button>
+            <button id="flowerFreeModeBtn" class="flower-ctrl-btn" title="Chế độ tự do thư giãn">♾️ Tự Do</button>
+            <button id="flowerResetBtn" class="flower-ctrl-btn" title="Chơi lại">🔄 Hái lại</button>
+          </div>
+        </div>
+
+        <!-- Flower Garden Canvas Container -->
+        <div class="flower-canvas-container">
+          <canvas id="flowerGardenCanvas" width="760" height="440"></canvas>
+
+          <!-- Result Overlay -->
+          <div id="flowerResultOverlay" class="flower-result-overlay hidden">
+            <div class="flower-result-box">
+              <div style="font-size: 52px; margin-bottom: 6px;">🌸🌹🌻🌷✨</div>
+              <h3 id="flowerResultTitle" style="color:#0f172a; margin: 0 0 4px; font-size: 22px;">Kết Thúc Buổi Hái Hoa!</h3>
+              <div id="flowerResultScore" style="font-size: 24px; font-weight: 800; color: #e11d48; margin: 8px 0;">350 Điểm (14 Bông)</div>
+              <p id="flowerResultDesc" style="color:#64748b; font-size: 13.5px; margin: 0 0 16px;">Bạn đã thu hoạch những đóa hoa ngát hương rực rỡ nhất sân trường!</p>
+              <div class="flower-free-note">
+                ✨ Trò chơi rèn luyện sự tinh mắt, nhanh tay và tình yêu thiên nhiên đất nước.
+              </div>
+              <div style="display: flex; gap: 10px; justify-content: center; margin-top: 16px;">
+                <button id="flowerPlayAgainBtn" class="btn primary-btn">Hái Vòng Mới 🌸</button>
+                <button id="flowerExitBtn" class="btn" style="background:#e2e8f0; color:#334155;">Rời Vườn Hoa 🏃</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footnote reminder -->
+        <div class="flower-footer-hint">
+          <span>💡 <strong>Hướng dẫn:</strong> Nhấp chuột hoặc chạm vào những đóa hoa đang nở rộ để hái vào giỏ mây! Bắt bướm vàng 🦋 để nhận thêm +5s thời gian, cẩn thận không chạm phải chú ong mật 🐝.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: Leaderboard -->
   <div id="leaderboardModal" class="modal-overlay hidden">
     <div class="modal-card">

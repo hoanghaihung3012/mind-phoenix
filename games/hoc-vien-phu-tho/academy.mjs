@@ -166,6 +166,18 @@ export const POI_LOCATIONS = [
     desc: 'Lễ đài cờ đỏ sao vàng trang nghiêm, nơi vinh danh học sinh xuất sắc.',
   },
   {
+    id: 'flower_garden',
+    name: 'Vườn Hoa Học Viện Phú Thọ',
+    nameEn: 'Phu Tho Academy Flower Garden',
+    x: 2850,
+    y: 1520,
+    radius: 175,
+    icon: '🌸',
+    category: 'garden',
+    panelType: 'flower_garden',
+    desc: 'Khu vườn hoa thơ mộng ngát hương với muôn hoa khoe sắc, bướm bay chim lượn — Nơi thư giãn và trải nghiệm Game Hái Hoa vui nhộn!',
+  },
+  {
     id: 'pond',
     name: 'Hồ Cá Học Viện Phú Thọ',
     nameEn: 'Phu Tho Academy Fishing Pond',
@@ -448,11 +460,13 @@ export const CAMPUS_NPCS = [
     x: 3200,
     y: 1550,
     quotes: [
+      'Chào cháu! Ghé Vườn Hoa Phú Thọ hái những đóa hoa muôn sắc kết thành bó hoa dâng tặng thầy cô nhé!',
+      'Hôm nay vườn hoa nở rộ đẹp lắm, chim én và bướm vàng bay lượn quanh đài phun nước ríu rít cả ngày!',
       'Những búp sen đang nở rộ thơm ngát cả sân trường Phú Thọ này các cháu!',
       'Cây xanh cho bóng mát và không khí trong lành, các cháu nhớ không ngắt hoa bẻ cành nhé!',
-      'Bác vừa tưới nước cho luống hoa cúc và hàng phượng vĩ đỏ thắm đấy!',
+      'Bác vừa tưới nước cho luống hoa hồng nhung và hàng phượng vĩ đỏ thắm đấy!',
       'Mỗi mầm cây được các cháu chăm sóc sẽ lớn lên thành bóng râm che mát mai sau.',
-      'Học tập xong ra bờ hồ hít thở không khí thiên nhiên cho mắt được nghỉ ngơi nhé em!'
+      'Học tập xong vào Vườn hoa ngắm cảnh hoặc ra bờ hồ câu cá thư giãn nhé em!'
     ]
   }
 ];

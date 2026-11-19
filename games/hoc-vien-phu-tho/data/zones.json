@@ -71,5 +71,13 @@
     "scene": "MissionScene",
     "panel": true,
     "requirements": {}
+  },
+  {
+    "id": "flower_garden",
+    "name": "Vườn hoa Học viện",
+    "game": "Hái hoa muôn sắc",
+    "scene": "FlowerGardenScene",
+    "panel": true,
+    "requirements": {}
   }
 ]

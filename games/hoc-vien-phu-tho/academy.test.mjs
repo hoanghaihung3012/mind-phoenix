@@ -466,3 +466,109 @@ test('FishingMinigame hook swings, extends, catches fish/shrimp/crab and reels w
   assert.equal(game.score, 25, 'Score should increase by creature score value');
 });
 
+test('flower garden POI is registered with flower icon and panelType', () => {
+  const garden = POI_LOCATIONS.find(p => p.id === 'flower_garden');
+  assert.ok(garden, 'Vườn Hoa Học Viện (flower_garden) must be registered in POI_LOCATIONS');
+  assert.equal(garden.icon, '🌸');
+  assert.equal(garden.panelType, 'flower_garden');
+  assert.ok(garden.x > 0 && garden.y > 0);
+  assert.ok(garden.radius >= 150);
+});
+
+test('FlowerGardenMinigame operates with modes, flower growth and picking mechanics', async () => {
+  const { FlowerGardenMinigame } = await import('./flowerGame.js');
+  let rewardedCoins = 0;
+  let rewardedStars = 0;
+  const game = new FlowerGardenMinigame({
+    onReward: (c, s) => {
+      rewardedCoins = c;
+      rewardedStars = s;
+    }
+  });
+
+  assert.equal(game.mode, 'timed');
+  assert.equal(game.score, 0);
+  assert.equal(game.pickedCount, 0);
+  assert.equal(game.plots.length, 8);
+
+  // 1. Spawning and picking flower
+  const plot0 = game.plots[0];
+  game.spawnFlower(plot0);
+  assert.ok(plot0.flower, 'Plot 0 should have spawned a flower');
+  assert.equal(plot0.flower.state, 'sprouting');
+
+  // Let flower bloom fully
+  plot0.flower.growth = 1.0;
+  plot0.flower.scale = 1.0;
+  plot0.flower.state = 'bloomed';
+
+  const initialScore = game.score;
+  game.pickFlower(plot0, plot0.flower);
+  assert.equal(game.pickedCount, 1);
+  assert.ok(game.score > initialScore, 'Score must increase after picking flower');
+  assert.equal(game.streak, 1);
+  assert.equal(plot0.flower, null, 'Plot flower should be cleared after picking');
+
+  // 2. Mode switching: 'bouquet' and 'free'
+  game.setMode('bouquet');
+  assert.equal(game.mode, 'bouquet');
+  assert.equal(game.pickedCount, 0);
+
+  game.setMode('free');
+  assert.equal(game.mode, 'free');
+});
+
+test('WildlifeSystem simulates animated butterflies and soaring birds', async () => {
+  const { WildlifeSystem } = await import('./wildlife.js');
+  const wildlife = new WildlifeSystem({
+    worldWidth: 4800,
+    worldHeight: 3450,
+    butterflyCount: 20,
+    birdCount: 10
+  });
+
+  assert.equal(wildlife.butterflies.length, 20);
+  assert.equal(wildlife.birds.length, 10);
+
+  const bf0 = wildlife.butterflies[0];
+  const initialWing = bf0.wingPhase;
+  const bird0 = wildlife.birds[0];
+  const initialBirdX = bird0.x;
+
+  wildlife.update(0.1, 2400, 3050);
+
+  assert.notEqual(bf0.wingPhase, initialWing, 'Butterfly wings must flap over time');
+  assert.notEqual(bird0.x, initialBirdX, 'Bird must fly and change coordinates over time');
+
+  // Test player proximity causes butterfly to flee
+  bf0.x = 2405;
+  bf0.y = 3055;
+  wildlife.update(0.05, 2400, 3050);
+  assert.equal(bf0.state, 'fleeing', 'Butterfly should flee when player is very close');
+});
+
+test('MINIGAME_DATA questions are properly graded with difficulty levels from easy to hard', () => {
+  const validDifficulties = new Set(['easy', 'medium', 'hard']);
+
+  for (const [key, category] of Object.entries(MINIGAME_DATA)) {
+    assert.ok(Array.isArray(category.questions), `${key} must have questions array`);
+    assert.ok(category.questions.length >= 12, `${key} should have at least 12 questions`);
+
+    const easyCount = category.questions.filter(q => q.difficulty === 'easy').length;
+    const medCount = category.questions.filter(q => q.difficulty === 'medium').length;
+    const hardCount = category.questions.filter(q => q.difficulty === 'hard').length;
+
+    assert.ok(easyCount >= 2, `${key} must have easy questions (got ${easyCount})`);
+    assert.ok(medCount >= 2, `${key} must have medium questions (got ${medCount})`);
+    assert.ok(hardCount >= 2, `${key} must have hard questions (got ${hardCount})`);
+
+    for (const q of category.questions) {
+      assert.ok(validDifficulties.has(q.difficulty), `Question "${q.question}" has invalid difficulty: ${q.difficulty}`);
+      assert.ok(typeof q.question === 'string' && q.question.length > 0);
+      assert.ok(Array.isArray(q.options) && q.options.length >= 3);
+      assert.ok(typeof q.answer === 'number' && q.answer >= 0 && q.answer < q.options.length);
+      assert.ok(typeof q.explanation === 'string' && q.explanation.length > 0);
+    }
+  }
+});
+

@@ -154,20 +154,38 @@ export const TREES = [
   { x: 4620, y: 1250, v: 0 },
   { x: 4620, y: 1900, v: 1 },
   { x: 4620, y: 2550, v: 0 },
-  // Cây trong các khoảng sân rộng giữa các tòa nhà
+  // Cây xanh xen kẽ đại lộ & các khoảng sân rộng
+  { x: 950, y: 1020, v: 0 },
+  { x: 1700, y: 1020, v: 1 },
+  { x: 3100, y: 1020, v: 0 },
+  { x: 3950, y: 1020, v: 1 },
   { x: 1100, y: 1300, v: 0 },
   { x: 1950, y: 1300, v: 1 },
-  { x: 2850, y: 1300, v: 0 },
+  { x: 2580, y: 1310, v: 0 }, // Cây ven vườn hoa phía Tây Bắc
+  { x: 3120, y: 1310, v: 1 }, // Cây ven vườn hoa phía Đông Bắc
   { x: 3700, y: 1300, v: 1 },
   { x: 1100, y: 1750, v: 1 },
   { x: 1950, y: 1750, v: 0 },
-  { x: 2850, y: 1750, v: 1 },
+  { x: 2580, y: 1730, v: 1 }, // Cây ven vườn hoa phía Tây Nam
+  { x: 3120, y: 1730, v: 0 }, // Cây ven vườn hoa phía Đông Nam
   { x: 3700, y: 1750, v: 0 },
-  // Sân trước và gần cổng
-  { x: 1050, y: 2650, v: 0 },
+  // Cây xanh xen kẽ hàng 2 (sân bóng, nhà chính tả, đấu trường)
+  { x: 1150, y: 2200, v: 1 },
+  { x: 1750, y: 2200, v: 0 },
+  { x: 2650, y: 2200, v: 1 },
+  { x: 3850, y: 2200, v: 0 },
+  // Sân trước và gần cổng chính (xen kẽ cây hoa bóng mát)
+  { x: 780, y: 2850, v: 0 },
+  { x: 1050, y: 2650, v: 1 },
+  { x: 1250, y: 2850, v: 0 },
+  { x: 1680, y: 2850, v: 1 },
   { x: 1900, y: 2650, v: 1 },
+  { x: 2150, y: 2850, v: 0 },
+  { x: 2650, y: 2850, v: 1 },
   { x: 2900, y: 2650, v: 0 },
+  { x: 3150, y: 2850, v: 1 },
   { x: 3750, y: 2650, v: 1 },
+  { x: 3950, y: 2850, v: 0 },
   { x: 1950, y: 3150, v: 1 },
   { x: 2850, y: 3150, v: 0 },
 ];
@@ -183,21 +201,64 @@ export const BENCHES = [
   { x: 2900, y: 2200 },
   { x: 1000, y: 2980 },
   { x: 3800, y: 2980 },
+  // Ghế nghỉ chân trong Khu Vườn Hoa Riêng
+  { x: 2720, y: 1420 },
+  { x: 2980, y: 1420 },
+  { x: 2720, y: 1620 },
+  { x: 2980, y: 1620 },
 ];
 
 export const FLOWER_BEDS = [
+  // Hàng 1 xen kẽ cây xanh
   { x: 1000, y: 1000, w: 160 },
-  { x: 3800, y: 1000, w: 160 },
+  { x: 1450, y: 1020, w: 160 },
+  { x: 1850, y: 1020, w: 130 },
   { x: 2400, y: 1050, w: 185 },
+  { x: 2950, y: 1020, w: 130 },
+  { x: 3450, y: 1020, w: 160 },
+  { x: 3800, y: 1000, w: 160 },
+
+  // Quảng trường Cột Cờ & Hồ Sen
+  { x: 1450, y: 1350, w: 160 },
   { x: 1450, y: 1850, w: 160 },
+  { x: 3350, y: 1350, w: 160 },
   { x: 3350, y: 1850, w: 160 },
+
+  // Hàng 2 xen kẽ các công trình
+  { x: 950, y: 2200, w: 160 },
+  { x: 1450, y: 2200, w: 160 },
   { x: 2400, y: 2400, w: 185 },
+  { x: 3100, y: 2200, w: 160 },
+  { x: 3650, y: 2200, w: 160 },
+
+  // Sân trước và gần cổng xen kẽ hàng cây
+  { x: 900, y: 2850, w: 130 },
+  { x: 1100, y: 2850, w: 130 },
+  { x: 1550, y: 2850, w: 130 },
   { x: 1900, y: 2980, w: 130 },
+  { x: 2300, y: 2850, w: 130 },
+  { x: 2500, y: 2850, w: 130 },
   { x: 2900, y: 2980, w: 130 },
+  { x: 3300, y: 2850, w: 130 },
+  { x: 3700, y: 2850, w: 130 },
+  { x: 4100, y: 2850, w: 130 },
 ];
 
 export const FLAGPOLE = { x: 1450, y: 1500 };
 export const POND = { x: 3350, y: 1500, rx: 235, ry: 145 };
+
+/** Khu Vườn Hoa Riêng của trường (Flower Garden Sanctuary) */
+export const FLOWER_GARDEN = {
+  zone: 'flower_garden',
+  x: 2850,
+  y: 1520,
+  w: 520,
+  h: 370,
+  ix: 2850,
+  iy: 1520,
+  radius: 175,
+  fountain: { x: 2850, y: 1520, r: 42 }
+};
 
 /** Ổ khóa và nhãn của từng khu vực nằm cao hơn cửa một đoạn. */
 export const GATE = { x: 2400, y: 3450 };
@@ -237,6 +298,33 @@ export function buildObstacles() {
     w: POND.rx * 1.44,
     h: POND.ry - 18,
   });
+
+  // Chướng ngại vật Đài phun nước trung tâm Vườn Hoa
+  rects.push({
+    x: FLOWER_GARDEN.fountain.x - FLOWER_GARDEN.fountain.r,
+    y: FLOWER_GARDEN.fountain.y - FLOWER_GARDEN.fountain.r * 0.7,
+    w: FLOWER_GARDEN.fountain.r * 2,
+    h: FLOWER_GARDEN.fountain.r * 1.4
+  });
+
+  // Hàng rào Vườn Hoa (để chừa 2 cổng chính Tây và Đông rộng 120px cho người chơi đi vào)
+  const gw = FLOWER_GARDEN.w;
+  const gh = FLOWER_GARDEN.h;
+  const gx = FLOWER_GARDEN.x - gw / 2;
+  const gy = FLOWER_GARDEN.y - gh / 2;
+
+  // Hàng rào Bắc & Nam
+  rects.push({ x: gx, y: gy, w: gw, h: 18 });
+  rects.push({ x: gx, y: gy + gh - 18, w: gw, h: 18 });
+
+  // Hàng rào Tây (có cổng ở giữa y: 1520)
+  rects.push({ x: gx, y: gy, w: 18, h: (gh - 130) / 2 });
+  rects.push({ x: gx, y: gy + (gh + 130) / 2, w: 18, h: (gh - 130) / 2 });
+
+  // Hàng rào Đông (có cổng ở giữa y: 1520)
+  rects.push({ x: gx + gw - 18, y: gy, w: 18, h: (gh - 130) / 2 });
+  rects.push({ x: gx + gw - 18, y: gy + (gh + 130) / 2, w: 18, h: (gh - 130) / 2 });
+
   return rects;
 }
 
@@ -247,5 +335,6 @@ export function getZonePlaces() {
   const places = {};
   for (const b of BUILDINGS) places[b.zone] = { x: b.ix, y: b.iy };
   places[BOARD.zone] = { x: BOARD.ix, y: BOARD.iy };
+  places[FLOWER_GARDEN.zone] = { x: FLOWER_GARDEN.ix, y: FLOWER_GARDEN.iy };
   return places;
 }

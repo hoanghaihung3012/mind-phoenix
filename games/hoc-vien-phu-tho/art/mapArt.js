@@ -10,7 +10,7 @@ import {
   starPoints,
 } from "./draw.js";
 import { drawIconShape } from "./icons.js";
-import { BUILDINGS, FLOWER_BEDS, POND, WORLD, FLAGPOLE, GATE } from "../data/mapLayout.js";
+import { BUILDINGS, FLOWER_BEDS, POND, WORLD, FLAGPOLE, GATE, FLOWER_GARDEN } from "../data/mapLayout.js";
 import { mulberry32 } from "../utils/randomUtils.js";
 
 /** Vị trí tấm bảng tên (tâm và kích thước) bên trong texture của từng công trình. */
@@ -350,15 +350,39 @@ function bench(scene) {
 
 function flowerBed(scene, w) {
   makeTexture(scene, `prop-bed-${w}`, w, 56, (g) => {
-    rr(g, 0, 24, w, 32, 10, 0xb9c2cd, INK, 3);
-    rr(g, 5, 29, w - 10, 20, 8, 0x6b4a2b, null, 0);
-    const colors = [0xff6b81, 0xffd23f, 0xffffff, 0xff9f43, 0xb388ff];
-    const n = Math.floor(w / 22);
+    // Bóng đổ luống hoa
+    ell(g, w / 2, 52, w * 0.96, 12, 0x000000, null, 0, 0.16);
+    // Viền bồn hoa đá cẩm thạch trắng ngà
+    rr(g, 0, 22, w, 32, 10, 0xcfd6df, INK, 3);
+    rr(g, 2, 24, w - 4, 28, 8, 0xe2e8f0, null, 0);
+    // Đất trồng hoa màu mỡ
+    rr(g, 5, 27, w - 10, 22, 6, 0x6b4a2b, null, 0);
+    rr(g, 7, 29, w - 14, 18, 5, 0x854d0e, null, 0);
+
+    const flowerColors = [
+      { petal: 0xff477e, center: 0xffe066 }, // Hồng thắm
+      { petal: 0xffd23f, center: 0x92400e }, // Hướng dương vàng
+      { petal: 0xffffff, center: 0xf59e0b }, // Cúc trắng nhụy vàng
+      { petal: 0xf97316, center: 0x7c2d12 }, // Cam rực rỡ
+      { petal: 0xa855f7, center: 0x4c1d95 }, // Tím oải hương
+      { petal: 0xef4444, center: 0x7f1d1d }, // Đỏ nhung
+    ];
+
+    const n = Math.floor(w / 20);
     for (let i = 0; i < n; i++) {
-      const x = 14 + i * ((w - 28) / Math.max(1, n - 1));
-      line(g, x, 29, x, 13 + (i % 2) * 5, 0x2e8b57, 3.5);
-      circ(g, x, 11 + (i % 2) * 5, 9, colors[i % colors.length], INK, 2);
-      circ(g, x, 11 + (i % 2) * 5, 3.2, 0xffe066, null, 0);
+      const x = 12 + i * ((w - 24) / Math.max(1, n - 1));
+      const stemH = 11 + (i % 3) * 4;
+      const flowerY = 27 - stemH;
+
+      // Cành lá xanh
+      line(g, x, 29, x, flowerY + 6, 0x16a34a, 3.5);
+      circ(g, x - 4, flowerY + 10, 3, 0x22c55e, null, 0);
+      circ(g, x + 4, flowerY + 8, 3, 0x22c55e, null, 0);
+
+      // Đóa hoa bung nở
+      const col = flowerColors[i % flowerColors.length];
+      circ(g, x, flowerY, 8.5, col.petal, INK, 2);
+      circ(g, x, flowerY, 3.2, col.center, null, 0);
     }
   });
 }
@@ -459,6 +483,115 @@ function pondRim(g, cx, cy, rx, ry) {
   circ(g, cx + 75, cy - 17, 4, 0xff8fab, null, 0);
 }
 
+function flowerGardenGround(g) {
+  const fg = FLOWER_GARDEN;
+  const gx = fg.x - fg.w / 2;
+  const gy = fg.y - fg.h / 2;
+
+  // 1. Thảm cỏ vườn hoa xanh mướt với viền đá uốn lượn trang nhã
+  rr(g, gx - 8, gy - 8, fg.w + 16, fg.h + 16, 22, STONE_EDGE, null, 0);
+  rr(g, gx - 4, gy - 4, fg.w + 8, fg.h + 8, 18, 0x58b947, INK, 3.5);
+  rr(g, gx, gy, fg.w, fg.h, 16, 0x6ec054, null, 0);
+
+  // 2. Lối đi lát đá rải sỏi vàng nhạt bên trong vườn nối ra 2 cổng chính Tây & Đông
+  // Trục ngang thông cổng Tây sang cổng Đông và dẫn thẳng tới Hồ Sen
+  rr(g, gx - 16, fg.y - 34, fg.w + 32, 68, 12, STONE, STONE_EDGE, 2);
+  // Trục dọc Bắc - Nam trong vườn
+  rr(g, fg.x - 34, gy + 14, 68, fg.h - 28, 12, STONE, STONE_EDGE, 2);
+
+  // Sân tròn trung tâm đài phun nước
+  circ(g, fg.x, fg.y, 90, STONE, STONE_EDGE, 3);
+  circ(g, fg.x, fg.y, 80, 0xf1e9d4, null, 0);
+
+  // 3. Hàng rào trắng hoa bao quanh vườn hoa
+  // Hàng rào Bắc & Nam
+  for (let x = gx + 12; x <= gx + fg.w - 24; x += 22) {
+    rr(g, x, gy + 2, 12, 18, 3, 0xffffff, INK, 1.5);
+    rr(g, x, gy + fg.h - 20, 12, 18, 3, 0xffffff, INK, 1.5);
+  }
+  line(g, gx + 8, gy + 9, gx + fg.w - 8, gy + 9, 0xdfe5ec, 2.5);
+  line(g, gx + 8, gy + fg.h - 11, gx + fg.w - 8, gy + fg.h - 11, 0xdfe5ec, 2.5);
+
+  // Hàng rào Tây & Đông (chừa lối đi cổng rộng 110px ở giữa)
+  const gateTop = fg.y - 55;
+  const gateBottom = fg.y + 55;
+  for (let y = gy + 16; y <= gy + fg.h - 24; y += 22) {
+    if (y >= gateTop && y <= gateBottom) continue;
+    rr(g, gx + 2, y, 16, 12, 3, 0xffffff, INK, 1.5);
+    rr(g, gx + fg.w - 18, y, 16, 12, 3, 0xffffff, INK, 1.5);
+  }
+
+  // 4. Các luống hoa muôn sắc trong vườn
+  const bedPlots = [
+    // Tây Bắc (Hoa Hồng Nhung đỏ thắm)
+    { cx: fg.x - 135, cy: fg.y - 90, rx: 70, ry: 42, c1: 0xe11d48, c2: 0xf43f5e },
+    // Đông Bắc (Hoa Hướng Dương vàng rực)
+    { cx: fg.x + 135, cy: fg.y - 90, rx: 70, ry: 42, c1: 0xeab308, c2: 0xfacc15 },
+    // Tây Nam (Hoa Tulip tím & hồng)
+    { cx: fg.x - 135, cy: fg.y + 90, rx: 70, ry: 42, c1: 0x8b5cf6, c2: 0xec4899 },
+    // Đông Nam (Cúc Họa Mi trắng ngọc & vàng)
+    { cx: fg.x + 135, cy: fg.y + 90, rx: 70, ry: 42, c1: 0xffffff, c2: 0xf59e0b }
+  ];
+
+  for (const b of bedPlots) {
+    ell(g, b.cx, b.cy, b.rx * 2 + 8, b.ry * 2 + 6, 0x6b4a2b, INK, 2.5);
+    ell(g, b.cx, b.cy, b.rx * 2, b.ry * 2, 0x854d0e, null, 0);
+
+    // Vẽ dày đặc các bông hoa nở rộ
+    for (let i = 0; i < 16; i++) {
+      const angle = (Math.PI * 2 * i) / 16 + (i % 2) * 0.35;
+      const radX = (b.rx - 12) * (0.35 + (i % 3) * 0.3);
+      const radY = (b.ry - 10) * (0.35 + (i % 3) * 0.3);
+      const fx = b.cx + Math.cos(angle) * radX;
+      const fy = b.cy + Math.sin(angle) * radY;
+
+      // Cánh hoa
+      circ(g, fx, fy, 7.5, (i % 2 === 0) ? b.c1 : b.c2, INK, 1.5);
+      // Nhụy hoa
+      circ(g, fx, fy, 2.6, 0xffe066, null, 0);
+    }
+  }
+
+  // 5. Cổng vòm hoa (Floral Arch) ở Cổng Tây & Cổng Đông
+  for (const archX of [gx + 2, gx + fg.w - 10]) {
+    // Trụ cổng vòm
+    rr(g, archX, fg.y - 48, 8, 96, 4, 0x15803d, INK, 2);
+    // Hoa hồng leo trên cổng vòm
+    circ(g, archX + 4, fg.y - 36, 6, 0xf43f5e, INK, 1.5);
+    circ(g, archX + 4, fg.y - 12, 6, 0xe11d48, INK, 1.5);
+    circ(g, archX + 4, fg.y + 16, 6, 0xf43f5e, INK, 1.5);
+    circ(g, archX + 4, fg.y + 38, 6, 0xe11d48, INK, 1.5);
+  }
+
+  // 6. Đài phun nước hoa trung tâm (Floral Marble Fountain)
+  const fc = fg.fountain;
+  // Bể nước đá cẩm thạch ngoài
+  circ(g, fc.x, fc.y, fc.r + 6, 0xcfd6df, INK, 3.5);
+  // Nước hồ trong xanh biếc
+  circ(g, fc.x, fc.y, fc.r, 0x60a5fa, INK, 2.5);
+  circ(g, fc.x, fc.y, fc.r * 0.78, 0x93c5fd, null, 0);
+
+  // Tầng đài phun nước thứ 2
+  circ(g, fc.x, fc.y, 22, 0xdfe5ec, INK, 2.5);
+  circ(g, fc.x, fc.y, 16, 0x38bdf8, null, 0);
+
+  // Trụ vòi phun nước & bọt nước trắng tinh
+  circ(g, fc.x, fc.y, 8, 0xffffff, INK, 2);
+  circ(g, fc.x, fc.y, 4, 0x0284c7, null, 0);
+
+  // Cánh hoa sen nổi bồng bềnh trên mặt nước đài phun
+  circ(g, fc.x - 18, fc.y - 12, 4.5, 0xf43f5e, null, 0);
+  circ(g, fc.x + 16, fc.y + 14, 4.5, 0xf472b6, null, 0);
+  circ(g, fc.x - 14, fc.y + 16, 4, 0xfde047, null, 0);
+  circ(g, fc.x + 20, fc.y - 10, 4, 0xffffff, null, 0);
+
+  // 7. Biển hiệu gỗ "VƯỜN HOA PHÚ THỌ" ở lối vào Tây
+  rr(g, gx + 18, fg.y - 72, 160, 28, 6, 0x854d0e, INK, 2.5);
+  rr(g, gx + 21, fg.y - 69, 154, 22, 4, 0xfef3c7, null, 0);
+  circ(g, gx + 30, fg.y - 58, 5, 0xf43f5e, null, 0);
+  circ(g, gx + 162, fg.y - 58, 5, 0xf43f5e, null, 0);
+}
+
 function pathRects() {
   const rects = [
     // 3 Đại lộ ngang kết nối toàn trường:
@@ -532,6 +665,7 @@ function worldBackground(scene) {
     ell(g, FLAGPOLE.x, FLAGPOLE.y - 10, 495, 285, STONE_EDGE, null, 0, 1);
     ell(g, FLAGPOLE.x, FLAGPOLE.y - 10, 475, 265, 0xf1e9d4, null, 0, 1);
     pondRim(g, POND.x, POND.y, POND.rx, POND.ry);
+    flowerGardenGround(g);
     // Cỏ và hoa nhỏ rải rác ở những chỗ không có đường
     const paths = pathRects();
     const free = (x, y) =>
@@ -548,6 +682,13 @@ function worldBackground(scene) {
       if (!free(x, y)) continue;
       if (Math.hypot((x - POND.x) / (POND.rx + 20), (y - POND.y) / (POND.ry + 20)) < 1) continue;
       if (Math.hypot((x - FLAGPOLE.x) / 260, (y - (FLAGPOLE.y - 10)) / 155) < 1) continue;
+      if (
+        x > FLOWER_GARDEN.x - FLOWER_GARDEN.w / 2 - 20 &&
+        x < FLOWER_GARDEN.x + FLOWER_GARDEN.w / 2 + 20 &&
+        y > FLOWER_GARDEN.y - FLOWER_GARDEN.h / 2 - 20 &&
+        y < FLOWER_GARDEN.y + FLOWER_GARDEN.h / 2 + 20
+      )
+        continue;
       if (rng() < 0.55) {
         line(g, x - 4, y, x, y - 8, 0x58b947, 2.5);
         line(g, x + 4, y, x, y - 8, 0x58b947, 2.5);

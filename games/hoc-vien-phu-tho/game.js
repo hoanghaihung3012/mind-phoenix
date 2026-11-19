@@ -26,6 +26,8 @@ import {
 import { MINIGAME_DATA } from './minigames.mjs';
 import { SoccerMinigame } from './soccer.js';
 import { FishingMinigame } from './fishing.js';
+import { FlowerGardenMinigame } from './flowerGame.js';
+import { WildlifeSystem } from './wildlife.js';
 import {
   buildAllTextures,
   TEXTURES,
@@ -42,6 +44,7 @@ import {
   BENCHES,
   FLOWER_BEDS,
   FLAGPOLE,
+  FLOWER_GARDEN,
   BOARD,
   GATE,
   WORLD,
@@ -62,6 +65,7 @@ export const BUILDING_SIGN_NAMES = {
   arcade: 'KHU TRÒ CHƠI',
   soccer: 'SÂN BÓNG ĐÁ',
   pond: 'HỒ CÁ PHÚ THỌ',
+  flower_garden: 'VƯỜN HOA PHÚ THỌ',
 };
 
 export const ARCADE_GAMES = [
@@ -148,10 +152,18 @@ class AcademyGame {
     this.keys = {};
     this.activePOI = null;
 
-    // Soccer Minigame & Campus Football
+    // Soccer, Fishing & Flower Garden Minigames
     this.soccerGame = null;
     this.fishingGame = null;
+    this.flowerGardenGame = null;
     this.campusBall = { x: 3350, y: 2020, vx: 0, vy: 0, r: 12, rot: 0 };
+
+    // Hệ thống thiên nhiên: Chim & Bướm bay lượn trên sân trường
+    this.wildlife = new WildlifeSystem({
+      worldWidth: MAP_CONFIG.width,
+      worldHeight: MAP_CONFIG.height,
+      gardenCenter: { x: FLOWER_GARDEN.x, y: FLOWER_GARDEN.y }
+    });
 
     // Network
     this.net = new AcademyNetworkManager(
@@ -515,6 +527,67 @@ class AcademyGame {
     const fishingExitBtn = document.getElementById('fishingExitBtn');
     if (fishingExitBtn) {
       fishingExitBtn.addEventListener('click', () => this.closeFishingModal());
+    }
+
+    // Flower Garden Minigame Modal (Hái Hoa Muôn Sắc)
+    const closeFlowerGardenModal = document.getElementById('closeFlowerGardenModal');
+    if (closeFlowerGardenModal) {
+      closeFlowerGardenModal.addEventListener('click', () => this.closeFlowerGardenModal());
+    }
+    const flowerTimedModeBtn = document.getElementById('flowerTimedModeBtn');
+    const flowerBouquetModeBtn = document.getElementById('flowerBouquetModeBtn');
+    const flowerFreeModeBtn = document.getElementById('flowerFreeModeBtn');
+
+    const updateFlowerModeBtns = (activeBtn) => {
+      [flowerTimedModeBtn, flowerBouquetModeBtn, flowerFreeModeBtn].forEach(b => b?.classList.remove('active'));
+      activeBtn?.classList.add('active');
+    };
+
+    if (flowerTimedModeBtn) {
+      flowerTimedModeBtn.addEventListener('click', () => {
+        if (!this.flowerGardenGame) return;
+        this.flowerGardenGame.setMode('timed');
+        updateFlowerModeBtns(flowerTimedModeBtn);
+        this.sound.playClick();
+      });
+    }
+    if (flowerBouquetModeBtn) {
+      flowerBouquetModeBtn.addEventListener('click', () => {
+        if (!this.flowerGardenGame) return;
+        this.flowerGardenGame.setMode('bouquet');
+        updateFlowerModeBtns(flowerBouquetModeBtn);
+        this.sound.playClick();
+      });
+    }
+    if (flowerFreeModeBtn) {
+      flowerFreeModeBtn.addEventListener('click', () => {
+        if (!this.flowerGardenGame) return;
+        this.flowerGardenGame.setMode('free');
+        updateFlowerModeBtns(flowerFreeModeBtn);
+        this.sound.playClick();
+      });
+    }
+    const flowerResetBtn = document.getElementById('flowerResetBtn');
+    if (flowerResetBtn) {
+      flowerResetBtn.addEventListener('click', () => {
+        if (this.flowerGardenGame) this.flowerGardenGame.reset();
+        const resOverlay = document.getElementById('flowerResultOverlay');
+        if (resOverlay) resOverlay.classList.add('hidden');
+        this.sound.playClick();
+      });
+    }
+    const flowerPlayAgainBtn = document.getElementById('flowerPlayAgainBtn');
+    if (flowerPlayAgainBtn) {
+      flowerPlayAgainBtn.addEventListener('click', () => {
+        const resOverlay = document.getElementById('flowerResultOverlay');
+        if (resOverlay) resOverlay.classList.add('hidden');
+        if (this.flowerGardenGame) this.flowerGardenGame.start();
+        this.sound.playClick();
+      });
+    }
+    const flowerExitBtn = document.getElementById('flowerExitBtn');
+    if (flowerExitBtn) {
+      flowerExitBtn.addEventListener('click', () => this.closeFlowerGardenModal());
     }
 
     // Chat Minimize & Expand Toggle
@@ -1541,7 +1614,11 @@ class AcademyGame {
         this.openSoccerModal();
       } else if (poi.panelType === 'fishing' || poi.id === 'pond') {
         this.openFishingModal();
+      } else if (poi.panelType === 'flower_garden' || poi.id === 'flower_garden') {
+        this.openFlowerGardenModal();
       }
+    } else if (poi.panelType === 'flower_garden' || poi.id === 'flower_garden' || poi.category === 'garden') {
+      this.openFlowerGardenModal();
     } else if (poi.panelType === 'fishing' || poi.id === 'pond') {
       this.openFishingModal();
     } else if (poi.category === 'sports' || poi.panelType === 'soccer') {
@@ -1550,6 +1627,49 @@ class AcademyGame {
       this.showSpeechBubble(this.player.id, `Đang ở ${poi.name}: ${poi.desc}`, 5000);
       this.sound.playClick();
     }
+  }
+
+  openFlowerGardenModal() {
+    const modal = document.getElementById('flowerGardenModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+
+    const resOverlay = document.getElementById('flowerResultOverlay');
+    if (resOverlay) resOverlay.classList.add('hidden');
+
+    const canvas = document.getElementById('flowerGardenCanvas');
+    if (!this.flowerGardenGame && canvas) {
+      this.flowerGardenGame = new FlowerGardenMinigame({
+        canvas,
+        sound: this.sound,
+        onClose: () => this.closeFlowerGardenModal(),
+        onReward: (coins, stars) => {
+          this.player.coins = (this.player.coins || 0) + coins;
+          this.player.points = (this.player.points || 0) + stars;
+          this.player.xp = (this.player.xp || 0) + Math.round(stars * 1.2);
+          const { level } = calculateLevel(this.player.xp);
+          this.player.level = level;
+          this.savePlayerState();
+          this.updateHUD();
+          this.net.broadcastScore(this.player.points, this.player.xp, this.player.level, this.player.specialUnlocked);
+          this.sound.playSuccess();
+        }
+      });
+    }
+
+    if (this.flowerGardenGame) {
+      this.flowerGardenGame.start();
+    }
+    this.sound.playClick();
+  }
+
+  closeFlowerGardenModal() {
+    const modal = document.getElementById('flowerGardenModal');
+    if (modal) modal.classList.add('hidden');
+    if (this.flowerGardenGame) {
+      this.flowerGardenGame.stop();
+    }
+    this.sound.playClick();
   }
 
   openFishingModal() {
@@ -1734,7 +1854,34 @@ class AcademyGame {
 
     let currentIdx = 0;
     let score = 0;
-    const questions = [...gameDef.questions].sort(() => 0.5 - Math.random()).slice(0, 3);
+
+    // Phân loại câu hỏi theo độ khó: Dễ -> Vừa -> Thử thách (từ dễ đến khó)
+    const easyPool = gameDef.questions.filter(q => q.difficulty === 'easy');
+    const medPool = gameDef.questions.filter(q => q.difficulty === 'medium');
+    const hardPool = gameDef.questions.filter(q => q.difficulty === 'hard');
+
+    const randPick = (pool) => pool[Math.floor(Math.random() * pool.length)];
+
+    let questions = [];
+    if (gameType === 'grand') {
+      // Đại Hội Tri Thức: 4 câu thử thách toàn diện từ dễ đến khó
+      if (easyPool.length) questions.push(randPick(easyPool));
+      if (medPool.length) questions.push(randPick(medPool));
+      if (medPool.length > 1) {
+        const remainingMed = medPool.filter(q => q !== questions[1]);
+        questions.push(randPick(remainingMed.length ? remainingMed : medPool));
+      }
+      if (hardPool.length) questions.push(randPick(hardPool));
+    } else {
+      // Các trạm học viện khác: 3 câu tăng dần độ khó (Dễ -> Vừa -> Khó)
+      if (easyPool.length) questions.push(randPick(easyPool));
+      if (medPool.length) questions.push(randPick(medPool));
+      if (hardPool.length) questions.push(randPick(hardPool));
+    }
+
+    if (questions.length < 3) {
+      questions = [...gameDef.questions].sort(() => 0.5 - Math.random()).slice(0, 3);
+    }
 
     const renderQuestion = () => {
       container.innerHTML = '';
@@ -1786,10 +1933,19 @@ class AcademyGame {
       }
 
       const q = questions[currentIdx];
+      const diffBadge = q.difficulty === 'easy'
+        ? '<span class="diff-badge easy">🌱 Dễ</span>'
+        : (q.difficulty === 'hard'
+          ? '<span class="diff-badge hard">🔥 Thử thách</span>'
+          : '<span class="diff-badge medium">⚡ Vừa</span>');
+
       const qDiv = document.createElement('div');
       qDiv.className = 'quiz-block';
       qDiv.innerHTML = `
-        <div class="q-progress">Câu hỏi ${currentIdx + 1} / ${questions.length}</div>
+        <div class="q-header-meta">
+          <span class="q-progress">Câu hỏi ${currentIdx + 1} / ${questions.length}</span>
+          ${diffBadge}
+        </div>
         <div class="q-title">${this.escapeHtml(q.question)}</div>
         <div class="q-options">
           ${q.options.map((opt, i) => `
@@ -2096,6 +2252,11 @@ class AcademyGame {
       if (r.alpha <= 0) {
         this.clickRipples.splice(i, 1);
       }
+    }
+
+    // Cập nhật hệ thống Chim & Bướm bay lượn trên sân trường
+    if (this.wildlife) {
+      this.wildlife.update(dt, this.player.x, this.player.y);
     }
   }
 
@@ -2418,6 +2579,12 @@ class AcademyGame {
 
     // 5. Speech bubbles
     this.renderSpeechBubbles(ctx);
+
+    // 6. Đàn bướm dập dờn quanh luống hoa & Đàn chim én lượn trên bầu trời cao
+    if (this.wildlife) {
+      this.wildlife.renderButterflies(ctx);
+      this.wildlife.renderBirds(ctx);
+    }
 
     ctx.restore();
   }
